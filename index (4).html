@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SisterS Sipariş Takip</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#7c3aed;--primary-light:#ede9fe;--primary-dark:#5b21b6;--success:#10b981;--danger:#f43f5e;--warning:#f59e0b;--bg:#f8f7ff;--surface:#fff;--border:#e5e7eb;--text:#111827;--text-muted:#6b7280;--sidebar-w:240px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.login-box{background:#fff;border-radius:20px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 25px 50px rgba(0,0,0,.25)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{font-size:28px;font-weight:800;color:var(--primary);letter-spacing:-1px}
+.login-logo p{color:var(--text-muted);font-size:14px;margin-top:4px}
+.login-box label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.login-box input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;transition:.2s;outline:none;margin-bottom:16px}
+.login-box input:focus{border-color:var(--primary)}
+.btn-login{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s;margin-top:4px}
+.btn-login:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px}
+
+/* APP LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:.3s}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-header h2{font-size:18px;font-weight:800;color:var(--primary);letter-spacing:-0.5px}
+.sidebar-header p{font-size:11px;color:var(--text-muted);margin-top:2px}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-muted);transition:.15s;margin-bottom:2px;text-decoration:none}
+.nav-item:hover{background:var(--primary-light);color:var(--primary)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:700}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.sidebar-footer button{width:100%;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
+.sidebar-footer button:hover{background:#fee2e2;color:var(--danger)}
+
+.main{margin-left:var(--sidebar-w);min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar h3{font-size:20px;font-weight:700;color:var(--text)}
+.content{padding:32px}
+
+/* CARDS */
+.card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.card-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h4{font-size:16px;font-weight:700}
+.card-body{padding:24px}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px 24px;display:flex;align-items:flex-start;justify-content:space-between}
+.stat-card .stat-info p{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-card .stat-info h3{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.stat-icon svg{width:22px;height:22px}
+.stat-blue{background:#dbeafe}.stat-blue svg{color:#3b82f6}
+.stat-indigo{background:#e0e7ff}.stat-indigo svg{color:#6366f1}
+.stat-green{background:#d1fae5}.stat-green svg{color:#10b981}
+.stat-red{background:#fee2e2}.stat-red svg{color:#f43f5e}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead tr{background:#f9fafb}
+th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid #f3f4f6;color:var(--text);vertical-align:middle}
+tr:hover td{background:#fafafa}
+tr:last-child td{border-bottom:none}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-urgent{background:var(--danger);color:#fff}
+.badge-blue{background:#dbeafe;color:#1e40af}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{background:#f9fafb}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;justify-content:center;background:transparent;border:none}
+.btn-icon:hover{background:#f3f4f6}
+.btn-icon-edit:hover{background:#ede9fe;color:var(--primary)}
+.btn-icon-del:hover{background:#fee2e2;color:var(--danger)}
+.btn-icon svg{width:16px;height:16px}
+
+/* SEARCH */
+.search-wrap{position:relative;max-width:400px}
+.search-wrap input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;transition:.2s;background:#fff}
+.search-wrap input:focus{border-color:var(--primary)}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.25)}
+.modal-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{font-size:20px;font-weight:700;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);line-height:1;padding:4px 8px;border-radius:6px}
+.modal-close:hover{background:#f3f4f6;color:var(--text)}
+.modal-body{padding:28px}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;transition:.2s;background:#fff;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
+.form-group textarea{resize:vertical;min-height:80px}
+.payment-block{background:#f9fafb;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:16px}
+.payment-block h5{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:16px}
+.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:8px}
+
+/* PAGE SECTIONS */
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-title h1{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px}
+.page-title p{color:var(--text-muted);font-size:14px;margin-top:4px}
+
+/* PROGRESS BAR */
+.progress-wrap{width:96px;height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:4px}
+.progress-bar{height:100%;border-radius:99px;background:var(--primary)}
+.progress-bar.full{background:var(--success)}
+
+/* ANALYTICS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.chart-box{background:#fff;border-radius:14px;border:1px solid var(--border)}
+.chart-header{padding:20px 24px 16px;border-bottom:1px solid var(--border)}
+.chart-header h4{font-size:16px;font-weight:700}
+.chart-inner{padding:24px;height:320px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty svg{width:48px;height:48px;margin:0 auto 12px;color:#d1d5db}
+.empty p{font-size:15px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:9999;transform:translateY(100px);opacity:0;transition:.3s;pointer-events:none;max-width:340px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#065f46}
+.toast.error{background:#991b1b}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .chart-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .content{padding:16px}
+  .stats-grid{grid-template-columns:1fr}
+  .form-row,.payment-grid{grid-template-columns:1fr}
+  .topbar{padding:14px 16px}
+  .topbar .menu-btn{display:flex}
+}
+.menu-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text)}
+.menu-btn:hover{background:#f3f4f6}
+.menu-btn svg{width:22px;height:22px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:99}
+.sidebar-overlay.open{display:block}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>💍 SisterS</h1>
+      <p>Sipariş Takip Sistemi</p>
+    </div>
+    <label>Kullanıcı Adı</label>
+    <input type="text" id="loginUser" placeholder="sisters" value="">
+    <label>Şifre</label>
+    <input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" onclick="doLogin()">Giriş Yap</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>💍 SisterS</h2>
+      <p>Sipariş Takip</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showPage('dashboard')" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        Ana Sayfa
+      </a>
+      <a class="nav-item" onclick="showPage('orders')" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+        Siparişler
+      </a>
+      <a class="nav-item" onclick="showPage('customers')" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+        Müşteriler
+      </a>
+      <a class="nav-item" onclick="showPage('payments')" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg>
+        Cari Hesap
+      </a>
+      <a class="nav-item" onclick="showPage('analytics')" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+        Grafikler
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="doLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/></svg>
+        Çıkış Yap
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-btn" onclick="toggleSidebar()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+        <h3 id="pageTitle">Ana Sayfa</h3>
+      </div>
+      <span id="userLabel" style="font-size:13px;color:var(--text-muted)"></span>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Ana Sayfa</h1>
+            <p>SisterS Wedding Sipariş Takip Platformuna hoş geldiniz.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openOrderModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Yeni Sipariş
+          </button>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="card">
+          <div class="card-header">
+            <h4>Yaklaşan Düğünler</h4>
+            <span class="badge badge-blue" id="upcomingCount">0 Kayıt</span>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Müşteri</th><th>Telefon</th><th>Düğün Tarihi</th><th class="text-right">Kalan Borç</th></tr></thead>
+            <tbody id="upcomingBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ORDERS PAGE -->
+      <div class="page" id="page-orders">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Sipariş Takibi</h1>
+            <p>Tüm siparişleri yönetin ve takip edin.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openOrderModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Yeni Sipariş
+          </button>
+        </div>
+        <div class="card" style="margin-bottom:16px;padding:16px">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+            <input type="text" id="orderSearch" placeholder="Müşteri adı veya fiş no ile ara..." oninput="renderOrders()">
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table>
+            <thead><tr><th>Fiş No</th><th>Müşteri</th><th>Telefon</th><th>Sipariş T.</th><th>Düğün T.</th><th class="text-right">Tutar</th><th class="text-right">Kalan</th><th class="text-center">Durum</th><th class="text-right">İşlem</th></tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS PAGE -->
+      <div class="page" id="page-customers">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Müşteri Yönetimi</h1>
+            <p>Müşteri kayıtlarını oluşturun ve düzenleyin.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCustomerModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Yeni Müşteri
+          </button>
+        </div>
+        <div class="card" style="margin-bottom:16px;padding:16px">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+            <input type="text" id="customerSearch" placeholder="Müşteri adı veya telefon ile ara..." oninput="renderCustomers()">
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table>
+            <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Adres</th><th class="text-center">Sipariş Sayısı</th><th class="text-right">İşlem</th></tr></thead>
+            <tbody id="customersBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS PAGE -->
+      <div class="page" id="page-payments">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Cari Hesap</h1>
+            <p>Ödeme takibi ve cari hesap durumları.</p>
+          </div>
+          <button class="btn btn-outline" onclick="exportCSV()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            CSV'ye Aktar
+          </button>
+        </div>
+        <div class="card" style="margin-bottom:16px;padding:16px">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+            <input type="text" id="paymentSearch" placeholder="Müşteri ara..." oninput="renderPayments()">
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table>
+            <thead><tr><th>Müşteri</th><th>Fiş No</th><th class="text-right">Toplam</th><th class="text-right">Ödenen</th><th class="text-right">Kalan</th><th class="text-center">Durum</th></tr></thead>
+            <tbody id="paymentsBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS PAGE -->
+      <div class="page" id="page-analytics">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Grafikler & İstatistikler</h1>
+            <p>İşletmenizin finansal durumunu görselleştirin.</p>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-box">
+            <div class="chart-header"><h4>Aylık Satış ve Tahsilat</h4></div>
+            <div class="chart-inner"><canvas id="barChart"></canvas></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-header"><h4>Genel Ödeme Durumu</h4></div>
+            <div class="chart-inner"><canvas id="pieChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="orderModalTitle">Yeni Sipariş</h3>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="orderEditId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fiş No</label>
+          <input type="text" id="oFisNo" placeholder="1001">
+        </div>
+        <div class="form-group">
+          <label>Müşteri *</label>
+          <select id="oCustomerId"><option value="">Müşteri seçin</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sipariş Tarihi *</label>
+          <input type="date" id="oOrderDate">
+        </div>
+        <div class="form-group">
+          <label>Düğün Tarihi *</label>
+          <input type="date" id="oWeddingDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Satış Tutarı (₺) *</label>
+        <input type="number" id="oAmount" placeholder="0" min="0" step="0.01" style="font-size:18px;font-weight:700;color:var(--primary)">
+      </div>
+      <div class="payment-block">
+        <h5>Ödeme Planı</h5>
+        <div class="form-group">
+          <label>Peşinat (₺)</label>
+          <input type="number" id="oDeposit" placeholder="0" min="0" step="0.01">
+        </div>
+        <div class="payment-grid">
+          <div class="form-group">
+            <label>1. Ödeme (₺)</label>
+            <input type="number" id="oP1" placeholder="0" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>2. Ödeme (₺)</label>
+            <input type="number" id="oP2" placeholder="0" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>3. Ödeme (₺)</label>
+            <input type="number" id="oP3" placeholder="0" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>4. Ödeme (₺)</label>
+            <input type="number" id="oP4" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notlar / Detaylar</label>
+        <textarea id="oNotes" placeholder="Gelinlik detayları, özel istekler..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeOrderModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveOrder()">Siparişi Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h3 id="customerModalTitle">Yeni Müşteri</h3>
+      <button class="modal-close" onclick="closeCustomerModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="customerEditId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ad Soyad *</label>
+          <input type="text" id="cName" placeholder="Müşteri adı">
+        </div>
+        <div class="form-group">
+          <label>Telefon *</label>
+          <input type="tel" id="cPhone" placeholder="05xx xxx xx xx">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>E-posta</label>
+        <input type="email" id="cEmail" placeholder="email@ornek.com">
+      </div>
+      <div class="form-group">
+        <label>Adres</label>
+        <input type="text" id="cAddress" placeholder="İlçe, Şehir">
+      </div>
+      <div class="form-group">
+        <label>Notlar</label>
+        <textarea id="cNotes" placeholder="Müşteri hakkında notlar..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeCustomerModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA LAYER =====================
+const CREDS = {sisters:'sisters2024', admin:'admin123'};
+let currentUser = null;
+let barChartInst = null, pieChartInst = null;
+
+function load(key, def=[]) {
+  try { return JSON.parse(localStorage.getItem('ss_'+key)) ?? def; } catch{ return def; }
+}
+function save(key, val) {
+  localStorage.setItem('ss_'+key, JSON.stringify(val));
+}
+
+let customers = load('customers');
+let orders = load('orders');
+let nextCid = load('nextCid', 1);
+let nextOid = load('nextOid', 1);
+
+function saveAll() {
+  save('customers', customers);
+  save('orders', orders);
+  save('nextCid', nextCid);
+  save('nextOid', nextOid);
+}
+
+// Seed demo data if empty
+if(customers.length === 0 && orders.length === 0) {
+  customers = [
+    {id:1, name:'OBEL YAŞAR', phone:'05551234567', email:'obel@example.com', address:'İzmir, Karşıyaka', notes:''},
+    {id:2, name:'MERVE DEMİR', phone:'05321234567', email:'merve@example.com', address:'İzmir, Bornova', notes:''}
+  ];
+  orders = [
+    {id:1, fisNo:'3732', customerId:1, orderDate:'2025-01-25', weddingDate:'2025-05-25', amount:100000, deposit:5000, p1:25000, p2:35000, p3:35000, p4:0, notes:'Gelinlik', status:'active'},
+    {id:2, fisNo:'3733', customerId:2, orderDate:'2025-01-30', weddingDate:'2025-05-18', amount:135000, deposit:5000, p1:17000, p2:60000, p3:30000, p4:23000, notes:'Gelinlik ve Kına', status:'active'}
+  ];
+  nextCid = 3; nextOid = 3;
+  saveAll();
+}
+
+// ===================== AUTH =====================
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(CREDS[u] === p) {
+    currentUser = u;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('userLabel').textContent = u;
+    renderAll();
+  } else {
+    document.getElementById('loginErr').textContent = 'Kullanıcı adı veya şifre hatalı.';
+  }
+}
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPass').value = '';
+}
+
+// ===================== NAVIGATION =====================
+const pageTitles = {dashboard:'Ana Sayfa', orders:'Siparişler', customers:'Müşteriler', payments:'Cari Hesap', analytics:'Grafikler'};
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget && event.currentTarget.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[name];
+  closeSidebar();
+  if(name==='analytics') setTimeout(renderCharts, 100);
+  if(name==='dashboard') renderDashboard();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ===================== HELPERS =====================
+function tryLocale(n) {
+  try { return Number(n).toLocaleString('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:0,maximumFractionDigits:0}); } catch{ return '₺'+Number(n).toFixed(0); }
+}
+function formatDate(d) {
+  if(!d) return '-';
+  const [y,m,day] = d.split('-');
+  return `${day}.${m}.${y}`;
+}
+function calcPaid(o) { return (Number(o.deposit)||0)+(Number(o.p1)||0)+(Number(o.p2)||0)+(Number(o.p3)||0)+(Number(o.p4)||0); }
+function calcRemaining(o) { return Math.max(0, (Number(o.amount)||0) - calcPaid(o)); }
+function getCustomer(id) { return customers.find(c => c.id === id); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ===================== RENDER ALL =====================
+function renderAll() {
+  renderDashboard();
+  renderOrders();
+  renderCustomers();
+  renderPayments();
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  const totalCustomers = customers.length;
+  const activeOrders = orders.filter(o => o.status === 'active').length;
+  const totalSales = orders.reduce((s,o) => s + (Number(o.amount)||0), 0);
+  const pendingPayments = orders.reduce((s,o) => s + calcRemaining(o), 0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-info"><p>Toplam Müşteri</p><h3>${totalCustomers}</h3></div><div class="stat-icon stat-blue"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg></div></div>
+    <div class="stat-card"><div class="stat-info"><p>Aktif Siparişler</p><h3>${activeOrders}</h3></div><div class="stat-icon stat-indigo"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg></div></div>
+    <div class="stat-card"><div class="stat-info"><p>Toplam Satış</p><h3>${tryLocale(totalSales)}</h3></div><div class="stat-icon stat-green"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg></div></div>
+    <div class="stat-card"><div class="stat-info"><p>Bekleyen Tahsilat</p><h3>${tryLocale(pendingPayments)}</h3></div><div class="stat-icon stat-red"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6m18 0V5.25A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25V6"/></svg></div></div>
+  `;
+
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = orders.filter(o => o.weddingDate >= today).sort((a,b) => a.weddingDate.localeCompare(b.weddingDate)).slice(0,10);
+  document.getElementById('upcomingCount').textContent = upcoming.length + ' Kayıt';
+  
+  if(upcoming.length === 0) {
+    document.getElementById('upcomingBody').innerHTML = '<tr><td colspan="4" class="empty"><p>Yaklaşan düğün kaydı bulunmamaktadır.</p></td></tr>';
+    return;
+  }
+  
+  document.getElementById('upcomingBody').innerHTML = upcoming.map(o => {
+    const c = getCustomer(o.customerId);
+    const rem = calcRemaining(o);
+    const urgentMs = new Date(o.weddingDate) - new Date();
+    const urgent = urgentMs > 0 && urgentMs < 7*24*60*60*1000;
+    return `<tr>
+      <td><strong>${c ? c.name : '-'}</strong></td>
+      <td>${c ? c.phone : '-'}</td>
+      <td>${formatDate(o.weddingDate)} ${urgent ? '<span class="badge badge-urgent">Yaklaşıyor</span>' : ''}</td>
+      <td style="text-align:right;font-weight:700;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== ORDERS =====================
+function renderOrders() {
+  const search = (document.getElementById('orderSearch')?.value || '').toLowerCase();
+  let list = orders;
+  if(search) list = list.filter(o => {
+    const c = getCustomer(o.customerId);
+    return (o.fisNo||'').toLowerCase().includes(search) || (c&&c.name.toLowerCase().includes(search)) || (c&&c.phone.includes(search));
+  });
+  
+  if(list.length === 0) {
+    document.getElementById('ordersBody').innerHTML = '<tr><td colspan="9" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
+    return;
+  }
+  
+  document.getElementById('ordersBody').innerHTML = list.map(o => {
+    const c = getCustomer(o.customerId);
+    const rem = calcRemaining(o);
+    const paid = rem <= 0;
+    return `<tr>
+      <td style="font-weight:700;color:var(--primary)">#${o.fisNo||'-'}</td>
+      <td><strong>${c?c.name:'-'}</strong></td>
+      <td style="color:var(--text-muted)">${c?c.phone:'-'}</td>
+      <td>${formatDate(o.orderDate)}</td>
+      <td>${formatDate(o.weddingDate)}</td>
+      <td style="text-align:right;font-weight:600">${tryLocale(o.amount)}</td>
+      <td style="text-align:right;font-weight:700;color:${paid?'var(--success)':'var(--danger)'}">${tryLocale(rem)}</td>
+      <td style="text-align:center">${paid?'<span class="badge badge-green">Ödendi</span>':'<span class="badge badge-yellow">Bekliyor</span>'}</td>
+      <td style="text-align:right">
+        <button class="btn btn-icon btn-icon-edit" onclick="editOrder(${o.id})" title="Düzenle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg></button>
+        <button class="btn btn-icon btn-icon-del" onclick="deleteOrder(${o.id})" title="Sil"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== CUSTOMERS =====================
+function renderCustomers() {
+  const search = (document.getElementById('customerSearch')?.value || '').toLowerCase();
+  let list = customers;
+  if(search) list = list.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
+  
+  if(list.length === 0) {
+    document.getElementById('customersBody').innerHTML = '<tr><td colspan="6" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
+    return;
+  }
+  
+  document.getElementById('customersBody').innerHTML = list.map(c => {
+    const oc = orders.filter(o => o.customerId === c.id).length;
+    return `<tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.phone}</td>
+      <td style="color:var(--text-muted)">${c.email||'-'}</td>
+      <td style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.address||'-'}</td>
+      <td style="text-align:center"><span class="badge badge-blue">${oc} Sipariş</span></td>
+      <td style="text-align:right">
+        <button class="btn btn-icon btn-icon-edit" onclick="editCustomer(${c.id})" title="Düzenle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg></button>
+        <button class="btn btn-icon btn-icon-del" onclick="deleteCustomer(${c.id})" title="Sil"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== PAYMENTS =====================
+function renderPayments() {
+  const search = (document.getElementById('paymentSearch')?.value || '').toLowerCase();
+  let list = orders.filter(o => Number(o.amount) > 0);
+  if(search) list = list.filter(o => {
+    const c = getCustomer(o.customerId);
+    return c && c.name.toLowerCase().includes(search);
+  });
+  
+  if(list.length === 0) {
+    document.getElementById('paymentsBody').innerHTML = '<tr><td colspan="6" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
+    return;
+  }
+  
+  document.getElementById('paymentsBody').innerHTML = list.map(o => {
+    const c = getCustomer(o.customerId);
+    const total = Number(o.amount)||0;
+    const paid = calcPaid(o);
+    const rem = Math.max(0, total - paid);
+    const pct = total > 0 ? Math.min(100, (paid/total)*100) : 0;
+    const full = rem <= 0;
+    const none = paid === 0;
+    const badge = full ? '<span class="badge badge-green">Ödendi</span>' : none ? '<span class="badge badge-red">Ödenmedi</span>' : '<span class="badge badge-yellow">Kısmi</span>';
+    return `<tr>
+      <td><strong>${c?c.name:'-'}</strong></td>
+      <td style="color:var(--text-muted)">#${o.fisNo||'-'}</td>
+      <td style="text-align:right;font-weight:600">${tryLocale(total)}</td>
+      <td style="text-align:right;font-weight:600;color:var(--success)">${tryLocale(paid)}</td>
+      <td style="text-align:right;font-weight:700;color:${full?'var(--success)':'var(--danger)'}">${tryLocale(rem)}</td>
+      <td style="text-align:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          ${badge}
+          <div class="progress-wrap"><div class="progress-bar${full?' full':''}" style="width:${pct}%"></div></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== CSV EXPORT =====================
+function exportCSV() {
+  const rows = [['Müşteri','Fiş No','Toplam','Ödenen','Kalan','Durum']];
+  orders.forEach(o => {
+    const c = getCustomer(o.customerId);
+    const total = Number(o.amount)||0;
+    const paid = calcPaid(o);
+    const rem = Math.max(0,total-paid);
+    const status = rem<=0?'Ödendi':paid===0?'Ödenmedi':'Kısmi Ödeme';
+    rows.push([c?c.name:'-', o.fisNo||'-', total, paid, rem, status]);
+  });
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download = 'cari-hesap.csv';
+  a.click();
+}
+
+// ===================== CHARTS =====================
+function renderCharts() {
+  const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const sales = new Array(12).fill(0), payments = new Array(12).fill(0);
+  orders.forEach(o => {
+    const m = new Date(o.orderDate).getMonth();
+    if(m>=0 && m<12) { sales[m] += Number(o.amount)||0; payments[m] += calcPaid(o); }
+  });
+  
+  if(barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type:'bar',
+    data:{labels:months, datasets:[
+      {label:'Satış',data:sales,backgroundColor:'#7c3aed',borderRadius:6},
+      {label:'Tahsilat',data:payments,backgroundColor:'#10b981',borderRadius:6}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
+      scales:{y:{ticks:{callback:v=>'₺'+Math.round(v/1000)+'k'},grid:{color:'#f3f4f6'}},x:{grid:{display:false}}}
+    }
+  });
+
+  let totalPaid = 0, totalRem = 0;
+  orders.forEach(o => { totalPaid += calcPaid(o); totalRem += calcRemaining(o); });
+
+  if(pieChartInst) pieChartInst.destroy();
+  pieChartInst = new Chart(document.getElementById('pieChart'), {
+    type:'doughnut',
+    data:{labels:['Tahsil Edilen','Kalan Alacak'],datasets:[{data:[totalPaid,totalRem],backgroundColor:['#10b981','#f43f5e'],hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},
+      tooltip:{callbacks:{label:ctx=>tryLocale(ctx.raw)}}
+    }}
+  });
+}
+
+// ===================== ORDER MODAL =====================
+function populateCustomerSelect() {
+  const sel = document.getElementById('oCustomerId');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Müşteri seçin</option>' + customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function openOrderModal(o=null) {
+  populateCustomerSelect();
+  document.getElementById('orderEditId').value = o ? o.id : '';
+  document.getElementById('orderModalTitle').textContent = o ? 'Sipariş Düzenle' : 'Yeni Sipariş';
+  document.getElementById('oFisNo').value = o ? (o.fisNo||'') : '';
+  document.getElementById('oCustomerId').value = o ? o.customerId : '';
+  document.getElementById('oOrderDate').value = o ? o.orderDate : new Date().toISOString().split('T')[0];
+  document.getElementById('oWeddingDate').value = o ? o.weddingDate : '';
+  document.getElementById('oAmount').value = o ? o.amount : '';
+  document.getElementById('oDeposit').value = o ? (o.deposit||0) : 0;
+  document.getElementById('oP1').value = o ? (o.p1||0) : 0;
+  document.getElementById('oP2').value = o ? (o.p2||0) : 0;
+  document.getElementById('oP3').value = o ? (o.p3||0) : 0;
+  document.getElementById('oP4').value = o ? (o.p4||0) : 0;
+  document.getElementById('oNotes').value = o ? (o.notes||'') : '';
+  document.getElementById('orderModal').classList.add('open');
+}
+function closeOrderModal() { document.getElementById('orderModal').classList.remove('open'); }
+
+function saveOrder() {
+  const customerId = parseInt(document.getElementById('oCustomerId').value);
+  const orderDate = document.getElementById('oOrderDate').value;
+  const weddingDate = document.getElementById('oWeddingDate').value;
+  const amount = parseFloat(document.getElementById('oAmount').value);
+  if(!customerId) { showToast('Müşteri seçilmelidir.','error'); return; }
+  if(!orderDate) { showToast('Sipariş tarihi zorunludur.','error'); return; }
+  if(!weddingDate) { showToast('Düğün tarihi zorunludur.','error'); return; }
+  if(!amount || amount <= 0) { showToast('Tutar zorunludur.','error'); return; }
+
+  const data = {
+    customerId, orderDate, weddingDate, amount,
+    fisNo: document.getElementById('oFisNo').value.trim(),
+    deposit: parseFloat(document.getElementById('oDeposit').value)||0,
+    p1: parseFloat(document.getElementById('oP1').value)||0,
+    p2: parseFloat(document.getElementById('oP2').value)||0,
+    p3: parseFloat(document.getElementById('oP3').value)||0,
+    p4: parseFloat(document.getElementById('oP4').value)||0,
+    notes: document.getElementById('oNotes').value.trim(),
+    status: 'active'
+  };
+
+  const editId = document.getElementById('orderEditId').value;
+  if(editId) {
+    const idx = orders.findIndex(o => o.id === parseInt(editId));
+    if(idx>=0) orders[idx] = {...orders[idx], ...data};
+    showToast('Sipariş güncellendi.');
+  } else {
+    data.id = nextOid++;
+    orders.push(data);
+    showToast('Yeni sipariş eklendi.');
+  }
+  saveAll();
+  closeOrderModal();
+  renderAll();
+}
+
+function editOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if(o) openOrderModal(o);
+}
+function deleteOrder(id) {
+  if(!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
+  orders = orders.filter(o => o.id !== id);
+  saveAll();
+  renderAll();
+  showToast('Sipariş silindi.');
+}
+
+// ===================== CUSTOMER MODAL =====================
+function openCustomerModal(c=null) {
+  document.getElementById('customerEditId').value = c ? c.id : '';
+  document.getElementById('customerModalTitle').textContent = c ? 'Müşteri Düzenle' : 'Yeni Müşteri';
+  document.getElementById('cName').value = c ? c.name : '';
+  document.getElementById('cPhone').value = c ? c.phone : '';
+  document.getElementById('cEmail').value = c ? (c.email||'') : '';
+  document.getElementById('cAddress').value = c ? (c.address||'') : '';
+  document.getElementById('cNotes').value = c ? (c.notes||'') : '';
+  document.getElementById('customerModal').classList.add('open');
+}
+function closeCustomerModal() { document.getElementById('customerModal').classList.remove('open'); }
+
+function saveCustomer() {
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  if(!name) { showToast('Ad soyad zorunludur.','error'); return; }
+  if(!phone) { showToast('Telefon zorunludur.','error'); return; }
+
+  const data = { name, phone,
+    email: document.getElementById('cEmail').value.trim(),
+    address: document.getElementById('cAddress').value.trim(),
+    notes: document.getElementById('cNotes').value.trim()
+  };
+
+  const editId = document.getElementById('customerEditId').value;
+  if(editId) {
+    const idx = customers.findIndex(c => c.id === parseInt(editId));
+    if(idx>=0) customers[idx] = {...customers[idx], ...data};
+    showToast('Müşteri güncellendi.');
+  } else {
+    data.id = nextCid++;
+    customers.push(data);
+    showToast('Yeni müşteri eklendi.');
+  }
+  saveAll();
+  closeCustomerModal();
+  renderAll();
+}
+
+function editCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if(c) openCustomerModal(c);
+}
+function deleteCustomer(id) {
+  if(!confirm('Bu müşteriyi silmek istediğinize emin misiniz? Müşteriye ait siparişler de silinecektir.')) return;
+  customers = customers.filter(c => c.id !== id);
+  orders = orders.filter(o => o.customerId !== id);
+  saveAll();
+  renderAll();
+  showToast('Müşteri silindi.');
+}
+
+// Close modals on overlay click
+document.getElementById('orderModal').addEventListener('click', function(e){ if(e.target===this) closeOrderModal(); });
+document.getElementById('customerModal').addEventListener('click', function(e){ if(e.target===this) closeCustomerModal(); });
+</script>
+</body>
+</html>
