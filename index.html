@@ -339,7 +339,7 @@ tr:last-child td{border-bottom:none}
         </div>
         <div class="card">
           <div class="table-wrap"><table>
-            <thead><tr><th>Müşteri</th><th>Fiş No</th><th class="text-right">Toplam</th><th class="text-right">Ödenen</th><th class="text-right">Kalan</th><th class="text-center">Durum</th></tr></thead>
+            <thead><tr><th>Müşteri</th><th>Fiş No</th><th class="text-right">Toplam</th><th class="text-right">Ödenen</th><th class="text-right">Kalan</th><th class="text-center">Durum</th><th class="text-center">İşlem</th></tr></thead>
             <tbody id="paymentsBody"></tbody>
           </table></div>
         </div>
@@ -473,6 +473,44 @@ tr:last-child td{border-bottom:none}
       <div class="form-actions">
         <button class="btn btn-outline" onclick="closeCustomerModal()">İptal</button>
         <button class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <h3 id="detailModalTitle">Sipariş Detayı</h3>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="detailModalBody"></div>
+  </div>
+</div>
+
+<!-- PAYMENT ADD MODAL -->
+<div class="modal-overlay" id="paymentAddModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3 id="paymentAddTitle">Ödeme Ekle</h3>
+      <button class="modal-close" onclick="closePaymentAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="paymentAddOrderId">
+      <div id="paymentAddInfo" style="background:#f9fafb;border-radius:10px;padding:14px;margin-bottom:20px;font-size:14px"></div>
+      <div class="form-group">
+        <label>Ödeme Tutarı (₺) *</label>
+        <input type="number" id="paymentAddAmount" placeholder="0" min="0" step="0.01" style="font-size:18px;font-weight:700;color:var(--primary)">
+      </div>
+      <div class="form-group">
+        <label>Açıklama (opsiyonel)</label>
+        <input type="text" id="paymentAddNote" placeholder="örn: 2. taksit">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closePaymentAddModal()">İptal</button>
+        <button class="btn btn-primary" onclick="savePaymentAdd()">Ödemeyi Kaydet</button>
       </div>
     </div>
   </div>
@@ -696,12 +734,10 @@ function renderPayments() {
     const c = getCustomer(o.customerId);
     return c && c.name.toLowerCase().includes(search);
   });
-  
   if(list.length === 0) {
-    document.getElementById('paymentsBody').innerHTML = '<tr><td colspan="6" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
+    document.getElementById('paymentsBody').innerHTML = '<tr><td colspan="7" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
     return;
   }
-  
   document.getElementById('paymentsBody').innerHTML = list.map(o => {
     const c = getCustomer(o.customerId);
     const total = Number(o.amount)||0;
@@ -711,19 +747,18 @@ function renderPayments() {
     const full = rem <= 0;
     const none = paid === 0;
     const badge = full ? '<span class="badge badge-green">Ödendi</span>' : none ? '<span class="badge badge-red">Ödenmedi</span>' : '<span class="badge badge-yellow">Kısmi</span>';
-    return `<tr>
-      <td><strong>${c?c.name:'-'}</strong></td>
-      <td style="color:var(--text-muted)">#${o.fisNo||'-'}</td>
-      <td style="text-align:right;font-weight:600">${tryLocale(total)}</td>
-      <td style="text-align:right;font-weight:600;color:var(--success)">${tryLocale(paid)}</td>
-      <td style="text-align:right;font-weight:700;color:${full?'var(--success)':'var(--danger)'}">${tryLocale(rem)}</td>
-      <td style="text-align:center">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-          ${badge}
-          <div class="progress-wrap"><div class="progress-bar${full?' full':''}" style="width:${pct}%"></div></div>
-        </div>
-      </td>
-    </tr>`;
+    return '<tr>'
+      + '<td><strong>'+(c?c.name:'-')+'</strong></td>'
+      + '<td style="color:var(--text-muted)">#'+(o.fisNo||'-')+'</td>'
+      + '<td style="text-align:right;font-weight:600">'+tryLocale(total)+'</td>'
+      + '<td style="text-align:right;font-weight:600;color:var(--success)">'+tryLocale(paid)+'</td>'
+      + '<td style="text-align:right;font-weight:700;color:'+(full?'var(--success)':'var(--danger)')+'">'+tryLocale(rem)+'</td>'
+      + '<td style="text-align:center"><div style="display:flex;flex-direction:column;align-items:center;gap:6px">'+badge+'<div class="progress-wrap"><div class="progress-bar'+(full?' full':'')+'" style="width:'+pct+'%"></div></div></div></td>'
+      + '<td style="text-align:center"><div style="display:flex;justify-content:center;gap:6px">'
+      + '<button class="btn" style="padding:6px 14px;font-size:12px;background:var(--primary-light);color:var(--primary);border-radius:8px;border:none;cursor:pointer;font-weight:600" onclick="openDetailModal('+o.id+')">Detay</button>'
+      + (!full ? '<button class="btn btn-primary" style="padding:6px 14px;font-size:12px;border-radius:8px" onclick="openPaymentAddModal('+o.id+')">+ Ödeme</button>' : '')
+      + '</div></td>'
+      + '</tr>';
   }).join('');
 }
 
@@ -911,6 +946,105 @@ function deleteCustomer(id) {
 // Close modals on overlay click
 document.getElementById('orderModal').addEventListener('click', function(e){ if(e.target===this) closeOrderModal(); });
 document.getElementById('customerModal').addEventListener('click', function(e){ if(e.target===this) closeCustomerModal(); });
+
+// ===================== DETAIL MODAL =====================
+function openDetailModal(id) {
+  const o = orders.find(x => x.id === id);
+  if(!o) return;
+  const c = getCustomer(o.customerId);
+  const total = Number(o.amount)||0;
+  const paid = calcPaid(o);
+  const rem = Math.max(0, total - paid);
+  const pct = total > 0 ? Math.min(100, (paid/total)*100) : 0;
+  document.getElementById('detailModalTitle').textContent = (c?c.name:'Sipariş') + ' — Detay';
+  document.getElementById('detailModalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Müşteri</div><div style="font-weight:700">${c?c.name:'-'}</div></div>
+      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Telefon</div><div style="font-weight:700">${c?c.phone:'-'}</div></div>
+      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Fiş No</div><div style="font-weight:700">#${o.fisNo||'-'}</div></div>
+      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Düğün Tarihi</div><div style="font-weight:700">${formatDate(o.weddingDate)}</div></div>
+    </div>
+    <div style="background:var(--primary-light);border-radius:12px;padding:16px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+        <div><div style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:4px">Toplam</div><div style="font-size:20px;font-weight:800;color:var(--primary)">${tryLocale(total)}</div></div>
+        <div><div style="font-size:11px;color:var(--success);font-weight:700;text-transform:uppercase;margin-bottom:4px">Ödenen</div><div style="font-size:20px;font-weight:800;color:var(--success)">${tryLocale(paid)}</div></div>
+        <div><div style="font-size:11px;color:var(--danger);font-weight:700;text-transform:uppercase;margin-bottom:4px">Kalan</div><div style="font-size:20px;font-weight:800;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</div></div>
+      </div>
+      <div style="margin-top:12px;background:rgba(255,255,255,.6);border-radius:99px;height:8px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${rem<=0?'var(--success)':'var(--primary)'};border-radius:99px;transition:.4s"></div>
+      </div>
+      <div style="text-align:center;margin-top:6px;font-size:12px;color:var(--primary);font-weight:600">${Math.round(pct)}% ödendi</div>
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Ödeme Detayları</div>
+    <table style="width:100%;font-size:14px;border-collapse:collapse">
+      <tr style="background:#f9fafb"><td style="padding:10px 12px;border-radius:8px 0 0 8px;color:var(--text-muted);font-weight:600">Peşinat</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.deposit||0)}</td></tr>
+      <tr><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">1. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p1||0)}</td></tr>
+      <tr style="background:#f9fafb"><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">2. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p2||0)}</td></tr>
+      <tr><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">3. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p3||0)}</td></tr>
+      <tr style="background:#f9fafb"><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">4. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p4||0)}</td></tr>
+    </table>
+    ${o.notes ? '<div style="margin-top:16px;background:#f9fafb;border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:6px">Notlar</div><div style="font-size:14px">'+o.notes+'</div></div>' : ''}
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      ${rem > 0 ? '<button class="btn btn-primary" onclick="closeDetailModal();openPaymentAddModal('+o.id+')">+ Ödeme Ekle</button>' : ''}
+      <button class="btn btn-outline" onclick="closeDetailModal()">Kapat</button>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+
+// ===================== PAYMENT ADD MODAL =====================
+function openPaymentAddModal(id) {
+  const o = orders.find(x => x.id === id);
+  if(!o) return;
+  const c = getCustomer(o.customerId);
+  const total = Number(o.amount)||0;
+  const paid = calcPaid(o);
+  const rem = Math.max(0, total - paid);
+  document.getElementById('paymentAddOrderId').value = id;
+  document.getElementById('paymentAddTitle').textContent = (c?c.name:'Sipariş') + ' — Ödeme Ekle';
+  document.getElementById('paymentAddInfo').innerHTML =
+    '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text-muted);font-weight:600">Toplam Tutar:</span><span style="font-weight:700">'+tryLocale(total)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text-muted);font-weight:600">Ödenen:</span><span style="font-weight:700;color:var(--success)">'+tryLocale(paid)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted);font-weight:600">Kalan:</span><span style="font-weight:800;color:var(--danger)">'+tryLocale(rem)+'</span></div>';
+  document.getElementById('paymentAddAmount').value = '';
+  document.getElementById('paymentAddNote').value = '';
+  document.getElementById('paymentAddModal').classList.add('open');
+}
+function closePaymentAddModal() { document.getElementById('paymentAddModal').classList.remove('open'); }
+
+function savePaymentAdd() {
+  const id = parseInt(document.getElementById('paymentAddOrderId').value);
+  const amount = parseFloat(document.getElementById('paymentAddAmount').value);
+  if(!amount || amount <= 0) { showToast('Geçerli bir tutar girin.','error'); return; }
+  
+  const o = orders.find(x => x.id === id);
+  if(!o) return;
+  
+  // Find the next empty payment slot
+  const slots = ['deposit','p1','p2','p3','p4'];
+  let placed = false;
+  for(const slot of slots) {
+    if(!Number(o[slot])) {
+      o[slot] = amount;
+      placed = true;
+      break;
+    }
+  }
+  if(!placed) {
+    // All slots full, add to p4 (accumulate)
+    o.p4 = (Number(o.p4)||0) + amount;
+  }
+  
+  saveAll();
+  closePaymentAddModal();
+  renderAll();
+  showToast('Ödeme kaydedildi. ✓');
+}
+
+document.getElementById('detailModal').addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
+document.getElementById('paymentAddModal').addEventListener('click', function(e){ if(e.target===this) closePaymentAddModal(); });
+
 </script>
 </body>
 </html>
