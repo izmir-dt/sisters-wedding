@@ -594,6 +594,7 @@ function doLogin() {
   const p = document.getElementById('loginPass').value.trim();
   if(CREDS[u] === p) {
     currentUser = u;
+    localStorage.setItem('ss_session', u);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     document.getElementById('userLabel').textContent = u;
@@ -604,10 +605,22 @@ function doLogin() {
 }
 function doLogout() {
   currentUser = null;
+  localStorage.removeItem('ss_session');
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('loginPass').value = '';
 }
+// Auto-login if session exists
+(function(){
+  const saved = localStorage.getItem('ss_session');
+  if(saved && CREDS[saved]) {
+    currentUser = saved;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('userLabel').textContent = saved;
+    renderAll();
+  }
+})();
 
 // ===================== NAVIGATION =====================
 const pageTitles = {dashboard:'Ana Sayfa', orders:'Siparişler', customers:'Müşteriler', payments:'Cari Hesap', analytics:'Grafikler'};
