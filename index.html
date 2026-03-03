@@ -153,7 +153,7 @@ tr:last-child td{border-bottom:none}
 body{overflow-x:hidden}
 img,table,td,th,input,select,textarea,button{max-width:100%}
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
-table{min-width:600px}
+table{width:100%}
 @media(max-width:900px){
   .stats-grid{grid-template-columns:1fr 1fr}
   .chart-grid{grid-template-columns:1fr}
@@ -178,8 +178,17 @@ table{min-width:600px}
   .card-body{padding:14px}
   .search-wrap{max-width:100%}
   .search-wrap input{width:100%}
-  th,td{padding:10px 10px;font-size:13px}
   .btn{padding:9px 14px;font-size:13px}
+  /* MOBILE TABLES: kart layout, yatay kaydırma yok */
+  .table-wrap{overflow-x:visible !important}
+  table,thead,tbody,th,td,tr{display:block !important;width:100% !important}
+  thead tr{display:none !important}
+  tbody tr{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:4px 14px 10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+  tbody td{padding:7px 0;border:none !important;font-size:13px;display:flex !important;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6 !important}
+  tbody td:last-child{border-bottom:none !important;padding-top:10px;justify-content:flex-end}
+  tbody td::before{content:attr(data-label);font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;flex-shrink:0}
+  tbody td:last-child::before{display:none}
+  tbody td > div{justify-content:flex-end}
 }
 @media(max-width:380px){
   .stats-grid{grid-template-columns:1fr}
@@ -689,10 +698,10 @@ function renderDashboard() {
     const urgentMs = new Date(o.weddingDate) - new Date();
     const urgent = urgentMs > 0 && urgentMs < 7*24*60*60*1000;
     return `<tr>
-      <td><strong>${c ? c.name : '-'}</strong></td>
-      <td>${c ? c.phone : '-'}</td>
-      <td>${formatDate(o.weddingDate)} ${urgent ? '<span class="badge badge-urgent">Yaklaşıyor</span>' : ''}</td>
-      <td style="text-align:right;font-weight:700;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</td>
+      <td data-label="Musteri"><strong>${c ? c.name : '-'}</strong></td>
+      <td data-label="Telefon">${c ? c.phone : '-'}</td>
+      <td data-label="Düğün Tarihi">${formatDate(o.weddingDate)} ${urgent ? '<span class="badge badge-urgent">Yaklaşıyor</span>' : ''}</td>
+      <td data-label="Kalan Borç" style="text-align:right;font-weight:700;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</td>
     </tr>`;
   }).join('');
 }
@@ -746,8 +755,8 @@ function renderCustomers() {
   document.getElementById('customersBody').innerHTML = list.map(c => {
     const oc = orders.filter(o => o.customerId === c.id).length;
     return `<tr>
-      <td><strong>${c.name}</strong></td>
-      <td>${c.phone}</td>
+      <td data-label="Ad Soyad"><strong>${c.name}</strong></td>
+      <td data-label="Telefon">${c.phone}</td>
       <td style="color:var(--text-muted)">${c.email||'-'}</td>
       <td style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.address||'-'}</td>
       <td style="text-align:center"><span class="badge badge-blue">${oc} Sipariş</span></td>
@@ -781,10 +790,10 @@ function renderPayments() {
     const none = paid === 0;
     const badge = full ? '<span class="badge badge-green">Ödendi</span>' : none ? '<span class="badge badge-red">Ödenmedi</span>' : '<span class="badge badge-yellow">Kısmi</span>';
     return '<tr>'
-      + '<td><strong>'+(c?c.name:'-')+'</strong></td>'
+      + '<td data-label="Musteri"><strong>'+(c?c.name:'-')+'</strong></td>'
       + '<td style="color:var(--text-muted)">#'+(o.fisNo||'-')+'</td>'
-      + '<td style="text-align:right;font-weight:600">'+tryLocale(total)+'</td>'
-      + '<td style="text-align:right;font-weight:600;color:var(--success)">'+tryLocale(paid)+'</td>'
+      + '<td data-label="Toplam" style="text-align:right;font-weight:600">'+tryLocale(total)+'</td>'
+      + '<td data-label="Odenen" style="text-align:right;font-weight:600;color:var(--success)">'+tryLocale(paid)+'</td>'
       + '<td style="text-align:right;font-weight:700;color:'+(full?'var(--success)':'var(--danger)')+'">'+tryLocale(rem)+'</td>'
       + '<td style="text-align:center"><div style="display:flex;flex-direction:column;align-items:center;gap:6px">'+badge+'<div class="progress-wrap"><div class="progress-bar'+(full?' full':'')+'" style="width:'+pct+'%"></div></div></div></td>'
       + '<td style="text-align:center"><div style="display:flex;justify-content:center;gap:6px">'
