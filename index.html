@@ -610,16 +610,13 @@ function doLogout() {
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('loginPass').value = '';
 }
-// Auto-login if session exists
+// Direkt giriş - şifre yok
 (function(){
-  const saved = localStorage.getItem('ss_session');
-  if(saved && CREDS[saved]) {
-    currentUser = saved;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('userLabel').textContent = saved;
-    renderAll();
-  }
+  currentUser = 'sisters';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userLabel').textContent = '';
+  renderAll();
 })();
 
 // ===================== NAVIGATION =====================
