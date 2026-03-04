@@ -234,6 +234,8 @@ tr:hover td{background:var(--surface2)}
   .stat-card-icon{width:32px;height:32px;margin-bottom:8px}
   .btn-primary span.btn-label{display:none}
   .topbar{height:56px;padding:0 14px;gap:8px}
+  .chart-card{padding:14px 10px}
+  .chart-wrap{height:220px}
 }
 </style>
 </head>
@@ -1044,15 +1046,13 @@ function renderCharts() {
   const gridColor = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
   const textColor = dark ? '#8b949e' : '#6b6480';
 
-  // Aylık veri — "Kasım 2025" tam format
-  const months = [];
+  // Aylık veri
   const sales = []; const paidArr = [];
   chartMonthKeys = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
     const y = d.getFullYear(); const m = d.getMonth();
     chartMonthKeys.push({ y, m });
-    months.push(d.toLocaleString('tr-TR', { month:'long', year:'numeric' }));
     const mOrders = orders.filter(o => {
       if (!o.date) return false;
       const od = new Date(o.date);
@@ -1063,12 +1063,25 @@ function renderCharts() {
   }
 
   // Bar chart
+  const isMobile = window.innerWidth < 640;
+
+  // Bar chart — mobilede kısa ay adı ("Kas"), masaüstünde tam ("Kasım 2025")
+  const monthLabels = chartMonthKeys.map(({ y, m }) => {
+    const d = new Date(y, m, 1);
+    if (isMobile) {
+      // İki satır: "Kas\n2025"
+      const short = d.toLocaleString('tr-TR', { month: 'short' });
+      return [short.charAt(0).toUpperCase() + short.slice(1), String(y)];
+    }
+    return d.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+  });
+
   if (barChart) { barChart.destroy(); barChart = null; }
   const bCtx = document.getElementById('chart-bar').getContext('2d');
   barChart = new Chart(bCtx, {
     type: 'bar',
     data: {
-      labels: months,
+      labels: monthLabels,
       datasets: [
         { label:'Satış', data:sales, backgroundColor:'rgba(124,92,191,.75)', borderRadius:6, borderSkipped:false },
         { label:'Tahsilat', data:paidArr, backgroundColor:'rgba(63,185,80,.65)', borderRadius:6, borderSkipped:false }
@@ -1084,11 +1097,28 @@ function renderCharts() {
       },
       plugins:{
         legend:{ labels:{ color:textColor, font:{size:12} } },
-        tooltip:{ callbacks:{ label: ctx => ' ₺' + Number(ctx.raw).toLocaleString('tr-TR') } }
+        tooltip:{
+          callbacks:{
+            title: ctx => {
+              const { y, m } = chartMonthKeys[ctx[0].dataIndex];
+              return new Date(y, m, 1).toLocaleString('tr-TR', { month:'long', year:'numeric' });
+            },
+            label: ctx => ' ₺' + Number(ctx.raw).toLocaleString('tr-TR')
+          }
+        }
       },
       scales:{
-        x:{ grid:{ color:gridColor }, ticks:{ color:textColor, maxRotation:35, font:{size:11} } },
-        y:{ grid:{ color:gridColor }, ticks:{ color:textColor, callback: v => '₺'+v.toLocaleString('tr-TR') } }
+        x:{
+          grid:{ color:gridColor },
+          ticks:{
+            color:textColor,
+            maxRotation:0,
+            minRotation:0,
+            font:{ size: isMobile ? 10 : 11 },
+            align:'center'
+          }
+        },
+        y:{ grid:{ color:gridColor }, ticks:{ color:textColor, callback: v => '₺'+v.toLocaleString('tr-TR'), font:{ size: isMobile ? 10 : 11 } } }
       }
     }
   });
@@ -1539,6 +1569,15 @@ window.addEventListener('load', function() {
   loadDemoData();
   updateStats();
   renderCharts();
+});
+
+// Ekran boyutu değişince grafikleri yeniden çiz (mobil/masaüstü etiket geçişi)
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (!activePanel) renderCharts();
+  }, 250);
 });
 </script>
 </body>
