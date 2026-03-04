@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SisterS Sipariş Takip</title>
+<link rel="icon" type="image/png" href="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
@@ -129,6 +130,9 @@ tr:hover td{background:var(--surface2)}
 /* ===== BACK BTN ===== */
 .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:14px;padding:8px 12px;border-radius:var(--radius-sm);transition:.15s;-webkit-tap-highlight-color:transparent}
 .back-btn:hover{background:var(--surface2);color:var(--text)}
+.website-btn{text-decoration:none;overflow:hidden;padding:0 10px!important}
+.website-btn img{transition:.15s}
+.website-btn:hover img{opacity:.75;transform:scale(1.05)}
 
 /* ===== ACTION ROW ===== */
 .action-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
@@ -255,6 +259,13 @@ tr:hover td{background:var(--surface2)}
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       <span class="btn-label">Yeni Sipariş</span>
     </button>
+    <a href="https://www.sistersweddingkarsiyaka.com/" target="_blank" class="btn-icon website-btn" title="Sisters Wedding — Web Sitesine Git">
+      <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
+           id="website-logo-img"
+           alt="SW" style="height:22px;object-fit:contain;display:block"
+           onerror="this.style.display='none';document.getElementById('website-logo-fallback').style.display='flex'">
+      <span id="website-logo-fallback" style="display:none;font-size:11px;font-weight:900;letter-spacing:.5px;color:var(--accent)">SW</span>
+    </a>
     <button class="btn-icon" onclick="toggleTheme()" title="Tema değiştir">
       <svg id="theme-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
     </button>
@@ -320,7 +331,7 @@ tr:hover td{background:var(--surface2)}
   <div class="panel" id="panel-orders">
     <span class="back-btn" onclick="closePanel()">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Geri
+      Grafiklere Dön
     </span>
     <div class="action-row">
       <div class="sec-title">
@@ -350,7 +361,7 @@ tr:hover td{background:var(--surface2)}
   <div class="panel" id="panel-customers">
     <span class="back-btn" onclick="closePanel()">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Geri
+      Grafiklere Dön
     </span>
     <div class="action-row">
       <div class="sec-title">
@@ -375,7 +386,7 @@ tr:hover td{background:var(--surface2)}
   <div class="panel" id="panel-cari">
     <span class="back-btn" onclick="closePanel()">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Geri
+      Grafiklere Dön
     </span>
     <div class="action-row">
       <div class="sec-title">
@@ -406,7 +417,7 @@ tr:hover td{background:var(--surface2)}
   <div class="panel" id="panel-pending">
     <span class="back-btn" onclick="closePanel()">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Geri
+      Grafiklere Dön
     </span>
     <div class="sec-title" style="margin-bottom:16px">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -489,7 +500,7 @@ tr:hover td{background:var(--surface2)}
       <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:14px" id="step2-customer-label"></div>
       <div class="form-grid">
         <div class="form-group">
-          <label>Fiş No *</label>
+          <label>Fiş No</label>
           <input type="text" id="o-fis" placeholder="#3734">
         </div>
         <div class="form-group">
@@ -748,6 +759,9 @@ function closePanel() {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('charts-view').classList.remove('hidden');
   activePanel = null;
+  chartClickMonth = null;
+  const old = document.getElementById('month-filter-badge');
+  if (old) old.remove();
   renderCharts();
 }
 
@@ -775,15 +789,40 @@ function getPaid(o) {
 
 // ========== RENDER ORDERS ==========
 function renderOrders(filter='') {
-  const data = orders.filter(o =>
+  // Grafik tıklamasından gelen ay filtresi
+  let data = orders.filter(o =>
     !filter || (o.customer||'').toLowerCase().includes(filter.toLowerCase()) ||
     (o.fisNo||'').toLowerCase().includes(filter.toLowerCase())
   );
+  if (chartClickMonth) {
+    const { y, m } = chartClickMonth;
+    data = data.filter(o => {
+      if (!o.date) return false;
+      const od = new Date(o.date);
+      return od.getFullYear() === y && od.getMonth() === m;
+    });
+    // Filtre badge'ini göster
+    const monthLabel = new Date(y, m, 1).toLocaleString('tr-TR', { month:'long', year:'numeric' });
+    const actionRow = document.querySelector('#panel-orders .action-row');
+    if (actionRow && !document.getElementById('month-filter-badge')) {
+      const badge = document.createElement('span');
+      badge.id = 'month-filter-badge';
+      badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);color:var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
+        📅 ${monthLabel}
+        <span onclick="clearMonthFilter()" style="cursor:pointer;opacity:.7;font-size:14px;line-height:1">×</span>
+      </span>`;
+      actionRow.appendChild(badge);
+    }
+  } else {
+    const old = document.getElementById('month-filter-badge');
+    if (old) old.remove();
+  }
+
   const tbody = document.getElementById('orders-tbody');
   const mobile = document.getElementById('orders-mobile');
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">Henüz sipariş yok</td></tr>`;
-    mobile.innerHTML = `<div class="empty"><p>Henüz sipariş yok</p></div>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">${chartClickMonth ? 'Bu ayda sipariş yok' : 'Henüz sipariş yok'}</td></tr>`;
+    mobile.innerHTML = `<div class="empty"><p>${chartClickMonth ? 'Bu ayda sipariş yok' : 'Henüz sipariş yok'}</p></div>`;
     return;
   }
   tbody.innerHTML = data.map(o => {
@@ -819,6 +858,11 @@ function renderOrders(filter='') {
       </div>
     </div>`;
   }).join('');
+}
+
+function clearMonthFilter() {
+  chartClickMonth = null;
+  renderOrders();
 }
 
 function filterOrders(v) { renderOrders(v); }
@@ -988,25 +1032,29 @@ function renderPending() {
 }
 
 // ========== CHARTS ==========
+let chartMonthKeys = [];
+
 function renderCharts() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const gridColor = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
-  const textColor = dark ? '#a099c4' : '#6b6480';
+  const gridColor = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+  const textColor = dark ? '#8b949e' : '#6b6480';
 
-  // Monthly data
+  // Aylık veri — "Kasım 2025" tam format
   const months = [];
-  const sales = []; const paid = [];
+  const sales = []; const paidArr = [];
+  chartMonthKeys = [];
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
     const y = d.getFullYear(); const m = d.getMonth();
-    months.push(d.toLocaleString('tr-TR', {month:'short'}));
+    chartMonthKeys.push({ y, m });
+    months.push(d.toLocaleString('tr-TR', { month:'long', year:'numeric' }));
     const mOrders = orders.filter(o => {
       if (!o.date) return false;
       const od = new Date(o.date);
       return od.getFullYear() === y && od.getMonth() === m;
     });
     sales.push(mOrders.reduce((s,o) => s+Number(o.total||0), 0));
-    paid.push(mOrders.reduce((s,o) => s+getPaid(o), 0));
+    paidArr.push(mOrders.reduce((s,o) => s+getPaid(o), 0));
   }
 
   // Bar chart
@@ -1017,15 +1065,25 @@ function renderCharts() {
     data: {
       labels: months,
       datasets: [
-        { label:'Satış', data:sales, backgroundColor:'rgba(124,92,191,.7)', borderRadius:6 },
-        { label:'Tahsilat', data:paid, backgroundColor:'rgba(34,197,94,.6)', borderRadius:6 }
+        { label:'Satış', data:sales, backgroundColor:'rgba(124,92,191,.75)', borderRadius:6, borderSkipped:false },
+        { label:'Tahsilat', data:paidArr, backgroundColor:'rgba(63,185,80,.65)', borderRadius:6, borderSkipped:false }
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ labels:{ color:textColor, font:{size:12} } } },
+      cursor:'pointer',
+      onClick(evt, elements) {
+        if (!elements.length) return;
+        const { y, m } = chartMonthKeys[elements[0].index];
+        chartClickMonth = { y, m };
+        togglePanel('orders');
+      },
+      plugins:{
+        legend:{ labels:{ color:textColor, font:{size:12} } },
+        tooltip:{ callbacks:{ label: ctx => ' ₺' + Number(ctx.raw).toLocaleString('tr-TR') } }
+      },
       scales:{
-        x:{ grid:{ color:gridColor }, ticks:{ color:textColor } },
+        x:{ grid:{ color:gridColor }, ticks:{ color:textColor, maxRotation:35, font:{size:11} } },
         y:{ grid:{ color:gridColor }, ticks:{ color:textColor, callback: v => '₺'+v.toLocaleString('tr-TR') } }
       }
     }
@@ -1035,20 +1093,33 @@ function renderCharts() {
   if (doughnutChart) { doughnutChart.destroy(); doughnutChart = null; }
   const dCtx = document.getElementById('chart-doughnut').getContext('2d');
   const fullPaid = orders.filter(o => (Number(o.total||0) - getPaid(o)) <= 0).length;
-  const partial = orders.filter(o => { const r = Number(o.total||0)-getPaid(o); return r>0 && getPaid(o)>0; }).length;
-  const none = orders.filter(o => getPaid(o) <= 0).length;
+  const partial = orders.filter(o => { const r=Number(o.total||0)-getPaid(o); return r>0 && getPaid(o)>0; }).length;
+  const none = orders.filter(o => getPaid(o) <= 0 && Number(o.total||0) > 0).length;
   doughnutChart = new Chart(dCtx, {
     type:'doughnut',
     data:{
       labels:['Tam Ödendi','Kısmi','Bekliyor'],
-      datasets:[{ data:[fullPaid,partial,none], backgroundColor:['#22c55e','#f59e0b','#ef4444'], borderWidth:0, hoverOffset:6 }]
+      datasets:[{ data:[fullPaid,partial,none], backgroundColor:['#3fb950','#d29922','#f85149'], borderWidth:0, hoverOffset:8 }]
     },
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'65%',
-      plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:12}, padding:14 } } }
+      onClick(evt, elements) {
+        if (!elements.length) return;
+        chartClickMonth = null;
+        const idx = elements[0].index;
+        if (idx === 0) togglePanel('cari');
+        else togglePanel('pending');
+      },
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:textColor, font:{size:12}, padding:14 } },
+        tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw} sipariş` } }
+      }
     }
   });
 }
+
+// Grafik tıklamasından gelen ay filtresi
+let chartClickMonth = null;
 
 // ========== EXPORT CSV ==========
 function exportCSV() {
@@ -1147,8 +1218,8 @@ function saveOrder() {
   const fisNo = document.getElementById('o-fis').value.trim();
   const date = document.getElementById('o-date').value;
   const total = Number(document.getElementById('o-total').value);
-  if (!fisNo) { errEl.textContent = 'Fiş No zorunlu'; return; }
-  if (orders.some(o => o.fisNo === fisNo)) { errEl.textContent = 'Bu fiş no zaten kullanılıyor'; return; }
+  if (!fisNo) { /* fiş no opsiyonel */ }
+  if (fisNo && orders.some(o => o.fisNo === fisNo)) { errEl.textContent = 'Bu fiş no zaten kullanılıyor'; return; }
   if (!date) { errEl.textContent = 'Sipariş tarihi zorunlu'; return; }
   if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
   const p1 = Number(document.getElementById('p1').value||0);
@@ -1301,8 +1372,8 @@ function saveEditOrder() {
   const errEl = document.getElementById('err-edit-order');
   const fisNo = document.getElementById('eo-fis').value.trim();
   const total = Number(document.getElementById('eo-total').value);
-  if (!fisNo) { errEl.textContent = 'Fiş No zorunlu'; return; }
-  if (orders.some(x => x.fisNo === fisNo && x.id !== currentOrderId)) { errEl.textContent = 'Bu fiş no başka siparişte kullanılıyor'; return; }
+  if (!fisNo) { /* fiş no opsiyonel */ }
+  if (fisNo && orders.some(x => x.fisNo === fisNo && x.id !== currentOrderId)) { errEl.textContent = 'Bu fiş no başka siparişte kullanılıyor'; return; }
   if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
   const p1 = Number(document.getElementById('ep1').value || 0);
   const p2 = Number(document.getElementById('ep2').value || 0);
