@@ -29,24 +29,24 @@
   --radius-sm: 8px;
 }
 [data-theme="dark"] {
-  --bg: #0f0d17;
-  --surface: #1a1728;
-  --surface2: #231f35;
-  --border: #2e2845;
-  --text: #f0eeff;
-  --text2: #a099c4;
-  --text3: #6a6290;
-  --accent: #9b7edb;
-  --accent2: #b89ef0;
-  --accent-bg: #2a2245;
-  --green: #4ade80;
-  --green-bg: #14532d55;
-  --red: #f87171;
-  --red-bg: #7f1d1d55;
-  --yellow: #fbbf24;
-  --yellow-bg: #78350f55;
-  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
-  --shadow-md: 0 4px 24px rgba(0,0,0,.4);
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #484f58;
+  --accent: #a371f7;
+  --accent2: #c19eff;
+  --accent-bg: #1f1535;
+  --green: #3fb950;
+  --green-bg: #0d2a14;
+  --red: #f85149;
+  --red-bg: #2d1116;
+  --yellow: #d29922;
+  --yellow-bg: #2d2000;
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.6);
 }
 /* ===== BASE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -62,8 +62,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 [data-theme="dark"] .logo-img{display:none}
 .logo-dark{display:none;flex-direction:column;line-height:1}
 [data-theme="dark"] .logo-dark{display:flex}
-.logo-dark-main{font-size:17px;font-weight:900;letter-spacing:1px;color:#e8e0ff}
-.logo-dark-sub{font-size:8px;font-weight:600;letter-spacing:4px;color:#9b7edb;text-transform:uppercase;margin-top:1px}
+.logo-dark-main{font-size:17px;font-weight:900;letter-spacing:1px;color:#e6edf3}
+.logo-dark-sub{font-size:8px;font-weight:600;letter-spacing:4px;color:#a371f7;text-transform:uppercase;margin-top:1px}
 
 .topbar-title{font-size:12px;color:var(--text2);padding-left:12px;border-left:1px solid var(--border);white-space:nowrap}
 .topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -364,7 +364,7 @@ tr:hover td{background:var(--surface2)}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Sipariş Sayısı</th><th>Toplam</th></tr></thead>
+        <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Toplam</th><th></th></tr></thead>
         <tbody id="customers-tbody"></tbody>
       </table>
       <div class="mobile-cards" id="customers-mobile"></div>
@@ -543,9 +543,16 @@ tr:hover td{background:var(--surface2)}
   </div>
   <div class="modal-body" id="detail-body"></div>
   <div class="modal-footer">
-    <button class="btn-secondary" id="btn-add-pay" onclick="openAddPay()">+ Ödeme Ekle</button>
-    <button class="btn-secondary" onclick="closeModal('modal-detail')">Kapat</button>
-    <button class="btn-primary" style="background:var(--red)" onclick="deleteCurrentOrder()">
+    <button class="btn-secondary" id="btn-add-pay" onclick="openAddPay()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Ödeme Ekle
+    </button>
+    <button class="btn-secondary" onclick="openEditOrder()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Düzenle
+    </button>
+    <button class="btn-secondary" onclick="closeModal('modal-detail')" style="margin-left:auto">Kapat</button>
+    <button class="btn-primary" style="background:var(--red);flex:none" onclick="deleteCurrentOrder()">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg>
       Sil
     </button>
@@ -576,6 +583,99 @@ tr:hover td{background:var(--surface2)}
   <div class="modal-footer">
     <button class="btn-secondary" onclick="closeModal('modal-pay')">İptal</button>
     <button class="btn-primary" onclick="saveAddPay()">Kaydet</button>
+  </div>
+</div>
+</div>
+
+<!-- SİPARİŞ DÜZENLE MODAL -->
+<div class="modal-overlay" id="modal-edit-order" onclick="overlayClose(event,'modal-edit-order')">
+<div class="modal">
+  <div class="modal-header">
+    <h2>Siparişi Düzenle</h2>
+    <button class="btn-icon" onclick="closeModal('modal-edit-order')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Fiş No</label>
+        <input type="text" id="eo-fis">
+      </div>
+      <div class="form-group">
+        <label>Sipariş Tarihi</label>
+        <input type="date" id="eo-date">
+      </div>
+      <div class="form-group">
+        <label>Düğün Tarihi</label>
+        <input type="date" id="eo-wedding">
+      </div>
+      <div class="form-group">
+        <label>Toplam Tutar (₺)</label>
+        <input type="number" id="eo-total" oninput="updateEditRemain()">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Not</label>
+      <textarea id="eo-note" rows="2"></textarea>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Ödeme Planı (₺)</div>
+    <div class="pay-grid">
+      <div class="pay-item"><label>Peşinat</label><input type="number" id="ep1" oninput="updateEditRemain()"></div>
+      <div class="pay-item"><label>2. Ödeme</label><input type="number" id="ep2" oninput="updateEditRemain()"></div>
+      <div class="pay-item"><label>3. Ödeme</label><input type="number" id="ep3" oninput="updateEditRemain()"></div>
+      <div class="pay-item"><label>Kalan</label><input type="number" id="ep-remain" readonly style="opacity:.6"></div>
+    </div>
+    <div id="err-edit-order" class="err"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-secondary" onclick="closeModal('modal-edit-order')">İptal</button>
+    <button class="btn-primary" onclick="saveEditOrder()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Kaydet
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- MÜŞTERİ DÜZENLE MODAL -->
+<div class="modal-overlay" id="modal-edit-customer" onclick="overlayClose(event,'modal-edit-customer')">
+<div class="modal" style="max-width:480px">
+  <div class="modal-header">
+    <h2>Müşteriyi Düzenle</h2>
+    <button class="btn-icon" onclick="closeModal('modal-edit-customer')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="ec-id">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Ad Soyad *</label>
+        <input type="text" id="ec-name">
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="ec-phone" maxlength="11">
+      </div>
+      <div class="form-group">
+        <label>E-posta</label>
+        <input type="email" id="ec-email">
+      </div>
+      <div class="form-group">
+        <label>Not</label>
+        <input type="text" id="ec-note">
+      </div>
+    </div>
+    <div id="err-edit-customer" class="err"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-secondary" onclick="closeModal('modal-edit-customer')">İptal</button>
+    <button class="btn-primary" onclick="saveEditCustomer()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Kaydet
+    </button>
   </div>
 </div>
 </div>
@@ -732,7 +832,7 @@ function renderCustomers(filter='') {
   const tbody = document.getElementById('customers-tbody');
   const mobile = document.getElementById('customers-mobile');
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3)">Henüz müşteri yok</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">Henüz müşteri yok</td></tr>`;
     mobile.innerHTML = `<div class="empty"><p>Henüz müşteri yok</p></div>`;
     return;
   }
@@ -745,13 +845,23 @@ function renderCustomers(filter='') {
       <td>${c.email||'—'}</td>
       <td>${cOrders.length}</td>
       <td>${fmt(total)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn-icon" title="Düzenle" onclick="openEditCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn-icon" title="Sil" onclick="deleteCustomer('${c.id}')" style="color:var(--red)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg></button>
+      </td>
     </tr>`;
   }).join('');
   mobile.innerHTML = data.map(c => {
     const cOrders = orders.filter(o => o.customerId === c.id);
     const total = cOrders.reduce((s,o) => s+Number(o.total||0), 0);
     return `<div class="m-card">
-      <div class="m-card-top"><span class="m-card-name">${c.name}</span><span class="badge badge-green" style="font-size:10px">${cOrders.length} sipariş</span></div>
+      <div class="m-card-top">
+        <span class="m-card-name">${c.name}</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-icon" onclick="openEditCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="btn-icon" style="color:var(--red)" onclick="deleteCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg></button>
+        </div>
+      </div>
       <div class="m-card-rows">
         <div class="m-card-item"><span class="m-card-label">Telefon</span><span class="m-card-value">${c.phone||'—'}</span></div>
         <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(total)}</span></div>
@@ -1157,6 +1267,126 @@ function saveAddPay() {
   openDetail(currentOrderId);
 }
 
+// ========== EDIT ORDER ==========
+function openEditOrder() {
+  const o = orders.find(x => x.id === currentOrderId);
+  if (!o) return;
+  closeModal('modal-detail');
+  document.getElementById('eo-fis').value = o.fisNo || '';
+  document.getElementById('eo-date').value = o.date || '';
+  document.getElementById('eo-wedding').value = o.wedding || '';
+  document.getElementById('eo-total').value = o.total || '';
+  document.getElementById('eo-note').value = o.note || '';
+  // Use payHistory totals for p1/p2/p3 display
+  const ph = o.payHistory || [];
+  document.getElementById('ep1').value = ph[0]?.amount || o.p1 || '';
+  document.getElementById('ep2').value = ph[1]?.amount || o.p2 || '';
+  document.getElementById('ep3').value = ph[2]?.amount || o.p3 || '';
+  updateEditRemain();
+  document.getElementById('err-edit-order').textContent = '';
+  document.getElementById('modal-edit-order').classList.add('open');
+}
+
+function updateEditRemain() {
+  const total = Number(document.getElementById('eo-total').value || 0);
+  const p1 = Number(document.getElementById('ep1').value || 0);
+  const p2 = Number(document.getElementById('ep2').value || 0);
+  const p3 = Number(document.getElementById('ep3').value || 0);
+  document.getElementById('ep-remain').value = Math.max(0, total - p1 - p2 - p3);
+}
+
+function saveEditOrder() {
+  const o = orders.find(x => x.id === currentOrderId);
+  if (!o) return;
+  const errEl = document.getElementById('err-edit-order');
+  const fisNo = document.getElementById('eo-fis').value.trim();
+  const total = Number(document.getElementById('eo-total').value);
+  if (!fisNo) { errEl.textContent = 'Fiş No zorunlu'; return; }
+  if (orders.some(x => x.fisNo === fisNo && x.id !== currentOrderId)) { errEl.textContent = 'Bu fiş no başka siparişte kullanılıyor'; return; }
+  if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
+  const p1 = Number(document.getElementById('ep1').value || 0);
+  const p2 = Number(document.getElementById('ep2').value || 0);
+  const p3 = Number(document.getElementById('ep3').value || 0);
+  if (p1 + p2 + p3 > total) { errEl.textContent = 'Ödeme toplamı tutarı aşamaz'; return; }
+
+  o.fisNo = fisNo;
+  o.date = document.getElementById('eo-date').value;
+  o.wedding = document.getElementById('eo-wedding').value;
+  o.total = total;
+  o.note = document.getElementById('eo-note').value.trim();
+
+  // Rebuild payHistory from p1/p2/p3 slots (preserve extra payments)
+  const existingExtra = (o.payHistory || []).slice(3);
+  o.payHistory = [];
+  if (p1 > 0) o.payHistory.push({ amount: p1, date: o.date, label: 'Peşinat' });
+  if (p2 > 0) o.payHistory.push({ amount: p2, date: o.date, label: '2. Ödeme' });
+  if (p3 > 0) o.payHistory.push({ amount: p3, date: o.date, label: '3. Ödeme' });
+  o.payHistory.push(...existingExtra);
+  o.p1 = p1; o.p2 = p2; o.p3 = p3;
+
+  save();
+  closeModal('modal-edit-order');
+  toast('Sipariş güncellendi ✓');
+  updateStats();
+  if (activePanel) renderPanel(activePanel);
+  else renderCharts();
+  openDetail(currentOrderId);
+}
+
+// ========== EDIT / DELETE CUSTOMER ==========
+function openEditCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('ec-id').value = c.id;
+  document.getElementById('ec-name').value = c.name || '';
+  document.getElementById('ec-phone').value = c.phone || '';
+  document.getElementById('ec-email').value = c.email || '';
+  document.getElementById('ec-note').value = c.note || '';
+  document.getElementById('err-edit-customer').textContent = '';
+  document.getElementById('modal-edit-customer').classList.add('open');
+}
+
+function saveEditCustomer() {
+  const id = document.getElementById('ec-id').value;
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  const errEl = document.getElementById('err-edit-customer');
+  const name = document.getElementById('ec-name').value.trim();
+  if (!name) { errEl.textContent = 'Ad Soyad zorunlu'; return; }
+  c.name = name;
+  c.phone = document.getElementById('ec-phone').value.trim();
+  c.email = document.getElementById('ec-email').value.trim();
+  c.note = document.getElementById('ec-note').value.trim();
+  // Update customer name in all related orders
+  orders.forEach(o => { if (o.customerId === id) o.customer = name; });
+  save();
+  closeModal('modal-edit-customer');
+  toast('Müşteri güncellendi ✓');
+  updateStats();
+  if (activePanel) renderPanel(activePanel);
+}
+
+function deleteCustomer(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  const cOrders = orders.filter(o => o.customerId === id);
+  const msg = cOrders.length > 0
+    ? `"${c.name}" müşterisini silmek istiyor musunuz?\n\nUyarı: Bu müşteriye ait ${cOrders.length} sipariş de silinecek!`
+    : `"${c.name}" müşterisini silmek istiyor musunuz?`;
+  if (!confirm(msg)) return;
+  orders = orders.filter(o => o.customerId !== id);
+  customers = customers.filter(x => x.id !== id);
+  save();
+  toast('Müşteri silindi', 'error');
+  updateStats();
+  if (activePanel) renderPanel(activePanel);
+}
+
+// ========== QUICK PAY FROM STAT CARDS ==========
+// Stat kartlarına tıklanınca panel açılır; panel açıkken Bekleyen kartına tıklayınca
+// doğrudan tüm açık borçları listeler ve hızlı ödeme yapılabilir.
+// (Mevcut togglePanel fonksiyonu bunu zaten hallediyor, ekstra bir şey gerekmez)
+
 // ========== MODAL HELPERS ==========
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
@@ -1166,7 +1396,7 @@ function overlayClose(e, id) {
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['modal-pay','modal-detail','modal-order'].forEach(id => closeModal(id));
+    ['modal-pay','modal-detail','modal-order','modal-edit-order','modal-edit-customer'].forEach(id => closeModal(id));
   }
 });
 
