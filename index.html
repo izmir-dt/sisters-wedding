@@ -1107,14 +1107,88 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ========== DEMO DATA ==========
+function loadDemoData() {
+  if (localStorage.getItem('sw_demo_loaded')) return;
+  const today = new Date();
+  const d = (offset) => { const x = new Date(today); x.setDate(x.getDate() + offset); return x.toISOString().slice(0,10); };
+  const m = (monthOffset) => { const x = new Date(today); x.setMonth(x.getMonth() + monthOffset); return x.toISOString().slice(0,10); };
+
+  customers = [
+    { id:'c1', name:'Ayşe Kaya', phone:'05321234567', email:'ayse@email.com', note:'' },
+    { id:'c2', name:'Fatma Demir', phone:'05334445566', email:'fatma@email.com', note:'' },
+    { id:'c3', name:'Zeynep Arslan', phone:'05351112233', email:'zeynep@email.com', note:'' },
+    { id:'c4', name:'Merve Çelik', phone:'05362223344', email:'merve@email.com', note:'' },
+    { id:'c5', name:'Selin Yıldız', phone:'05373334455', email:'selin@email.com', note:'' },
+    { id:'c6', name:'Büşra Şahin', phone:'05384445566', email:'busra@email.com', note:'' },
+  ];
+
+  orders = [
+    {
+      id:'o1', customerId:'c1', customer:'Ayşe Kaya', fisNo:'#3730',
+      date: m(-5), wedding: d(45), total:150000, note:'Gelinlik + aksesuar',
+      p1:50000, p2:50000, p3:0,
+      payHistory:[
+        {amount:50000, date:m(-5), label:'Peşinat'},
+        {amount:50000, date:m(-3), label:'2. Ödeme'},
+      ]
+    },
+    {
+      id:'o2', customerId:'c2', customer:'Fatma Demir', fisNo:'#3731',
+      date: m(-4), wedding: d(12), total:95000, note:'',
+      p1:30000, p2:30000, p3:0,
+      payHistory:[
+        {amount:30000, date:m(-4), label:'Peşinat'},
+        {amount:30000, date:m(-2), label:'2. Ödeme'},
+      ]
+    },
+    {
+      id:'o3', customerId:'c3', customer:'Zeynep Arslan', fisNo:'#3732',
+      date: m(-3), wedding: d(60), total:120000, note:'Nişan + düğün paketi',
+      p1:120000, p2:0, p3:0,
+      payHistory:[
+        {amount:120000, date:m(-3), label:'Peşinat'},
+      ]
+    },
+    {
+      id:'o4', customerId:'c4', customer:'Merve Çelik', fisNo:'#3733',
+      date: m(-2), wedding: d(90), total:200000, note:'VIP paket',
+      p1:60000, p2:0, p3:0,
+      payHistory:[
+        {amount:60000, date:m(-2), label:'Peşinat'},
+      ]
+    },
+    {
+      id:'o5', customerId:'c5', customer:'Selin Yıldız', fisNo:'#3734',
+      date: m(-1), wedding: d(8), total:75000, note:'',
+      p1:75000, p2:0, p3:0,
+      payHistory:[
+        {amount:75000, date:m(-1), label:'Peşinat'},
+      ]
+    },
+    {
+      id:'o6', customerId:'c6', customer:'Büşra Şahin', fisNo:'#3735',
+      date: m(-1), wedding: d(22), total:110000, note:'',
+      p1:40000, p2:0, p3:0,
+      payHistory:[
+        {amount:40000, date:m(-1), label:'Peşinat'},
+      ]
+    },
+  ];
+
+  save();
+  localStorage.setItem('sw_demo_loaded', '1');
+}
+
 // ========== INIT ==========
-(function init() {
+window.addEventListener('load', function() {
   const theme = localStorage.getItem('sw_theme') || 'light';
   document.documentElement.setAttribute('data-theme', theme);
   updateThemeIcon();
+  loadDemoData();
   updateStats();
   renderCharts();
-})();
+});
 </script>
 </body>
 </html>
