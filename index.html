@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SisterS Sipariş Takip</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='white'/><text x='32' y='50' text-anchor='middle' font-family='Georgia,Times New Roman,serif' font-size='52' font-weight='400' fill='%231a1625'>S</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 <style>
 :root {
   --bg: #f4f3f8;
@@ -52,7 +52,7 @@
 /* ===== BASE ===== */
 *{margin:0;padding:0;box-sizing:border-box}
 html{overflow-x:hidden}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden;width:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
 
 /* ===== TOPBAR ===== */
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);width:100%}
@@ -131,8 +131,6 @@ tr:hover td{background:var(--surface2)}
 .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:14px;padding:8px 12px;border-radius:var(--radius-sm);transition:.15s;-webkit-tap-highlight-color:transparent}
 .back-btn:hover{background:var(--surface2);color:var(--text)}
 .website-btn{text-decoration:none;overflow:hidden;padding:0 10px!important}
-.website-btn img{transition:.15s}
-.website-btn:hover img{opacity:.75;transform:scale(1.05)}
 
 /* ===== ACTION ROW ===== */
 .action-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
@@ -695,7 +693,6 @@ tr:hover td{background:var(--surface2)}
 let orders = JSON.parse(localStorage.getItem('sw_orders') || '[]');
 let customers = JSON.parse(localStorage.getItem('sw_customers') || '[]');
 let currentOrderId = null;
-let currentStep = 1;
 let activePanel = null;
 let barChart = null, doughnutChart = null;
 
@@ -999,8 +996,8 @@ function renderPending() {
       </tr>`;
     }).join('');
     mobile.innerHTML = pending.map(o => {
-      const rem = Number(o.total||0) - getPaid(o);
       const paid = getPaid(o);
+      const rem = Number(o.total||0) - paid;
       const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
       return `<div class="m-card" onclick="openDetail('${o.id}')">
         <div class="m-card-top"><span class="m-card-name">${o.customer}</span><span class="badge ${pct>0?'badge-yellow':'badge-red'}">${pct>0?'Kısmi':'Bekliyor'}</span></div>
@@ -1040,6 +1037,7 @@ function renderPending() {
 
 // ========== CHARTS ==========
 let chartMonthKeys = [];
+let chartClickMonth = null;
 
 function renderCharts() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1078,7 +1076,6 @@ function renderCharts() {
     },
     options: {
       responsive:true, maintainAspectRatio:false,
-      cursor:'pointer',
       onClick(evt, elements) {
         if (!elements.length) return;
         const { y, m } = chartMonthKeys[elements[0].index];
@@ -1125,9 +1122,6 @@ function renderCharts() {
   });
 }
 
-// Grafik tıklamasından gelen ay filtresi
-let chartClickMonth = null;
-
 // ========== EXPORT CSV ==========
 function exportCSV() {
   const rows = [['Müşteri','Fiş No','Sipariş Tarihi','Düğün Tarihi','Toplam','Ödenen','Kalan','Durum']];
@@ -1144,7 +1138,6 @@ function exportCSV() {
 
 // ========== NEW ORDER MODAL ==========
 function openNewOrder() {
-  currentStep = 1;
   document.getElementById('modal-order-title').textContent = 'Yeni Sipariş';
   document.getElementById('order-step1').style.display = '';
   document.getElementById('order-step2').style.display = 'none';
@@ -1153,19 +1146,15 @@ function openNewOrder() {
   document.getElementById('btn-prev').style.display = 'none';
   document.getElementById('err-step1').textContent = '';
   document.getElementById('err-step2').textContent = '';
-  // reset fields
   ['nc-name','nc-phone','nc-email','nc-note','o-fis','o-note','o-total','p1','p2','p3','p-remain'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
   document.getElementById('o-date').value = new Date().toISOString().slice(0,10);
   document.getElementById('o-wedding').value = '';
-  document.getElementById('add-pay-date').value = new Date().toISOString().slice(0,10);
-  // populate customer select
   const sel = document.getElementById('sel-customer');
   sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>' +
     customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   onCustomerSelect();
-  // auto suggest fis no
   const maxFis = orders.reduce((mx, o) => {
     const n = parseInt((o.fisNo||'').replace(/\D/g,''));
     return n > mx ? n : mx;
@@ -1199,7 +1188,6 @@ function nextStep() {
   document.getElementById('btn-prev').style.display = '';
   const label = selVal ? customers.find(c => c.id === selVal)?.name : document.getElementById('nc-name').value.trim();
   document.getElementById('step2-customer-label').textContent = '👤 ' + label;
-  currentStep = 2;
 }
 
 function prevStep() {
@@ -1208,7 +1196,6 @@ function prevStep() {
   document.getElementById('btn-next').style.display = '';
   document.getElementById('btn-save').style.display = 'none';
   document.getElementById('btn-prev').style.display = 'none';
-  currentStep = 1;
 }
 
 function updatePayRemain() {
@@ -1225,7 +1212,6 @@ function saveOrder() {
   const fisNo = document.getElementById('o-fis').value.trim();
   const date = document.getElementById('o-date').value;
   const total = Number(document.getElementById('o-total').value);
-  if (!fisNo) { /* fiş no opsiyonel */ }
   if (fisNo && orders.some(o => o.fisNo === fisNo)) { errEl.textContent = 'Bu fiş no zaten kullanılıyor'; return; }
   if (!date) { errEl.textContent = 'Sipariş tarihi zorunlu'; return; }
   if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
@@ -1379,7 +1365,6 @@ function saveEditOrder() {
   const errEl = document.getElementById('err-edit-order');
   const fisNo = document.getElementById('eo-fis').value.trim();
   const total = Number(document.getElementById('eo-total').value);
-  if (!fisNo) { /* fiş no opsiyonel */ }
   if (fisNo && orders.some(x => x.fisNo === fisNo && x.id !== currentOrderId)) { errEl.textContent = 'Bu fiş no başka siparişte kullanılıyor'; return; }
   if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
   const p1 = Number(document.getElementById('ep1').value || 0);
@@ -1459,11 +1444,6 @@ function deleteCustomer(id) {
   updateStats();
   if (activePanel) renderPanel(activePanel);
 }
-
-// ========== QUICK PAY FROM STAT CARDS ==========
-// Stat kartlarına tıklanınca panel açılır; panel açıkken Bekleyen kartına tıklayınca
-// doğrudan tüm açık borçları listeler ve hızlı ödeme yapılabilir.
-// (Mevcut togglePanel fonksiyonu bunu zaten hallediyor, ekstra bir şey gerekmez)
 
 // ========== MODAL HELPERS ==========
 function closeModal(id) {
