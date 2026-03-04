@@ -836,7 +836,10 @@ function renderOrders(filter='') {
       <td style="color:var(--green)">${fmt(paid)}</td>
       <td style="color:${rem>0?'var(--red)':'var(--text2)'}">${fmt(rem)}</td>
       <td>${status}</td>
-      <td><button class="btn-icon" onclick="openDetail('${o.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn-icon" title="Detay" onclick="openDetail('${o.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="btn-icon" title="Düzenle" onclick="currentOrderId='${o.id}';openEditOrder()"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      </td>
     </tr>`;
   }).join('');
   mobile.innerHTML = data.map(o => {
@@ -844,9 +847,17 @@ function renderOrders(filter='') {
     const badge = rem <= 0 ? '<span class="badge badge-green">Ödendi</span>'
       : paid > 0 ? '<span class="badge badge-yellow">Kısmi</span>'
       : '<span class="badge badge-red">Bekliyor</span>';
-    return `<div class="m-card" onclick="openDetail('${o.id}')">
-      <div class="m-card-top"><span class="m-card-name">${o.customer}</span>${badge}</div>
-      <div class="m-card-rows">
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name" onclick="openDetail('${o.id}')">${o.customer}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${badge}
+          <button class="btn-icon" style="width:32px;height:32px;flex-shrink:0" onclick="currentOrderId='${o.id}';openEditOrder()" title="Düzenle">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="m-card-rows" onclick="openDetail('${o.id}')">
         <div class="m-card-item"><span class="m-card-label">Fiş No</span><span class="m-card-value">${o.fisNo||'—'}</span></div>
         <div class="m-card-item"><span class="m-card-label">Düğün</span><span class="m-card-value">${fmtDate(o.wedding)}</span></div>
         <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(o.total)}</span></div>
