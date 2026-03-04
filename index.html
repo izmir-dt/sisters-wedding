@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,1096 +7,1020 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--primary:#7c3aed;--primary-light:#ede9fe;--primary-dark:#5b21b6;--success:#10b981;--danger:#f43f5e;--warning:#f59e0b;--bg:#f8f7ff;--surface:#fff;--border:#e5e7eb;--text:#111827;--text-muted:#6b7280;--sidebar-w:240px}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* LOGIN */
-.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#7c3aed,#a855f7)}
-.login-box{background:#fff;border-radius:20px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 25px 50px rgba(0,0,0,.25)}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo h1{font-size:28px;font-weight:800;color:var(--primary);letter-spacing:-1px}
-.login-logo p{color:var(--text-muted);font-size:14px;margin-top:4px}
-.login-box label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.login-box input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;transition:.2s;outline:none;margin-bottom:16px}
-.login-box input:focus{border-color:var(--primary)}
-.btn-login{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s;margin-top:4px}
-.btn-login:hover{background:var(--primary-dark);transform:translateY(-1px)}
-.login-err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px}
-
-/* APP LAYOUT */
-.app{display:none;min-height:100vh}
-.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:.3s}
-.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
-.sidebar-header h2{font-size:18px;font-weight:800;color:var(--primary);letter-spacing:-0.5px}
-.sidebar-header p{font-size:11px;color:var(--text-muted);margin-top:2px}
-.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-muted);transition:.15s;margin-bottom:2px;text-decoration:none}
-.nav-item:hover{background:var(--primary-light);color:var(--primary)}
-.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:700}
-.nav-item svg{width:18px;height:18px;flex-shrink:0}
-.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
-.sidebar-footer button{width:100%;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
-.sidebar-footer button:hover{background:#fee2e2;color:var(--danger)}
-
-.main{margin-left:var(--sidebar-w);min-height:100vh}
-.topbar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
-.topbar h3{font-size:20px;font-weight:700;color:var(--text)}
-.content{padding:32px}
-
-/* CARDS */
-.card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden}
-.card-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-header h4{font-size:16px;font-weight:700}
-.card-body{padding:24px}
-
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:20px 24px;display:flex;align-items:flex-start;justify-content:space-between}
-.stat-card .stat-info p{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.stat-card .stat-info h3{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px}
-.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
-.stat-icon svg{width:22px;height:22px}
-.stat-blue{background:#dbeafe}.stat-blue svg{color:#3b82f6}
-.stat-indigo{background:#e0e7ff}.stat-indigo svg{color:#6366f1}
-.stat-green{background:#d1fae5}.stat-green svg{color:#10b981}
-.stat-red{background:#fee2e2}.stat-red svg{color:#f43f5e}
-
-/* TABLE */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-thead tr{background:#f9fafb}
-th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--border)}
-td{padding:13px 16px;border-bottom:1px solid #f3f4f6;color:var(--text);vertical-align:middle}
-tr:hover td{background:#fafafa}
-tr:last-child td{border-bottom:none}
-
-/* BADGES */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.badge-green{background:#d1fae5;color:#065f46}
-.badge-red{background:#fee2e2;color:#991b1b}
-.badge-yellow{background:#fef3c7;color:#92400e}
-.badge-urgent{background:var(--danger);color:#fff}
-.badge-blue{background:#dbeafe;color:#1e40af}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
-.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}
-.btn-outline:hover{background:#f9fafb}
-.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;justify-content:center;background:transparent;border:none}
-.btn-icon:hover{background:#f3f4f6}
-.btn-icon-edit:hover{background:#ede9fe;color:var(--primary)}
-.btn-icon-del:hover{background:#fee2e2;color:var(--danger)}
-.btn-icon svg{width:16px;height:16px}
-
-/* SEARCH */
-.search-wrap{position:relative;max-width:400px}
-.search-wrap input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;transition:.2s;background:#fff}
-.search-wrap input:focus{border-color:var(--primary)}
-.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted)}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.25)}
-.modal-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
-.modal-header h3{font-size:20px;font-weight:700;color:var(--primary)}
-.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);line-height:1;padding:4px 8px;border-radius:6px}
-.modal-close:hover{background:#f3f4f6;color:var(--text)}
-.modal-body{padding:28px}
-
-/* FORM */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;transition:.2s;background:#fff;font-family:inherit}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
-.form-group textarea{resize:vertical;min-height:80px}
-.payment-block{background:#f9fafb;border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:16px}
-.payment-block h5{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:16px}
-.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:8px}
-
-/* PAGE SECTIONS */
-.page{display:none}
-.page.active{display:block}
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
-.page-title h1{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px}
-.page-title p{color:var(--text-muted);font-size:14px;margin-top:4px}
-
-/* PROGRESS BAR */
-.progress-wrap{width:96px;height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:4px}
-.progress-bar{height:100%;border-radius:99px;background:var(--primary)}
-.progress-bar.full{background:var(--success)}
-
-/* ANALYTICS */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
-.chart-box{background:#fff;border-radius:14px;border:1px solid var(--border)}
-.chart-header{padding:20px 24px 16px;border-bottom:1px solid var(--border)}
-.chart-header h4{font-size:16px;font-weight:700}
-.chart-inner{padding:24px;height:320px}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
-.empty svg{width:48px;height:48px;margin:0 auto 12px;color:#d1d5db}
-.empty p{font-size:15px}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:9999;transform:translateY(100px);opacity:0;transition:.3s;pointer-events:none;max-width:340px}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.success{background:#065f46}
-.toast.error{background:#991b1b}
-
-/* RESPONSIVE */
-*{box-sizing:border-box}
-body{overflow-x:hidden}
-img,table,td,th,input,select,textarea,button{max-width:100%}
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
-table{width:100%}
-@media(max-width:900px){
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .chart-grid{grid-template-columns:1fr}
+/* ══ TEMA DEĞİŞKENLERİ ══ */
+:root{
+  --p:#7c3aed;--pl:#f0ebff;--pd:#5b21b6;--p2:#a78bfa;
+  --ok:#059669;--okl:#d1fae5;
+  --err:#dc2626;--errl:#fee2e2;
+  --warn:#d97706;--warnl:#fef3c7;
+  --r:14px;--r2:10px;--r3:8px;
+  --TH:62px;--NH:50px;
 }
+[data-theme="light"]{
+  --bg:#f8f7ff;--bg2:#f0eeff;
+  --card:#ffffff;--card2:#faf9ff;
+  --border:#e5dff8;--border2:#ede8ff;
+  --t:#18103a;--tm:#5e5280;--tl:#a89ec4;
+  --sh:0 1px 12px rgba(100,60,220,.08);
+  --sh2:0 8px 32px rgba(100,60,220,.18);
+  --topbar-bg:#fff;--topbar-border:#e5dff8;
+}
+[data-theme="dark"]{
+  --bg:#0f0d1a;--bg2:#161228;
+  --card:#1a1630;--card2:#201c38;
+  --border:#2e2850;--border2:#3a3360;
+  --t:#f0ecff;--tm:#a89ec4;--tl:#5e5280;
+  --sh:0 1px 12px rgba(0,0,0,.4);
+  --sh2:0 8px 32px rgba(0,0,0,.5);
+  --topbar-bg:#1a1630;--topbar-border:#2e2850;
+  --pl:#2a1f52;--pd:#9b6ff5;--p2:#6644cc;
+  --okl:#0d2e20;--errl:#2e0f0f;--warnl:#2e1f00;
+}
+
+html{font-size:14px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
+
+/* ══ TOPBAR ══ */
+.topbar{
+  background:var(--topbar-bg);
+  border-bottom:1.5px solid var(--topbar-border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:var(--TH);
+  position:sticky;top:0;z-index:300;
+  box-shadow:var(--sh);
+  transition:background .25s,border-color .25s;
+}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo-wrap{height:38px;display:flex;align-items:center}
+.logo-svg-wrap{display:flex;align-items:center;gap:7px;color:var(--p)}
+.logo-img{height:38px;width:auto;object-fit:contain;display:block;filter:none;transition:filter .25s}
+[data-theme="dark"] .logo-img{filter:brightness(0) invert(1)}
+.logo-name{font-size:13px;font-weight:800;letter-spacing:2.5px;line-height:1;color:var(--p)}
+.logo-sub{font-size:7.5px;font-weight:600;letter-spacing:3px;color:var(--tm);margin-top:2px}
+.logo-text{font-size:20px;font-weight:800;color:var(--p);letter-spacing:-0.5px;display:none}
+.logo-badge{font-size:11px;font-weight:600;color:var(--tm);background:var(--pl);padding:3px 10px;border-radius:20px;white-space:nowrap;border:1px solid var(--border2)}
+
+.topbar-right{display:flex;align-items:center;gap:8px}
+
+/* Tema toggle */
+.theme-btn{
+  width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--card2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tm);transition:.18s;flex-shrink:0;
+}
+.theme-btn:hover{border-color:var(--p);color:var(--p);background:var(--pl)}
+.theme-btn svg{width:17px;height:17px}
+.sun{display:none}
+.moon{display:block}
+[data-theme="dark"] .sun{display:block}
+[data-theme="dark"] .moon{display:none}
+
+/* ══ NAV TABS ══ */
+.nav-tabs{
+  background:var(--topbar-bg);
+  border-bottom:1.5px solid var(--topbar-border);
+  padding:0 24px;display:flex;
+  position:sticky;top:var(--TH);z-index:299;
+  transition:background .25s,border-color .25s;
+}
+.tab{
+  padding:0 18px;height:var(--NH);
+  font-size:13px;font-weight:600;color:var(--tm);
+  cursor:pointer;border-bottom:2.5px solid transparent;
+  transition:.15s;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;user-select:none;
+}
+.tab:hover{color:var(--p)}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
+.tab svg{width:15px;height:15px;flex-shrink:0}
+
+/* ══ CONTENT ══ */
+.content{padding:20px 24px 60px;max-width:1300px;width:100%;margin:0 auto}
+.pane{display:none}.pane.active{display:block}
+
+/* ══ STAT CARDS ══ */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
+.stat{
+  background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:18px 20px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:.18s;
+}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--p2)}
+.stat.active-stat{border-color:var(--p);background:var(--pl);box-shadow:var(--sh2)}
+.stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-ico svg{width:22px;height:22px}
+.stat-lbl{font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.stat-val{font-weight:800;color:var(--t);line-height:1;letter-spacing:-0.5px}
+.stat-hint{font-size:11px;font-weight:600;margin-top:4px;color:var(--tm)}
+
+/* ══ SECTION PANEL ══ */
+.sec-panel{
+  background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);
+  margin-top:14px;overflow:hidden;
+  display:none;
+  animation:fadeIn .2s ease;
+}
+.sec-panel.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec-hd{
+  padding:14px 20px;border-bottom:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.sec-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sec-title svg{width:16px;height:16px;color:var(--p)}
+.sec-cnt{background:var(--pl);color:var(--p);font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+.sec-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Charts kendi kartına sahip */
+.chart-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-top:14px}
+.chart-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r)}
+.chart-hd{padding:14px 20px;border-bottom:1.5px solid var(--border);font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.chart-hd svg{width:15px;height:15px;color:var(--p)}
+.chart-body{padding:16px;height:280px}
+
+/* ══ TABLE ══ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  padding:9px 16px;text-align:left;
+  font-size:10px;font-weight:700;color:var(--tm);
+  text-transform:uppercase;letter-spacing:.8px;
+  background:var(--card2);border-bottom:1.5px solid var(--border);
+  white-space:nowrap;
+}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--border2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--card2)}
+
+/* ══ SEARCH ══ */
+.sbox{position:relative}
+.sbox input{
+  padding:8px 12px 8px 32px;border:1.5px solid var(--border);
+  border-radius:var(--r2);font-size:13px;font-family:inherit;
+  outline:none;background:var(--card);width:200px;transition:.2s;color:var(--t);
+}
+.sbox input:focus{border-color:var(--p);width:240px}
+.sbox input::placeholder{color:var(--tl)}
+.sbox svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--tl);pointer-events:none}
+
+/* ══ BUTTONS ══ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 15px;border-radius:var(--r2);
+  font-size:13px;font-weight:700;cursor:pointer;
+  border:none;font-family:inherit;transition:.15s;white-space:nowrap;
+}
+.btn svg{width:13px;height:13px}
+.btn-prim{background:var(--p);color:#fff}
+.btn-prim:hover{background:var(--pd);transform:translateY(-1px);box-shadow:var(--sh2)}
+.btn-sec{background:var(--pl);color:var(--p);border:1.5px solid var(--border2)}
+.btn-sec:hover{background:var(--p);color:#fff}
+.btn-ghost{background:var(--card);color:var(--tm);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--card2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-sm svg{width:12px;height:12px}
+.ib{
+  width:30px;height:30px;padding:0;border-radius:var(--r3);
+  justify-content:center;background:transparent;border:none;
+  cursor:pointer;display:inline-flex;align-items:center;
+  color:var(--tm);transition:.15s;
+}
+.ib svg{width:14px;height:14px}
+.ib:hover{background:var(--pl);color:var(--p)}
+.ib.del:hover{background:var(--errl);color:var(--err)}
+
+/* ══ BADGE ══ */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-green{background:var(--okl);color:var(--ok)}
+.b-red{background:var(--errl);color:var(--err)}
+.b-yellow{background:var(--warnl);color:var(--warn)}
+.b-purple{background:var(--pl);color:var(--p)}
+.b-urgent{background:var(--err);color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* ══ PROGRESS ══ */
+.prog-wrap{display:flex;align-items:center;gap:7px}
+.prog-bg{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;min-width:50px}
+.prog-fill{height:100%;border-radius:99px;background:var(--p);transition:.3s}
+.prog-fill.done{background:var(--ok)}
+.prog-pct{font-size:10px;font-weight:700;color:var(--tm);white-space:nowrap}
+
+/* ══ MODAL ══ */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.55);z-index:400;
+  align-items:center;justify-content:center;
+  padding:16px;backdrop-filter:blur(4px);
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--card);border-radius:20px;border:1.5px solid var(--border);
+  width:100%;max-width:680px;max-height:92vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.35);animation:mIn .2s ease;
+}
+.modal.sm{max-width:440px}.modal.md{max-width:540px}
+@keyframes mIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.mhd{
+  padding:18px 22px 14px;border-bottom:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--card);z-index:1;
+}
+.mhd h3{font-size:17px;font-weight:800;color:var(--p);display:flex;align-items:center;gap:8px}
+.mhd h3 svg{width:17px;height:17px}
+.steps{display:flex;gap:5px;align-items:center}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.3s}
+.sdot.done{background:var(--ok)}.sdot.active{background:var(--p);transform:scale(1.4)}
+.sline{width:20px;height:2px;background:var(--border);transition:.3s}.sline.done{background:var(--ok)}
+.mcl{
+  background:none;border:none;cursor:pointer;color:var(--tl);
+  padding:5px;border-radius:8px;display:flex;align-items:center;transition:.15s;
+}
+.mcl:hover{background:var(--card2);color:var(--t)}
+.mcl svg{width:18px;height:18px}
+.mbody{padding:20px 22px}
+.mfoot{
+  padding:12px 22px 18px;display:flex;justify-content:space-between;
+  align-items:center;border-top:1.5px solid var(--border);gap:12px;
+}
+
+/* ══ FORM ══ */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.req{color:var(--err);margin-left:1px}
+.fi{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r2);font-size:13.5px;font-family:inherit;
+  outline:none;transition:.2s;background:var(--card);color:var(--t);
+}
+.fi:focus{border-color:var(--p);background:var(--card2)}
+.fi::placeholder{color:var(--tl)}
+textarea.fi{resize:vertical;min-height:68px}
+select.fi option{background:var(--card);color:var(--t)}
+
+.pay-block{background:var(--card2);border-radius:var(--r2);padding:14px;border:1.5px solid var(--border2);margin-bottom:14px}
+.pay-block-title{font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-badge{font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px}
+.warn-bar{background:var(--warnl);border:1px solid var(--warn);border-radius:var(--r3);padding:8px 12px;font-size:12px;font-weight:600;color:var(--warn);margin-bottom:12px;display:none;align-items:center;gap:6px}
+.warn-bar svg{width:13px;height:13px}
+
+.nc-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--pl);border-radius:var(--r2);border:1.5px dashed var(--p2);cursor:pointer;font-size:13px;font-weight:600;color:var(--p);margin-bottom:14px;transition:.15s;user-select:none}
+.nc-toggle:hover{background:var(--p);color:#fff}
+.nc-toggle svg{width:15px;height:15px;flex-shrink:0}
+.nc-panel{background:var(--card2);border-radius:var(--r2);border:1.5px solid var(--border2);padding:14px;margin-bottom:14px;display:none}
+.nc-panel.open{display:block;animation:mIn .15s ease}
+.nc-panel-title{font-size:11px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+.sel-card{background:var(--pl);border-radius:var(--r2);padding:10px 14px;margin-top:-6px;margin-bottom:14px;display:none}
+.sel-card-lbl{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.sel-card-val{font-weight:700;color:var(--p);font-size:14px}
+.step{display:none}.step.active{display:block;animation:mIn .15s ease}
+.step-lbl{font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.step-lbl .num{width:20px;height:20px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.d-item{background:var(--card2);padding:10px 13px;border-radius:var(--r2)}
+.d-lbl{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.d-val{font-size:13px;font-weight:700}
+.pay-row-d{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:var(--r3);margin-bottom:3px;font-size:13px}
+
+/* ══ CONFIRM ══ */
+.cf-box{background:var(--card);border-radius:20px;padding:30px;max-width:360px;width:100%;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.4);animation:mIn .2s ease;border:1.5px solid var(--border)}
+.cf-icon{font-size:40px;margin-bottom:10px}
+.cf-box h4{font-size:16px;font-weight:700;margin-bottom:7px}
+.cf-box p{color:var(--tm);font-size:13px;line-height:1.6;margin-bottom:22px}
+.cf-btns{display:flex;gap:10px;justify-content:center}
+
+/* ══ TOAST ══ */
+.toast{
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:#18103a;color:#fff;
+  padding:10px 20px;border-radius:40px;
+  font-size:13px;font-weight:600;z-index:9999;
+  opacity:0;transition:.3s;pointer-events:none;
+  white-space:nowrap;max-width:calc(100vw - 32px);text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:var(--ok)}.toast.fail{background:var(--err)}
+
+/* ══ EMPTY ══ */
+.empty{text-align:center;padding:40px 20px;color:var(--tl)}
+.empty svg{width:34px;height:34px;margin:0 auto 10px;display:block;opacity:.4}
+.empty p{font-size:13px}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:1024px){.chart-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;width:100%;overflow-x:hidden}
-  .content{padding:12px;width:100%;overflow-x:hidden}
-  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
-  .stat-card{padding:14px}
-  .stat-card .stat-info h3{font-size:20px}
-  .form-row,.payment-grid{grid-template-columns:1fr}
-  .topbar{padding:12px 14px}
-  .topbar .menu-btn{display:flex}
-  .page-header{flex-direction:column;align-items:flex-start;gap:12px}
-  .page-title h1{font-size:22px}
-  .modal{margin:8px;width:calc(100% - 16px);max-width:100%}
-  .modal-body{padding:16px}
-  .modal-header{padding:16px 20px}
-  .chart-inner{padding:12px;height:260px}
-  .card-body{padding:14px}
-  .search-wrap{max-width:100%}
-  .search-wrap input{width:100%}
-  .btn{padding:9px 14px;font-size:13px}
-  /* MOBILE TABLES: kart layout, yatay kaydırma yok */
-  .table-wrap{overflow-x:visible !important}
-  table,thead,tbody,th,td,tr{display:block !important;width:100% !important}
-  thead tr{display:none !important}
-  tbody tr{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:4px 14px 10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-  tbody td{padding:7px 0;border:none !important;font-size:13px;display:flex !important;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #f3f4f6 !important}
-  tbody td:last-child{border-bottom:none !important;padding-top:10px;justify-content:flex-end}
-  tbody td::before{content:attr(data-label);font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;flex-shrink:0}
+  :root{--TH:54px;--NH:44px}
+  .topbar{padding:0 14px}.logo-wrap{height:30px}.logo-img{height:30px}.logo-badge{display:none}
+  .nav-tabs{padding:0 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .tab{padding:0 12px;font-size:12px;gap:5px}
+  .content{padding:12px 12px 60px}
+  .stats-row{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:13px}.stat-val{font-size:17px!important}
+  .frow{grid-template-columns:1fr}.pay-grid{grid-template-columns:1fr}
+  .modal{max-width:100%;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh}
+  .overlay{align-items:flex-end;padding:0}
+  .d-grid{grid-template-columns:1fr}
+  .sbox input,.sbox input:focus{width:100%}
+  .sec-act{width:100%}.sbox{flex:1}
+  .sec-hd{flex-direction:column;align-items:flex-start}
+  .tbl-wrap{overflow-x:visible}
+  table,thead,tbody,th,td,tr{display:block!important;width:100%!important}
+  thead tr{display:none!important}
+  tbody tr{background:var(--card);border:1.5px solid var(--border);border-radius:12px;margin-bottom:10px;padding:4px 14px 10px;box-shadow:var(--sh)}
+  tbody td{padding:7px 0;border:none!important;font-size:13px;display:flex!important;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--border2)!important}
+  tbody td:last-child{border-bottom:none!important;padding-top:10px;justify-content:flex-end}
+  tbody td::before{content:attr(data-label);font-size:10px;font-weight:700;color:var(--tl);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0}
   tbody td:last-child::before{display:none}
-  tbody td > div{justify-content:flex-end}
 }
-@media(max-width:380px){
-  .stats-grid{grid-template-columns:1fr}
-}
-.menu-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text)}
-.menu-btn:hover{background:#f3f4f6}
-.menu-btn svg{width:22px;height:22px}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:99}
-.sidebar-overlay.open{display:block}
+@media(max-width:380px){.stats-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">
-      <h1>💍 SisterS</h1>
-      <p>Sipariş Takip Sistemi</p>
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-wrap">
+      <img id="logoImg" class="logo-img" src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png" alt="Sisters Wedding" style="display:none" onload="this.style.display='block';document.getElementById('logoSVG').style.display='none'" onerror="this.style.display='none'">
+      <div id="logoSVG" class="logo-svg-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 3 C14 3,6 7.5,6 14 C6 18.4,9.6 22,14 22 C18.4 22,22 18.4,22 14 C22 7.5,14 3 14 3Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M14 3 L14 22" stroke="currentColor" stroke-width="1" opacity="0.4"/><path d="M6.5 13.5 Q14 10,21.5 13.5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.5"/><circle cx="14" cy="3" r="1.5" fill="currentColor"/></svg>
+        <div class="logo-text-block"><div class="logo-name">SISTERS</div><div class="logo-sub">WEDDING</div></div>
+      </div>
     </div>
-    <label>Kullanıcı Adı</label>
-    <input type="text" id="loginUser" placeholder="sisters" value="">
-    <label>Şifre</label>
-    <input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn-login" onclick="doLogin()">Giriş Yap</button>
-    <div class="login-err" id="loginErr"></div>
+    <span class="logo-badge">Sipariş Takip</span>
+  </div>
+  <div class="topbar-right">
+    <button class="theme-btn" onclick="toggleTheme()" title="Tema değiştir">
+      <!-- Güneş (açık modda göster) -->
+      <svg class="sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/></svg>
+      <!-- Ay (karanlık modda göster) -->
+      <svg class="moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
+    </button>
   </div>
 </div>
 
-<!-- APP -->
-<div class="app" id="app">
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-  
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2>💍 SisterS</h2>
-      <p>Sipariş Takip</p>
+<!-- ══ TABS ══ -->
+<div class="nav-tabs">
+  <div class="tab active" id="tab-main" onclick="switchTab('main',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/></svg>
+    Genel Bakış
+  </div>
+  <div class="tab" id="tab-charts" onclick="switchTab('charts',this)">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+    Grafikler
+  </div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+
+  <!-- GENEL BAKIŞ -->
+  <div class="pane active" id="pane-main">
+
+    <!-- 4 STAT KART -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- PANEL: SİPARİŞLER -->
+    <div class="sec-panel" id="panel-orders">
+      <div class="sec-hd">
+        <div class="sec-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+          Siparişler <span class="sec-cnt" id="ordCnt">0</span>
+        </div>
+        <div class="sec-act">
+          <div class="sbox"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="ordSearch" placeholder="Ad, telefon, fiş no..." oninput="renderOrders()"></div>
+          <button class="btn btn-prim btn-sm" onclick="openOrderModal()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>Yeni Sipariş</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Fiş No</th><th>Müşteri</th><th>Telefon</th><th>Sipariş T.</th><th>Düğün T.</th><th>Tutar</th><th>Kalan</th><th>Durum</th><th></th></tr></thead><tbody id="ordBody"></tbody></table></div>
     </div>
-    <nav class="sidebar-nav">
-      <a class="nav-item active" onclick="showPage('dashboard')" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
-        Ana Sayfa
-      </a>
-      <a class="nav-item" onclick="showPage('orders')" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
-        Siparişler
-      </a>
-      <a class="nav-item" onclick="showPage('customers')" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
-        Müşteriler
-      </a>
-      <a class="nav-item" onclick="showPage('payments')" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg>
-        Cari Hesap
-      </a>
-      <a class="nav-item" onclick="showPage('analytics')" href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
-        Grafikler
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button onclick="doLogout()">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/></svg>
-        Çıkış Yap
-      </button>
+
+    <!-- PANEL: MÜŞTERİLER -->
+    <div class="sec-panel" id="panel-customers">
+      <div class="sec-hd">
+        <div class="sec-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+          Müşteriler <span class="sec-cnt" id="custCnt">0</span>
+        </div>
+        <div class="sec-act">
+          <div class="sbox"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="custSearch" placeholder="Ad veya telefon..." oninput="renderCustomers()"></div>
+          <button class="btn btn-prim btn-sm" onclick="openCustModal()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>Yeni Müşteri</button>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Adres</th><th>Siparişler</th><th></th></tr></thead><tbody id="custBody"></tbody></table></div>
     </div>
-  </aside>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button class="menu-btn" onclick="toggleSidebar()">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
-        </button>
-        <h3 id="pageTitle">Ana Sayfa</h3>
+    <!-- PANEL: CARİ HESAP -->
+    <div class="sec-panel" id="panel-payments">
+      <div class="sec-hd">
+        <div class="sec-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>
+          Cari Hesap
+        </div>
+        <div class="sec-act">
+          <div class="sbox"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg><input type="text" id="paySearch" placeholder="Müşteri ara..." oninput="renderPayments()"></div>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>CSV</button>
+        </div>
       </div>
-      <span id="userLabel" style="font-size:13px;color:var(--text-muted)"></span>
+      <div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Fiş No</th><th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>İlerleme</th><th></th></tr></thead><tbody id="payBody"></tbody></table></div>
     </div>
-    <div class="content">
 
-      <!-- DASHBOARD PAGE -->
-      <div class="page active" id="page-dashboard">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Ana Sayfa</h1>
-            <p>SisterS Wedding Sipariş Takip Platformuna hoş geldiniz.</p>
-          </div>
-          <button class="btn btn-primary" onclick="openOrderModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Yeni Sipariş
-          </button>
-        </div>
-        <div class="stats-grid" id="statsGrid"></div>
-        <div class="card">
-          <div class="card-header">
-            <h4>Yaklaşan Düğünler</h4>
-            <span class="badge badge-blue" id="upcomingCount">0 Kayıt</span>
-          </div>
-          <div class="table-wrap"><table>
-            <thead><tr><th>Müşteri</th><th>Telefon</th><th>Düğün Tarihi</th><th class="text-right">Kalan Borç</th></tr></thead>
-            <tbody id="upcomingBody"></tbody>
-          </table></div>
+    <!-- PANEL: YAKLAŞAN DÜĞÜNLER -->
+    <div class="sec-panel" id="panel-upcoming">
+      <div class="sec-hd">
+        <div class="sec-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+          Yaklaşan Düğünler <span class="sec-cnt" id="upCnt">0</span>
         </div>
       </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Düğün Tarihi</th><th>Kalan Borç</th><th></th></tr></thead><tbody id="upBody"></tbody></table></div>
+    </div>
 
-      <!-- ORDERS PAGE -->
-      <div class="page" id="page-orders">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Sipariş Takibi</h1>
-            <p>Tüm siparişleri yönetin ve takip edin.</p>
-          </div>
-          <button class="btn btn-primary" onclick="openOrderModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Yeni Sipariş
-          </button>
-        </div>
-        <div class="card" style="margin-bottom:16px;padding:16px">
-          <div class="search-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-            <input type="text" id="orderSearch" placeholder="Müşteri adı veya fiş no ile ara..." oninput="renderOrders()">
-          </div>
-        </div>
-        <div class="card">
-          <div class="table-wrap"><table>
-            <thead><tr><th>Fiş No</th><th>Müşteri</th><th>Telefon</th><th>Sipariş T.</th><th>Düğün T.</th><th class="text-right">Tutar</th><th class="text-right">Kalan</th><th class="text-center">Durum</th><th class="text-right">İşlem</th></tr></thead>
-            <tbody id="ordersBody"></tbody>
-          </table></div>
-        </div>
-      </div>
+  </div><!-- /pane-main -->
 
-      <!-- CUSTOMERS PAGE -->
-      <div class="page" id="page-customers">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Müşteri Yönetimi</h1>
-            <p>Müşteri kayıtlarını oluşturun ve düzenleyin.</p>
-          </div>
-          <button class="btn btn-primary" onclick="openCustomerModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Yeni Müşteri
-          </button>
-        </div>
-        <div class="card" style="margin-bottom:16px;padding:16px">
-          <div class="search-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-            <input type="text" id="customerSearch" placeholder="Müşteri adı veya telefon ile ara..." oninput="renderCustomers()">
-          </div>
-        </div>
-        <div class="card">
-          <div class="table-wrap"><table>
-            <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Adres</th><th class="text-center">Sipariş Sayısı</th><th class="text-right">İşlem</th></tr></thead>
-            <tbody id="customersBody"></tbody>
-          </table></div>
-        </div>
-      </div>
+  <!-- GRAFİKLER -->
+  <div class="pane" id="pane-charts">
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-hd"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>Aylık Satış & Tahsilat</div><div class="chart-body"><canvas id="barChart"></canvas></div></div>
+      <div class="chart-card"><div class="chart-hd"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z"/></svg>Ödeme Durumu</div><div class="chart-body"><canvas id="pieChart"></canvas></div></div>
+    </div>
+  </div>
 
-      <!-- PAYMENTS PAGE -->
-      <div class="page" id="page-payments">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Cari Hesap</h1>
-            <p>Ödeme takibi ve cari hesap durumları.</p>
-          </div>
-          <button class="btn btn-outline" onclick="exportCSV()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-            CSV'ye Aktar
-          </button>
-        </div>
-        <div class="card" style="margin-bottom:16px;padding:16px">
-          <div class="search-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-            <input type="text" id="paymentSearch" placeholder="Müşteri ara..." oninput="renderPayments()">
-          </div>
-        </div>
-        <div class="card">
-          <div class="table-wrap"><table>
-            <thead><tr><th>Müşteri</th><th>Fiş No</th><th class="text-right">Toplam</th><th class="text-right">Ödenen</th><th class="text-right">Kalan</th><th class="text-center">Durum</th><th class="text-center">İşlem</th></tr></thead>
-            <tbody id="paymentsBody"></tbody>
-          </table></div>
-        </div>
-      </div>
+</div>
 
-      <!-- ANALYTICS PAGE -->
-      <div class="page" id="page-analytics">
-        <div class="page-header">
-          <div class="page-title">
-            <h1>Grafikler & İstatistikler</h1>
-            <p>İşletmenizin finansal durumunu görselleştirin.</p>
-          </div>
-        </div>
-        <div class="chart-grid">
-          <div class="chart-box">
-            <div class="chart-header"><h4>Aylık Satış ve Tahsilat</h4></div>
-            <div class="chart-inner"><canvas id="barChart"></canvas></div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-header"><h4>Genel Ödeme Durumu</h4></div>
-            <div class="chart-inner"><canvas id="pieChart"></canvas></div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- ORDER MODAL -->
-<div class="modal-overlay" id="orderModal">
+<!-- ══ SİPARİŞ MODAL ══ -->
+<div class="overlay" id="ordOverlay" onclick="if(event.target===this)closeOrderModal()">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="orderModalTitle">Yeni Sipariş</h3>
-      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    <div class="mhd">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg><span id="ordTitle">Yeni Sipariş</span></h3>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="steps"><div class="sdot active" id="sd1"></div><div class="sline" id="sl1"></div><div class="sdot" id="sd2"></div></div>
+        <button class="mcl" onclick="closeOrderModal()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
+      </div>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="orderEditId">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Fiş No</label>
-          <input type="text" id="oFisNo" placeholder="1001">
-        </div>
-        <div class="form-group">
-          <label>Müşteri *</label>
-          <select id="oCustomerId"><option value="">Müşteri seçin</option></select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Sipariş Tarihi *</label>
-          <input type="date" id="oOrderDate">
-        </div>
-        <div class="form-group">
-          <label>Düğün Tarihi *</label>
-          <input type="date" id="oWeddingDate">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Satış Tutarı (₺) *</label>
-        <input type="number" id="oAmount" placeholder="0" min="0" step="0.01" style="font-size:18px;font-weight:700;color:var(--primary)">
-      </div>
-      <div class="payment-block">
-        <h5>Ödeme Planı</h5>
-        <div class="form-group">
-          <label>Peşinat (₺)</label>
-          <input type="number" id="oDeposit" placeholder="0" min="0" step="0.01">
-        </div>
-        <div class="payment-grid">
-          <div class="form-group">
-            <label>1. Ödeme (₺)</label>
-            <input type="number" id="oP1" placeholder="0" min="0" step="0.01">
+    <div class="mbody">
+      <input type="hidden" id="oEditId">
+      <div class="step active" id="oStep1">
+        <div class="step-lbl"><span class="num">1</span> Müşteri Bilgisi</div>
+        <div class="fg"><label>Kayıtlı Müşteri Seç</label><select class="fi" id="oCustId" onchange="onCustSel()"><option value="">— Listeden seçin —</option></select></div>
+        <div class="sel-card" id="selCard"><div class="sel-card-lbl">Seçilen</div><div class="sel-card-val" id="selCardVal"></div></div>
+        <div class="nc-toggle" onclick="toggleNC()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg><span id="ncLbl">Yeni müşteri ekle</span></div>
+        <div class="nc-panel" id="ncPanel">
+          <div class="nc-panel-title">Yeni Müşteri Bilgileri</div>
+          <div class="frow">
+            <div class="fg" style="margin-bottom:0"><label>Ad Soyad <span class="req">*</span></label><input class="fi" type="text" id="ncName" placeholder="Adı Soyadı"></div>
+            <div class="fg" style="margin-bottom:0"><label>Telefon <span class="req">*</span></label><input class="fi" type="tel" id="ncPhone" placeholder="05xx xxx xx xx" maxlength="11"></div>
           </div>
-          <div class="form-group">
-            <label>2. Ödeme (₺)</label>
-            <input type="number" id="oP2" placeholder="0" min="0" step="0.01">
-          </div>
-          <div class="form-group">
-            <label>3. Ödeme (₺)</label>
-            <input type="number" id="oP3" placeholder="0" min="0" step="0.01">
-          </div>
-          <div class="form-group">
-            <label>4. Ödeme (₺)</label>
-            <input type="number" id="oP4" placeholder="0" min="0" step="0.01">
+          <div class="frow" style="margin-top:10px">
+            <div class="fg" style="margin-bottom:0"><label>E-posta</label><input class="fi" type="email" id="ncEmail" placeholder="email@ornek.com"></div>
+            <div class="fg" style="margin-bottom:0"><label>Adres</label><input class="fi" type="text" id="ncAddress" placeholder="İlçe, Şehir"></div>
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Notlar / Detaylar</label>
-        <textarea id="oNotes" placeholder="Gelinlik detayları, özel istekler..."></textarea>
+      <div class="step" id="oStep2">
+        <div class="step-lbl"><span class="num">2</span> Sipariş Detayları</div>
+        <div class="frow">
+          <div class="fg"><label>Fiş No</label><input class="fi" type="text" id="oFisNo" placeholder="1001"></div>
+          <div class="fg"><label>Satış Tutarı (₺) <span class="req">*</span></label><input class="fi" type="number" id="oAmount" placeholder="0" min="0" step="0.01" oninput="checkPay()" style="font-size:16px;font-weight:700;color:var(--p)"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Sipariş Tarihi <span class="req">*</span></label><input class="fi" type="date" id="oOrdDate"></div>
+          <div class="fg"><label>Düğün Tarihi <span class="req">*</span></label><input class="fi" type="date" id="oWedDate"></div>
+        </div>
+        <div class="pay-block">
+          <div class="pay-block-title">Ödeme Planı <span class="pay-badge" id="payBadge" style="background:var(--card);color:var(--tm)">₺0</span></div>
+          <div class="warn-bar" id="payWarn"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>Ödeme toplamı satış tutarını aşıyor!</div>
+          <div class="fg" style="margin-bottom:10px"><label>Peşinat (₺)</label><input class="fi" type="number" id="oDep" placeholder="0" min="0" step="0.01" oninput="checkPay()"></div>
+          <div class="pay-grid">
+            <div class="fg" style="margin-bottom:0"><label>1. Ödeme</label><input class="fi" type="number" id="oP1" placeholder="0" min="0" step="0.01" oninput="checkPay()"></div>
+            <div class="fg" style="margin-bottom:0"><label>2. Ödeme</label><input class="fi" type="number" id="oP2" placeholder="0" min="0" step="0.01" oninput="checkPay()"></div>
+            <div class="fg" style="margin-bottom:0"><label>3. Ödeme</label><input class="fi" type="number" id="oP3" placeholder="0" min="0" step="0.01" oninput="checkPay()"></div>
+            <div class="fg" style="margin-bottom:0"><label>4. Ödeme</label><input class="fi" type="number" id="oP4" placeholder="0" min="0" step="0.01" oninput="checkPay()"></div>
+          </div>
+        </div>
+        <div class="fg"><label>Notlar</label><textarea class="fi" id="oNotes" placeholder="Gelinlik detayları, özel istekler..."></textarea></div>
       </div>
-      <div class="form-actions">
-        <button class="btn btn-outline" onclick="closeOrderModal()">İptal</button>
-        <button class="btn btn-primary" onclick="saveOrder()">Siparişi Kaydet</button>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost btn-sm" id="oBtnBack" onclick="goStep(1)" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>Geri</button>
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn btn-ghost btn-sm" onclick="closeOrderModal()">İptal</button>
+        <button class="btn btn-prim btn-sm" id="oBtnNext" onclick="nextStep()">Devam <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg></button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CUSTOMER MODAL -->
-<div class="modal-overlay" id="customerModal">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-header">
-      <h3 id="customerModalTitle">Yeni Müşteri</h3>
-      <button class="modal-close" onclick="closeCustomerModal()">✕</button>
+<!-- ══ MÜŞTERİ MODAL ══ -->
+<div class="overlay" id="custOverlay" onclick="if(event.target===this)closeCustModal()">
+  <div class="modal md">
+    <div class="mhd">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg><span id="custTitle">Yeni Müşteri</span></h3>
+      <button class="mcl" onclick="closeCustModal()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="customerEditId">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Ad Soyad *</label>
-          <input type="text" id="cName" placeholder="Müşteri adı">
-        </div>
-        <div class="form-group">
-          <label>Telefon *</label>
-          <input type="tel" id="cPhone" placeholder="05xx xxx xx xx">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>E-posta</label>
-        <input type="email" id="cEmail" placeholder="email@ornek.com">
-      </div>
-      <div class="form-group">
-        <label>Adres</label>
-        <input type="text" id="cAddress" placeholder="İlçe, Şehir">
-      </div>
-      <div class="form-group">
-        <label>Notlar</label>
-        <textarea id="cNotes" placeholder="Müşteri hakkında notlar..."></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-outline" onclick="closeCustomerModal()">İptal</button>
-        <button class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
-      </div>
+    <div class="mbody">
+      <input type="hidden" id="cEditId">
+      <div class="frow"><div class="fg"><label>Ad Soyad <span class="req">*</span></label><input class="fi" type="text" id="cName" placeholder="Müşteri adı"></div><div class="fg"><label>Telefon <span class="req">*</span></label><input class="fi" type="tel" id="cPhone" placeholder="05xx xxx xx xx" maxlength="11"></div></div>
+      <div class="fg"><label>E-posta</label><input class="fi" type="email" id="cEmail" placeholder="email@ornek.com"></div>
+      <div class="fg"><label>Adres</label><input class="fi" type="text" id="cAddress" placeholder="İlçe, Şehir"></div>
+      <div class="fg"><label>Notlar</label><textarea class="fi" id="cNotes" placeholder="Notlar..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost btn-sm" onclick="closeCustModal()">İptal</button>
+      <button class="btn btn-prim btn-sm" onclick="saveCust()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Kaydet</button>
     </div>
   </div>
 </div>
 
-
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="detailModal">
-  <div class="modal" style="max-width:580px">
-    <div class="modal-header">
-      <h3 id="detailModalTitle">Sipariş Detayı</h3>
-      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+<!-- ══ DETAY MODAL ══ -->
+<div class="overlay" id="detOverlay" onclick="if(event.target===this)closeDet()">
+  <div class="modal md">
+    <div class="mhd">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg><span id="detTitle">Detay</span></h3>
+      <button class="mcl" onclick="closeDet()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
     </div>
-    <div class="modal-body" id="detailModalBody"></div>
+    <div class="mbody" id="detBody"></div>
   </div>
 </div>
 
-<!-- PAYMENT ADD MODAL -->
-<div class="modal-overlay" id="paymentAddModal">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <h3 id="paymentAddTitle">Ödeme Ekle</h3>
-      <button class="modal-close" onclick="closePaymentAddModal()">✕</button>
+<!-- ══ ÖDEME EKLE ══ -->
+<div class="overlay" id="paOverlay" onclick="if(event.target===this)closePA()">
+  <div class="modal sm">
+    <div class="mhd">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg><span id="paTitle">Ödeme Ekle</span></h3>
+      <button class="mcl" onclick="closePA()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="paymentAddOrderId">
-      <div id="paymentAddInfo" style="background:#f9fafb;border-radius:10px;padding:14px;margin-bottom:20px;font-size:14px"></div>
-      <div class="form-group">
-        <label>Ödeme Tutarı (₺) *</label>
-        <input type="number" id="paymentAddAmount" placeholder="0" min="0" step="0.01" style="font-size:18px;font-weight:700;color:var(--primary)">
-      </div>
-      <div class="form-group">
-        <label>Açıklama (opsiyonel)</label>
-        <input type="text" id="paymentAddNote" placeholder="örn: 2. taksit">
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-outline" onclick="closePaymentAddModal()">İptal</button>
-        <button class="btn btn-primary" onclick="savePaymentAdd()">Ödemeyi Kaydet</button>
-      </div>
+    <div class="mbody">
+      <input type="hidden" id="paOrdId">
+      <div id="paInfo" style="background:var(--card2);border-radius:var(--r2);padding:13px;margin-bottom:16px;font-size:13px;border:1px solid var(--border)"></div>
+      <div class="fg"><label>Tutar (₺) <span class="req">*</span></label><input class="fi" type="number" id="paAmt" placeholder="0" min="0" step="0.01" style="font-size:17px;font-weight:700;color:var(--p)"></div>
+      <div class="fg"><label>Açıklama</label><input class="fi" type="text" id="paNote" placeholder="örn: 2. taksit"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost btn-sm" onclick="closePA()">İptal</button>
+      <button class="btn btn-prim btn-sm" onclick="savePA()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>Kaydet</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- ══ CONFIRM ══ -->
+<div class="overlay" id="cfOverlay">
+  <div class="cf-box">
+    <div class="cf-icon" id="cfIcon">🗑️</div>
+    <h4 id="cfTitle">Emin misiniz?</h4>
+    <p id="cfMsg">Bu işlem geri alınamaz.</p>
+    <div class="cf-btns">
+      <button class="btn btn-ghost btn-sm" onclick="cfRes(false)">İptal</button>
+      <button class="btn btn-sm" id="cfOk" onclick="cfRes(true)" style="background:var(--err);color:#fff">Sil</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ===================== DATA LAYER =====================
-const CREDS = {sisters:'sisters2024', Sisters:'sisters2024', SISTERS:'sisters2024', admin:'admin123', Admin:'admin123'};
-let currentUser = null;
-let barChartInst = null, pieChartInst = null;
-
-function load(key, def=[]) {
-  try { return JSON.parse(localStorage.getItem('ss_'+key)) ?? def; } catch{ return def; }
-}
-function save(key, val) {
-  localStorage.setItem('ss_'+key, JSON.stringify(val));
-}
-
-let customers = load('customers');
-let orders = load('orders');
-let nextCid = load('nextCid', 1);
-let nextOid = load('nextOid', 1);
-
-function saveAll() {
-  save('customers', customers);
-  save('orders', orders);
-  save('nextCid', nextCid);
-  save('nextOid', nextOid);
-}
-
-// Seed demo data if empty
-if(customers.length === 0 && orders.length === 0) {
-  customers = [
-    {id:1, name:'OBEL YAŞAR', phone:'05551234567', email:'obel@example.com', address:'İzmir, Karşıyaka', notes:''},
-    {id:2, name:'MERVE DEMİR', phone:'05321234567', email:'merve@example.com', address:'İzmir, Bornova', notes:''}
-  ];
-  orders = [
-    {id:1, fisNo:'3732', customerId:1, orderDate:'2025-01-25', weddingDate:'2025-05-25', amount:100000, deposit:5000, p1:25000, p2:35000, p3:35000, p4:0, notes:'Gelinlik', status:'active'},
-    {id:2, fisNo:'3733', customerId:2, orderDate:'2025-01-30', weddingDate:'2025-05-18', amount:135000, deposit:5000, p1:17000, p2:60000, p3:30000, p4:23000, notes:'Gelinlik ve Kına', status:'active'}
-  ];
-  nextCid = 3; nextOid = 3;
-  saveAll();
-}
-
-// ===================== AUTH =====================
-function doLogin() {
-  const u = document.getElementById('loginUser').value.trim().toLowerCase();
-  const p = document.getElementById('loginPass').value.trim();
-  if(CREDS[u] === p) {
-    currentUser = u;
-    localStorage.setItem('ss_session', u);
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('userLabel').textContent = u;
-    renderAll();
-  } else {
-    document.getElementById('loginErr').textContent = 'Kullanıcı adı veya şifre hatalı.';
-  }
-}
-function doLogout() {
-  currentUser = null;
-  localStorage.removeItem('ss_session');
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginPass').value = '';
-}
-// Direkt giriş - şifre yok
+// ═══════════ TEMA ═══════════
 (function(){
-  currentUser = 'sisters';
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('userLabel').textContent = '';
-  renderAll();
+  const saved = localStorage.getItem('ss_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
 })();
+function toggleTheme(){
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('ss_theme', next);
+  // Grafikleri güncelle
+  if(barCI || pieCI) setTimeout(renderCharts, 50);
+}
 
-// ===================== NAVIGATION =====================
-const pageTitles = {dashboard:'Ana Sayfa', orders:'Siparişler', customers:'Müşteriler', payments:'Cari Hesap', analytics:'Grafikler'};
-function navTo(name) {
-  // find nav item and click
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => {
-    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+name+"'")) n.classList.add('active');
+// ═══════════ DATA ═══════════
+function ld(k,d=[]){try{const v=localStorage.getItem('ss_'+k);return v!==null?JSON.parse(v):d;}catch{return d;}}
+function sv(k,v){try{localStorage.setItem('ss_'+k,JSON.stringify(v));}catch{}}
+let customers=ld('customers'),orders=ld('orders'),nCid=ld('nextCid',1),nOid=ld('nextOid',1);
+function saveAll(){sv('customers',customers);sv('orders',orders);sv('nextCid',nCid);sv('nextOid',nOid);}
+
+if(!customers.length&&!orders.length){
+  customers=[
+    {id:1,name:'OBEL YAŞAR',phone:'05551234567',email:'obel@example.com',address:'İzmir, Karşıyaka',notes:''},
+    {id:2,name:'MERVE DEMİR',phone:'05321234567',email:'merve@example.com',address:'İzmir, Bornova',notes:''}
+  ];
+  orders=[
+    {id:1,fisNo:'3732',customerId:1,orderDate:'2025-01-25',weddingDate:'2025-05-25',amount:100000,deposit:5000,p1:25000,p2:35000,p3:35000,p4:0,notes:'Gelinlik',status:'active'},
+    {id:2,fisNo:'3733',customerId:2,orderDate:'2025-01-30',weddingDate:'2025-05-18',amount:135000,deposit:5000,p1:17000,p2:60000,p3:30000,p4:23000,notes:'Gelinlik ve Kına',status:'active'}
+  ];
+  nCid=3;nOid=3;saveAll();
+}
+
+// ═══════════ CONFIRM ═══════════
+let cfRes=null;
+function confirm2(title,msg,icon='🗑️',okTxt='Sil',color='var(--err)'){
+  return new Promise(res=>{
+    document.getElementById('cfTitle').textContent=title;
+    document.getElementById('cfMsg').textContent=msg;
+    document.getElementById('cfIcon').textContent=icon;
+    document.getElementById('cfOk').textContent=okTxt;
+    document.getElementById('cfOk').style.background=color;
+    document.getElementById('cfOverlay').classList.add('open');
+    cfRes=v=>{document.getElementById('cfOverlay').classList.remove('open');res(v);};
   });
-  document.getElementById('pageTitle').textContent = pageTitles[name]||name;
-  closeSidebar();
-  if(name==='analytics') setTimeout(renderCharts, 100);
-}
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  event.currentTarget && event.currentTarget.classList.add('active');
-  document.getElementById('pageTitle').textContent = pageTitles[name];
-  closeSidebar();
-  if(name==='analytics') setTimeout(renderCharts, 100);
-  if(name==='dashboard') renderDashboard();
-}
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
 }
 
-// ===================== HELPERS =====================
-function tryLocale(n) {
-  try { return Number(n).toLocaleString('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:0,maximumFractionDigits:0}); } catch{ return '₺'+Number(n).toFixed(0); }
-}
-function formatDate(d) {
-  if(!d) return '-';
-  const [y,m,day] = d.split('-');
-  return `${day}.${m}.${y}`;
-}
-function calcPaid(o) { return (Number(o.deposit)||0)+(Number(o.p1)||0)+(Number(o.p2)||0)+(Number(o.p3)||0)+(Number(o.p4)||0); }
-function calcRemaining(o) { return Math.max(0, (Number(o.amount)||0) - calcPaid(o)); }
-function getCustomer(id) { return customers.find(c => c.id === id); }
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 3000);
+// ═══════════ HELPERS ═══════════
+function fmt(n){try{return(+n).toLocaleString('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:0,maximumFractionDigits:0});}catch{return'₺'+(+n).toFixed(0);}}
+function fmtD(d){if(!d)return'-';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
+function paid(o){return(+o.deposit||0)+(+o.p1||0)+(+o.p2||0)+(+o.p3||0)+(+o.p4||0);}
+function rem(o){return Math.max(0,(+o.amount||0)-paid(o));}
+function getCust(id){return customers.find(c=>c.id===id);}
+function vPhone(p){return/^0[5][0-9]{9}$/.test(p.replace(/\s/g,''));}
+function vEmail(e){return!e||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+function toast(msg,t='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+t;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',3000);
 }
 
-// ===================== RENDER ALL =====================
-function renderAll() {
-  renderDashboard();
-  renderOrders();
-  renderCustomers();
-  renderPayments();
+// SVG ikonları
+const I={
+  eye:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>',
+  edit:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/></svg>',
+  del:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>',
+  plus:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>',
+};
+
+// ═══════════ TABS ═══════════
+let barCI=null,pieCI=null;
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+  if(name==='charts')setTimeout(renderCharts,80);
 }
 
-// ===================== DASHBOARD =====================
-function renderDashboard() {
-  const totalCustomers = customers.length;
-  const activeOrders = orders.filter(o => o.status === 'active').length;
-  const totalSales = orders.reduce((s,o) => s + (Number(o.amount)||0), 0);
-  const pendingPayments = orders.reduce((s,o) => s + calcRemaining(o), 0);
+// ═══════════ STAT KARTLARI ═══════════
+// Her kart hangi paneli açar
+const STAT_PANELS = {
+  orders: 'panel-orders',
+  customers: 'panel-customers',
+  sales: 'panel-payments',
+  pending: 'panel-payments'
+};
 
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card" onclick="navTo('customers')" style="cursor:pointer;transition:.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><div class="stat-info"><p>Toplam Müşteri</p><h3>${totalCustomers}</h3><div style="font-size:11px;color:var(--primary);margin-top:4px;font-weight:600">Görüntüle →</div></div><div class="stat-icon stat-blue"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg></div></div>
-    <div class="stat-card" onclick="navTo('orders')" style="cursor:pointer;transition:.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><div class="stat-info"><p>Aktif Siparişler</p><h3>${activeOrders}</h3><div style="font-size:11px;color:#6366f1;margin-top:4px;font-weight:600">Görüntüle →</div></div><div class="stat-icon stat-indigo"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg></div></div>
-    <div class="stat-card" onclick="navTo('analytics')" style="cursor:pointer;transition:.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><div class="stat-info"><p>Toplam Satış</p><h3>${tryLocale(totalSales)}</h3><div style="font-size:11px;color:var(--success);margin-top:4px;font-weight:600">Grafik →</div></div><div class="stat-icon stat-green"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg></div></div>
-    <div class="stat-card" onclick="navTo('payments')" style="cursor:pointer;transition:.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><div class="stat-info"><p>Bekleyen Tahsilat</p><h3>${tryLocale(pendingPayments)}</h3><div style="font-size:11px;color:var(--danger);margin-top:4px;font-weight:600">Görüntüle →</div></div><div class="stat-icon stat-red"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6m18 0V5.25A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25V6"/></svg></div></div>
-  `;
+let activeStatKey = null;
 
-  const today = new Date().toISOString().split('T')[0];
-  const upcoming = orders.filter(o => o.weddingDate >= today).sort((a,b) => a.weddingDate.localeCompare(b.weddingDate)).slice(0,10);
-  document.getElementById('upcomingCount').textContent = upcoming.length + ' Kayıt';
-  
-  if(upcoming.length === 0) {
-    document.getElementById('upcomingBody').innerHTML = '<tr><td colspan="4" class="empty"><p>Yaklaşan düğün kaydı bulunmamaktadır.</p></td></tr>';
+function showPanel(key){
+  const panelId = STAT_PANELS[key];
+  if(activeStatKey === key){
+    document.querySelectorAll('.sec-panel').forEach(p=>p.classList.remove('visible'));
+    document.querySelectorAll('.stat').forEach(s=>s.classList.remove('active-stat'));
+    activeStatKey = null;
     return;
   }
-  
-  document.getElementById('upcomingBody').innerHTML = upcoming.map(o => {
-    const c = getCustomer(o.customerId);
-    const rem = calcRemaining(o);
-    const urgentMs = new Date(o.weddingDate) - new Date();
-    const urgent = urgentMs > 0 && urgentMs < 7*24*60*60*1000;
-    return `<tr>
-      <td data-label="Musteri"><strong>${c ? c.name : '-'}</strong></td>
-      <td data-label="Telefon">${c ? c.phone : '-'}</td>
-      <td data-label="Düğün Tarihi">${formatDate(o.weddingDate)} ${urgent ? '<span class="badge badge-urgent">Yaklaşıyor</span>' : ''}</td>
-      <td data-label="Kalan Borç" style="text-align:right;font-weight:700;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</td>
+  activeStatKey = key;
+  document.querySelectorAll('.sec-panel').forEach(p=>p.classList.remove('visible'));
+  document.querySelectorAll('.stat').forEach(s=>s.classList.remove('active-stat'));
+  document.getElementById('stat-'+key).classList.add('active-stat');
+  document.getElementById(panelId).classList.add('visible');
+  // Sayfayı yukarı al - stat kartlar görünsün
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════ RENDER STATS ═══════════
+function renderStats(){
+  const tc=customers.length, to=orders.length;
+  const ts=orders.reduce((s,o)=>s+(+o.amount||0),0);
+  const tp=orders.reduce((s,o)=>s+rem(o),0);
+  const fv=(n)=>{const s=fmt(n);const fs=s.length>10?'14px':s.length>8?'16px':'20px';return`<div class="stat-val" style="font-size:${fs}">${s}</div>`;};
+
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat" id="stat-orders" onclick="showPanel('orders')">
+      <div class="stat-ico" style="background:#e0e7ff;color:#6366f1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg>
+      </div>
+      <div><div class="stat-lbl">Siparişler</div><div class="stat-val">${to}</div><div class="stat-hint" style="color:#6366f1">Görüntüle →</div></div>
+    </div>
+    <div class="stat" id="stat-customers" onclick="showPanel('customers')">
+      <div class="stat-ico" style="background:#ede9fe;color:var(--p)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z"/></svg>
+      </div>
+      <div><div class="stat-lbl">Müşteriler</div><div class="stat-val">${tc}</div><div class="stat-hint" style="color:var(--p)">Görüntüle →</div></div>
+    </div>
+    <div class="stat" id="stat-sales" onclick="showPanel('sales')">
+      <div class="stat-ico" style="background:#d1fae5;color:var(--ok)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>
+      </div>
+      <div><div class="stat-lbl">Toplam Satış</div>${fv(ts)}<div class="stat-hint" style="color:var(--ok)">Cari →</div></div>
+    </div>
+    <div class="stat" id="stat-pending" onclick="showPanel('pending')">
+      <div class="stat-ico" style="background:#ffe4e6;color:var(--err)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+      </div>
+      <div><div class="stat-lbl">Bekleyen</div>${fv(tp)}<div class="stat-hint" style="color:var(--err)">Tahsilat →</div></div>
+    </div>`;
+
+  document.getElementById('custCnt').textContent=tc;
+  document.getElementById('ordCnt').textContent=to;
+  document.getElementById('upCnt').textContent=orders.filter(o=>o.weddingDate>=new Date().toISOString().split('T')[0]).length;
+
+  // Aktif stat varsa stilini koru
+  if(activeStatKey){
+    const el=document.getElementById('stat-'+activeStatKey);
+    if(el)el.classList.add('active-stat');
+  }
+}
+
+// ═══════════ ORDERS ═══════════
+function renderOrders(){
+  const s=(document.getElementById('ordSearch')?.value||'').toLowerCase();
+  let list=[...orders].sort((a,b)=>(b.orderDate||'').localeCompare(a.orderDate||''));
+  if(s)list=list.filter(o=>{const c=getCust(o.customerId);return(o.fisNo||'').toLowerCase().includes(s)||(c&&c.name.toLowerCase().includes(s))||(c&&(c.phone||'').includes(s));});
+  if(!list.length){document.getElementById('ordBody').innerHTML='<tr><td colspan="9"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/></svg><p>Kayıt bulunamadı</p></div></td></tr>';return;}
+  document.getElementById('ordBody').innerHTML=list.map(o=>{
+    const c=getCust(o.customerId),r=rem(o),done=r<=0;
+    return`<tr>
+      <td data-label="Fiş No" style="font-weight:700;color:var(--p)">#${o.fisNo||'-'}</td>
+      <td data-label="Müşteri"><strong>${c?c.name:'-'}</strong></td>
+      <td data-label="Telefon" style="color:var(--tm)">${c?c.phone:'-'}</td>
+      <td data-label="Sipariş T.">${fmtD(o.orderDate)}</td>
+      <td data-label="Düğün T.">${fmtD(o.weddingDate)}</td>
+      <td data-label="Tutar" style="font-weight:600">${fmt(o.amount)}</td>
+      <td data-label="Kalan" style="font-weight:700;color:${done?'var(--ok)':'var(--err)'}">${fmt(r)}</td>
+      <td data-label="Durum">${done?'<span class="badge b-green">Ödendi</span>':'<span class="badge b-yellow">Bekliyor</span>'}</td>
+      <td><div style="display:flex;gap:3px;justify-content:flex-end">
+        <button class="ib" onclick="openDet(${o.id})">${I.eye}</button>
+        <button class="ib" onclick="editOrder(${o.id})">${I.edit}</button>
+        <button class="ib del" onclick="delOrder(${o.id})">${I.del}</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
 
-// ===================== ORDERS =====================
-function renderOrders() {
-  const search = (document.getElementById('orderSearch')?.value || '').toLowerCase();
-  let list = orders;
-  if(search) list = list.filter(o => {
-    const c = getCustomer(o.customerId);
-    return (o.fisNo||'').toLowerCase().includes(search) || (c&&c.name.toLowerCase().includes(search)) || (c&&c.phone.includes(search));
-  });
-  
-  if(list.length === 0) {
-    document.getElementById('ordersBody').innerHTML = '<tr><td colspan="9" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
-    return;
-  }
-  
-  document.getElementById('ordersBody').innerHTML = list.map(o => {
-    const c = getCustomer(o.customerId);
-    const rem = calcRemaining(o);
-    const paid = rem <= 0;
-    return `<tr>
-      <td style="font-weight:700;color:var(--primary)">#${o.fisNo||'-'}</td>
-      <td><strong>${c?c.name:'-'}</strong></td>
-      <td style="color:var(--text-muted)">${c?c.phone:'-'}</td>
-      <td>${formatDate(o.orderDate)}</td>
-      <td>${formatDate(o.weddingDate)}</td>
-      <td style="text-align:right;font-weight:600">${tryLocale(o.amount)}</td>
-      <td style="text-align:right;font-weight:700;color:${paid?'var(--success)':'var(--danger)'}">${tryLocale(rem)}</td>
-      <td style="text-align:center">${paid?'<span class="badge badge-green">Ödendi</span>':'<span class="badge badge-yellow">Bekliyor</span>'}</td>
-      <td style="text-align:right">
-        <button class="btn btn-icon btn-icon-edit" onclick="editOrder(${o.id})" title="Düzenle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg></button>
-        <button class="btn btn-icon btn-icon-del" onclick="deleteOrder(${o.id})" title="Sil"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>
+// ═══════════ UPCOMING ═══════════
+function renderUpcoming(){
+  const today=new Date().toISOString().split('T')[0];
+  const up=orders.filter(o=>o.weddingDate>=today).sort((a,b)=>a.weddingDate.localeCompare(b.weddingDate)).slice(0,20);
+  if(!up.length){document.getElementById('upBody').innerHTML='<tr><td colspan="5"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25"/></svg><p>Yaklaşan düğün yok</p></div></td></tr>';return;}
+  document.getElementById('upBody').innerHTML=up.map(o=>{
+    const c=getCust(o.customerId),r=rem(o);
+    const ms=new Date(o.weddingDate)-new Date(),urg=ms>0&&ms<7*24*3600*1000;
+    return`<tr>
+      <td data-label="Müşteri"><strong>${c?c.name:'-'}</strong></td>
+      <td data-label="Telefon">${c?c.phone:'-'}</td>
+      <td data-label="Düğün">${fmtD(o.weddingDate)} ${urg?'<span class="badge b-urgent">⚡ Yaklaşıyor</span>':''}</td>
+      <td data-label="Kalan" style="font-weight:700;color:${r>0?'var(--err)':'var(--ok)'}">${fmt(r)}</td>
+      <td><button class="btn btn-sm btn-sec" onclick="openDet(${o.id})">${I.eye} Detay</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════ PAYMENTS ═══════════
+function renderPayments(){
+  const s=(document.getElementById('paySearch')?.value||'').toLowerCase();
+  let list=orders.filter(o=>+o.amount>0);
+  if(s)list=list.filter(o=>{const c=getCust(o.customerId);return c&&c.name.toLowerCase().includes(s);});
+  if(!list.length){document.getElementById('payBody').innerHTML='<tr><td colspan="7"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5"/></svg><p>Kayıt bulunamadı</p></div></td></tr>';return;}
+  document.getElementById('payBody').innerHTML=list.map(o=>{
+    const c=getCust(o.customerId),total=+o.amount||0,p=paid(o),r=Math.max(0,total-p);
+    const pct=total>0?Math.min(100,(p/total)*100):0,full=r<=0,none=p===0;
+    const badge=full?'<span class="badge b-green">Ödendi</span>':none?'<span class="badge b-red">Ödenmedi</span>':'<span class="badge b-yellow">Kısmi</span>';
+    return`<tr>
+      <td data-label="Müşteri"><strong>${c?c.name:'-'}</strong></td>
+      <td data-label="Fiş No" style="color:var(--tm)">#${o.fisNo||'-'}</td>
+      <td data-label="Toplam" style="font-weight:600">${fmt(total)}</td>
+      <td data-label="Ödenen" style="font-weight:600;color:var(--ok)">${fmt(p)}</td>
+      <td data-label="Kalan" style="font-weight:700;color:${full?'var(--ok)':'var(--err)'}">${fmt(r)}</td>
+      <td data-label="İlerleme">
+        <div style="margin-bottom:4px">${badge}</div>
+        <div class="prog-wrap"><div class="prog-bg"><div class="prog-fill${full?' done':''}" style="width:${pct}%"></div></div><span class="prog-pct">${Math.round(pct)}%</span></div>
       </td>
+      <td><div style="display:flex;gap:5px;justify-content:flex-end">
+        <button class="btn btn-sm btn-sec" onclick="openDet(${o.id})">${I.eye}</button>
+        ${!full?`<button class="btn btn-sm btn-prim" onclick="openPA(${o.id})">${I.plus} Ödeme</button>`:''}
+      </div></td>
     </tr>`;
   }).join('');
 }
 
-// ===================== CUSTOMERS =====================
-function renderCustomers() {
-  const search = (document.getElementById('customerSearch')?.value || '').toLowerCase();
-  let list = customers;
-  if(search) list = list.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
-  
-  if(list.length === 0) {
-    document.getElementById('customersBody').innerHTML = '<tr><td colspan="6" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
-    return;
-  }
-  
-  document.getElementById('customersBody').innerHTML = list.map(c => {
-    const oc = orders.filter(o => o.customerId === c.id).length;
-    return `<tr>
+// ═══════════ CUSTOMERS ═══════════
+function renderCustomers(){
+  const s=(document.getElementById('custSearch')?.value||'').toLowerCase();
+  let list=[...customers].sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+  if(s)list=list.filter(c=>c.name.toLowerCase().includes(s)||(c.phone||'').includes(s));
+  if(!list.length){document.getElementById('custBody').innerHTML='<tr><td colspan="6"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0"/></svg><p>Kayıt bulunamadı</p></div></td></tr>';return;}
+  document.getElementById('custBody').innerHTML=list.map(c=>{
+    const oc=orders.filter(o=>o.customerId===c.id).length;
+    return`<tr>
       <td data-label="Ad Soyad"><strong>${c.name}</strong></td>
       <td data-label="Telefon">${c.phone}</td>
-      <td style="color:var(--text-muted)">${c.email||'-'}</td>
-      <td style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.address||'-'}</td>
-      <td style="text-align:center"><span class="badge badge-blue">${oc} Sipariş</span></td>
-      <td style="text-align:right">
-        <button class="btn btn-icon btn-icon-edit" onclick="editCustomer(${c.id})" title="Düzenle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg></button>
-        <button class="btn btn-icon btn-icon-del" onclick="deleteCustomer(${c.id})" title="Sil"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>
-      </td>
+      <td data-label="E-posta" style="color:var(--tm)">${c.email||'-'}</td>
+      <td data-label="Adres" style="color:var(--tm);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.address||'-'}</td>
+      <td data-label="Siparişler"><span class="badge b-purple">${oc} sipariş</span></td>
+      <td><div style="display:flex;gap:3px;justify-content:flex-end">
+        <button class="ib" onclick="editCust(${c.id})">${I.edit}</button>
+        <button class="ib del" onclick="delCust(${c.id})">${I.del}</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
 
-// ===================== PAYMENTS =====================
-function renderPayments() {
-  const search = (document.getElementById('paymentSearch')?.value || '').toLowerCase();
-  let list = orders.filter(o => Number(o.amount) > 0);
-  if(search) list = list.filter(o => {
-    const c = getCustomer(o.customerId);
-    return c && c.name.toLowerCase().includes(search);
-  });
-  if(list.length === 0) {
-    document.getElementById('paymentsBody').innerHTML = '<tr><td colspan="7" class="empty"><p>Kayıt bulunamadı.</p></td></tr>';
-    return;
-  }
-  document.getElementById('paymentsBody').innerHTML = list.map(o => {
-    const c = getCustomer(o.customerId);
-    const total = Number(o.amount)||0;
-    const paid = calcPaid(o);
-    const rem = Math.max(0, total - paid);
-    const pct = total > 0 ? Math.min(100, (paid/total)*100) : 0;
-    const full = rem <= 0;
-    const none = paid === 0;
-    const badge = full ? '<span class="badge badge-green">Ödendi</span>' : none ? '<span class="badge badge-red">Ödenmedi</span>' : '<span class="badge badge-yellow">Kısmi</span>';
-    return '<tr>'
-      + '<td data-label="Musteri"><strong>'+(c?c.name:'-')+'</strong></td>'
-      + '<td style="color:var(--text-muted)">#'+(o.fisNo||'-')+'</td>'
-      + '<td data-label="Toplam" style="text-align:right;font-weight:600">'+tryLocale(total)+'</td>'
-      + '<td data-label="Odenen" style="text-align:right;font-weight:600;color:var(--success)">'+tryLocale(paid)+'</td>'
-      + '<td style="text-align:right;font-weight:700;color:'+(full?'var(--success)':'var(--danger)')+'">'+tryLocale(rem)+'</td>'
-      + '<td style="text-align:center"><div style="display:flex;flex-direction:column;align-items:center;gap:6px">'+badge+'<div class="progress-wrap"><div class="progress-bar'+(full?' full':'')+'" style="width:'+pct+'%"></div></div></div></td>'
-      + '<td style="text-align:center"><div style="display:flex;justify-content:center;gap:6px">'
-      + '<button class="btn" style="padding:6px 14px;font-size:12px;background:var(--primary-light);color:var(--primary);border-radius:8px;border:none;cursor:pointer;font-weight:600" onclick="openDetailModal('+o.id+')">Detay</button>'
-      + (!full ? '<button class="btn btn-primary" style="padding:6px 14px;font-size:12px;border-radius:8px" onclick="openPaymentAddModal('+o.id+')">+ Ödeme</button>' : '')
-      + '</div></td>'
-      + '</tr>';
-  }).join('');
+// ═══════════ RENDER ALL ═══════════
+function renderAll(){
+  renderStats();
+  renderOrders();
+  renderUpcoming();
+  renderPayments();
+  renderCustomers();
 }
 
-// ===================== CSV EXPORT =====================
-function exportCSV() {
-  const rows = [['Müşteri','Fiş No','Toplam','Ödenen','Kalan','Durum']];
-  orders.forEach(o => {
-    const c = getCustomer(o.customerId);
-    const total = Number(o.amount)||0;
-    const paid = calcPaid(o);
-    const rem = Math.max(0,total-paid);
-    const status = rem<=0?'Ödendi':paid===0?'Ödenmedi':'Kısmi Ödeme';
-    rows.push([c?c.name:'-', o.fisNo||'-', total, paid, rem, status]);
-  });
-  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download = 'cari-hesap.csv';
-  a.click();
+// ═══════════ CSV ═══════════
+function exportCSV(){
+  const rows=[['Müşteri','Fiş No','Toplam','Ödenen','Kalan','Durum','Düğün Tarihi']];
+  orders.forEach(o=>{const c=getCust(o.customerId),t=+o.amount||0,p=paid(o),r=Math.max(0,t-p);rows.push([c?c.name:'-',o.fisNo||'-',t,p,r,r<=0?'Ödendi':p===0?'Ödenmedi':'Kısmi',fmtD(o.weddingDate)]);});
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'));a.download='cari-hesap-'+new Date().toISOString().split('T')[0]+'.csv';a.click();
 }
 
-// ===================== CHARTS =====================
-function renderCharts() {
-  const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-  const sales = new Array(12).fill(0), payments = new Array(12).fill(0);
-  orders.forEach(o => {
-    const m = new Date(o.orderDate).getMonth();
-    if(m>=0 && m<12) { sales[m] += Number(o.amount)||0; payments[m] += calcPaid(o); }
-  });
-  
-  if(barChartInst) barChartInst.destroy();
-  barChartInst = new Chart(document.getElementById('barChart'), {
+// ═══════════ CHARTS ═══════════
+function renderCharts(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? '#2e2850' : '#f0eeff';
+  const textColor = isDark ? '#a89ec4' : '#6b5f8a';
+  const months=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const sales=new Array(12).fill(0),pmts=new Array(12).fill(0);
+  orders.forEach(o=>{const m=new Date(o.orderDate).getMonth();if(m>=0&&m<12){sales[m]+= +o.amount||0;pmts[m]+=paid(o);}});
+  if(barCI){barCI.destroy();barCI=null;}
+  barCI=new Chart(document.getElementById('barChart'),{
     type:'bar',
-    data:{labels:months, datasets:[
-      {label:'Satış',data:sales,backgroundColor:'#7c3aed',borderRadius:6},
-      {label:'Tahsilat',data:payments,backgroundColor:'#10b981',borderRadius:6}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
-      scales:{y:{ticks:{callback:v=>'₺'+Math.round(v/1000)+'k'},grid:{color:'#f3f4f6'}},x:{grid:{display:false}}}
+    data:{labels:months,datasets:[{label:'Satış',data:sales,backgroundColor:'#7c3aed',borderRadius:6},{label:'Tahsilat',data:pmts,backgroundColor:'#059669',borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:textColor}}},
+      scales:{y:{ticks:{callback:v=>'₺'+Math.round(v/1000)+'k',color:textColor},grid:{color:gridColor}},x:{ticks:{color:textColor},grid:{display:false}}}
     }
   });
-
-  let totalPaid = 0, totalRem = 0;
-  orders.forEach(o => { totalPaid += calcPaid(o); totalRem += calcRemaining(o); });
-
-  if(pieChartInst) pieChartInst.destroy();
-  pieChartInst = new Chart(document.getElementById('pieChart'), {
+  let tp=0,tr=0;orders.forEach(o=>{tp+=paid(o);tr+=rem(o);});
+  if(pieCI){pieCI.destroy();pieCI=null;}
+  pieCI=new Chart(document.getElementById('pieChart'),{
     type:'doughnut',
-    data:{labels:['Tahsil Edilen','Kalan Alacak'],datasets:[{data:[totalPaid,totalRem],backgroundColor:['#10b981','#f43f5e'],hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},
-      tooltip:{callbacks:{label:ctx=>tryLocale(ctx.raw)}}
-    }}
+    data:{labels:['Tahsil Edilen','Kalan'],datasets:[{data:[tp,tr],backgroundColor:['#059669','#dc2626'],hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{color:textColor}},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw)}}}
+    }
   });
 }
 
-// ===================== ORDER MODAL =====================
-function populateCustomerSelect() {
-  const sel = document.getElementById('oCustomerId');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Müşteri seçin</option>' + customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  if(cur) sel.value = cur;
+// ═══════════ ORDER MODAL ═══════════
+let ncOpen=false,curStep=1;
+function fillCustSel(){const sel=document.getElementById('oCustId'),cur=sel.value;sel.innerHTML='<option value="">— Listeden seçin —</option>'+[...customers].sort((a,b)=>a.name.localeCompare(b.name,'tr')).map(c=>`<option value="${c.id}">${c.name} — ${c.phone}</option>`).join('');if(cur)sel.value=cur;}
+function onCustSel(){const v=document.getElementById('oCustId').value,card=document.getElementById('selCard');if(v){const c=getCust(parseInt(v));document.getElementById('selCardVal').textContent=c?`${c.name} · ${c.phone}`:'';card.style.display='block';if(ncOpen)closeNC();}else card.style.display='none';}
+function closeNC(){ncOpen=false;document.getElementById('ncPanel').classList.remove('open');document.getElementById('ncLbl').textContent='Yeni müşteri ekle';}
+function toggleNC(){ncOpen=!ncOpen;if(ncOpen){document.getElementById('ncPanel').classList.add('open');document.getElementById('ncLbl').textContent='Vazgeç';document.getElementById('oCustId').value='';document.getElementById('selCard').style.display='none';}else closeNC();}
+function goStep(n){
+  curStep=n;
+  document.getElementById('oStep1').classList.toggle('active',n===1);
+  document.getElementById('oStep2').classList.toggle('active',n===2);
+  document.getElementById('sd1').className='sdot'+(n===1?' active':' done');
+  document.getElementById('sl1').className='sline'+(n===2?' done':'');
+  document.getElementById('sd2').className='sdot'+(n===2?' active':'');
+  document.getElementById('oBtnBack').style.display=n===2?'inline-flex':'none';
+  const nb=document.getElementById('oBtnNext');
+  if(n===1)nb.innerHTML='Devam <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>';
+  else nb.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg> Kaydet';
 }
-
-function openOrderModal(o=null) {
-  populateCustomerSelect();
-  document.getElementById('orderEditId').value = o ? o.id : '';
-  document.getElementById('orderModalTitle').textContent = o ? 'Sipariş Düzenle' : 'Yeni Sipariş';
-  document.getElementById('oFisNo').value = o ? (o.fisNo||'') : '';
-  document.getElementById('oCustomerId').value = o ? o.customerId : '';
-  document.getElementById('oOrderDate').value = o ? o.orderDate : new Date().toISOString().split('T')[0];
-  document.getElementById('oWeddingDate').value = o ? o.weddingDate : '';
-  document.getElementById('oAmount').value = o ? o.amount : '';
-  document.getElementById('oDeposit').value = o ? (o.deposit||0) : 0;
-  document.getElementById('oP1').value = o ? (o.p1||0) : 0;
-  document.getElementById('oP2').value = o ? (o.p2||0) : 0;
-  document.getElementById('oP3').value = o ? (o.p3||0) : 0;
-  document.getElementById('oP4').value = o ? (o.p4||0) : 0;
-  document.getElementById('oNotes').value = o ? (o.notes||'') : '';
-  document.getElementById('orderModal').classList.add('open');
+function nextStep(){
+  if(curStep===1){
+    const hasSel=document.getElementById('oCustId').value;
+    if(!hasSel&&!ncOpen){toast('Müşteri seçin veya yeni müşteri ekleyin.','fail');return;}
+    if(ncOpen){const nm=document.getElementById('ncName').value.trim(),np=document.getElementById('ncPhone').value.trim().replace(/\s/g,''),ne=document.getElementById('ncEmail').value.trim();if(!nm){toast('Müşteri adı gereklidir.','fail');return;}if(!np||!vPhone(np)){toast('Geçerli telefon girin (05xx...).','fail');return;}if(!vEmail(ne)){toast('Geçerli e-posta girin.','fail');return;}}
+    goStep(2);
+  }else saveOrder();
 }
-function closeOrderModal() { document.getElementById('orderModal').classList.remove('open'); }
-
-function saveOrder() {
-  const customerId = parseInt(document.getElementById('oCustomerId').value);
-  const orderDate = document.getElementById('oOrderDate').value;
-  const weddingDate = document.getElementById('oWeddingDate').value;
-  const amount = parseFloat(document.getElementById('oAmount').value);
-  if(!customerId) { showToast('Müşteri seçilmelidir.','error'); return; }
-  if(!orderDate) { showToast('Sipariş tarihi zorunludur.','error'); return; }
-  if(!weddingDate) { showToast('Düğün tarihi zorunludur.','error'); return; }
-  if(!amount || amount <= 0) { showToast('Tutar zorunludur.','error'); return; }
-
-  const data = {
-    customerId, orderDate, weddingDate, amount,
-    fisNo: document.getElementById('oFisNo').value.trim(),
-    deposit: parseFloat(document.getElementById('oDeposit').value)||0,
-    p1: parseFloat(document.getElementById('oP1').value)||0,
-    p2: parseFloat(document.getElementById('oP2').value)||0,
-    p3: parseFloat(document.getElementById('oP3').value)||0,
-    p4: parseFloat(document.getElementById('oP4').value)||0,
-    notes: document.getElementById('oNotes').value.trim(),
-    status: 'active'
-  };
-
-  const editId = document.getElementById('orderEditId').value;
-  if(editId) {
-    const idx = orders.findIndex(o => o.id === parseInt(editId));
-    if(idx>=0) orders[idx] = {...orders[idx], ...data};
-    showToast('Sipariş güncellendi.');
-  } else {
-    data.id = nextOid++;
-    orders.push(data);
-    showToast('Yeni sipariş eklendi.');
-  }
-  saveAll();
-  closeOrderModal();
-  renderAll();
+function checkPay(){
+  const amt=parseFloat(document.getElementById('oAmount').value)||0;
+  const tot=(parseFloat(document.getElementById('oDep').value)||0)+(parseFloat(document.getElementById('oP1').value)||0)+(parseFloat(document.getElementById('oP2').value)||0)+(parseFloat(document.getElementById('oP3').value)||0)+(parseFloat(document.getElementById('oP4').value)||0);
+  const b=document.getElementById('payBadge');b.textContent=fmt(tot);
+  const over=amt>0&&tot>amt;
+  document.getElementById('payWarn').style.display=over?'flex':'none';
+  b.style.background=over?'var(--errl)':tot>0?'var(--okl)':'var(--card)';
+  b.style.color=over?'var(--err)':tot>0?'var(--ok)':'var(--tm)';
 }
-
-function editOrder(id) {
-  const o = orders.find(x => x.id === id);
-  if(o) openOrderModal(o);
+function openOrderModal(o=null){
+  fillCustSel();ncOpen=false;document.getElementById('ncPanel').classList.remove('open');document.getElementById('ncLbl').textContent='Yeni müşteri ekle';document.getElementById('selCard').style.display='none';
+  document.getElementById('oEditId').value=o?o.id:'';document.getElementById('ordTitle').textContent=o?'Sipariş Düzenle':'Yeni Sipariş';
+  ['ncName','ncPhone','ncEmail','ncAddress'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('oCustId').value=o?o.customerId:'';if(o)onCustSel();
+  document.getElementById('oFisNo').value=o?(o.fisNo||''):'';document.getElementById('oOrdDate').value=o?o.orderDate:new Date().toISOString().split('T')[0];document.getElementById('oWedDate').value=o?(o.weddingDate||''):'';document.getElementById('oAmount').value=o?o.amount:'';document.getElementById('oDep').value=o?(o.deposit||0):0;document.getElementById('oP1').value=o?(o.p1||0):0;document.getElementById('oP2').value=o?(o.p2||0):0;document.getElementById('oP3').value=o?(o.p3||0):0;document.getElementById('oP4').value=o?(o.p4||0):0;document.getElementById('oNotes').value=o?(o.notes||''):'';
+  document.getElementById('payWarn').style.display='none';
+  goStep(o?2:1);if(o)document.getElementById('oBtnBack').style.display='none';
+  document.getElementById('ordOverlay').classList.add('open');
 }
-function deleteOrder(id) {
-  if(!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
-  orders = orders.filter(o => o.id !== id);
-  saveAll();
-  renderAll();
-  showToast('Sipariş silindi.');
+function closeOrderModal(){document.getElementById('ordOverlay').classList.remove('open');}
+function saveOrder(){
+  const editId=document.getElementById('oEditId').value;let custId;
+  if(ncOpen&&!editId){const nm=document.getElementById('ncName').value.trim(),np=document.getElementById('ncPhone').value.trim().replace(/\s/g,''),ne=document.getElementById('ncEmail').value.trim(),na=document.getElementById('ncAddress').value.trim();const nc={id:nCid++,name:nm,phone:np,email:ne,address:na,notes:''};customers.push(nc);custId=nc.id;}
+  else custId=parseInt(document.getElementById('oCustId').value);
+  const ordDate=document.getElementById('oOrdDate').value,wedDate=document.getElementById('oWedDate').value,amount=parseFloat(document.getElementById('oAmount').value),fisNo=document.getElementById('oFisNo').value.trim();
+  if(!ordDate){toast('Sipariş tarihi zorunludur.','fail');return;}if(!wedDate){toast('Düğün tarihi zorunludur.','fail');return;}if(!amount||amount<=0){toast('Geçerli bir tutar giriniz.','fail');return;}
+  if(fisNo){const dup=orders.find(o=>o.fisNo===fisNo&&String(o.id)!==editId);if(dup){toast('Bu fiş no zaten kullanılıyor.','fail');return;}}
+  const dep=parseFloat(document.getElementById('oDep').value)||0,p1=parseFloat(document.getElementById('oP1').value)||0,p2=parseFloat(document.getElementById('oP2').value)||0,p3=parseFloat(document.getElementById('oP3').value)||0,p4=parseFloat(document.getElementById('oP4').value)||0;
+  if(dep+p1+p2+p3+p4>amount){toast('Ödeme toplamı satış tutarını aşıyor!','fail');return;}
+  const data={customerId:custId,orderDate:ordDate,weddingDate:wedDate,amount,fisNo,deposit:dep,p1,p2,p3,p4,notes:document.getElementById('oNotes').value.trim(),status:'active'};
+  if(editId){const idx=orders.findIndex(o=>o.id===parseInt(editId));if(idx>=0)orders[idx]={...orders[idx],...data};toast('Sipariş güncellendi.');}
+  else{data.id=nOid++;orders.push(data);toast('Sipariş eklendi ✓');}
+  saveAll();closeOrderModal();renderAll();
+  // Siparişler panelini aç
+  if(!activeStatKey){showPanel('orders');}
 }
+function editOrder(id){const o=orders.find(x=>x.id===id);if(o)openOrderModal(o);}
+async function delOrder(id){const ok=await confirm2('Sipariş Silinecek','Bu siparişi silmek istediğinize emin misiniz?');if(!ok)return;orders=orders.filter(o=>o.id!==id);saveAll();renderAll();toast('Sipariş silindi.');}
 
-// ===================== CUSTOMER MODAL =====================
-function openCustomerModal(c=null) {
-  document.getElementById('customerEditId').value = c ? c.id : '';
-  document.getElementById('customerModalTitle').textContent = c ? 'Müşteri Düzenle' : 'Yeni Müşteri';
-  document.getElementById('cName').value = c ? c.name : '';
-  document.getElementById('cPhone').value = c ? c.phone : '';
-  document.getElementById('cEmail').value = c ? (c.email||'') : '';
-  document.getElementById('cAddress').value = c ? (c.address||'') : '';
-  document.getElementById('cNotes').value = c ? (c.notes||'') : '';
-  document.getElementById('customerModal').classList.add('open');
+// ═══════════ CUST MODAL ═══════════
+function openCustModal(c=null){document.getElementById('cEditId').value=c?c.id:'';document.getElementById('custTitle').textContent=c?'Müşteri Düzenle':'Yeni Müşteri';document.getElementById('cName').value=c?c.name:'';document.getElementById('cPhone').value=c?c.phone:'';document.getElementById('cEmail').value=c?(c.email||''):'';document.getElementById('cAddress').value=c?(c.address||''):'';document.getElementById('cNotes').value=c?(c.notes||''):'';document.getElementById('custOverlay').classList.add('open');}
+function closeCustModal(){document.getElementById('custOverlay').classList.remove('open');}
+function saveCust(){
+  const name=document.getElementById('cName').value.trim(),phone=document.getElementById('cPhone').value.trim().replace(/\s/g,''),email=document.getElementById('cEmail').value.trim();
+  if(!name){toast('Ad soyad zorunludur.','fail');return;}if(!phone||!vPhone(phone)){toast('Geçerli telefon girin (05xx...).','fail');return;}if(!vEmail(email)){toast('Geçerli e-posta girin.','fail');return;}
+  const data={name,phone,email,address:document.getElementById('cAddress').value.trim(),notes:document.getElementById('cNotes').value.trim()};
+  const editId=document.getElementById('cEditId').value;
+  if(editId){const idx=customers.findIndex(c=>c.id===parseInt(editId));if(idx>=0)customers[idx]={...customers[idx],...data};toast('Müşteri güncellendi.');}
+  else{data.id=nCid++;customers.push(data);toast('Müşteri eklendi.');}
+  saveAll();closeCustModal();renderAll();
 }
-function closeCustomerModal() { document.getElementById('customerModal').classList.remove('open'); }
+function editCust(id){const c=customers.find(x=>x.id===id);if(c)openCustModal(c);}
+async function delCust(id){const oc=orders.filter(o=>o.customerId===id).length;const ok=await confirm2('Müşteri Silinecek',oc>0?`${oc} siparişiyle birlikte silinecek!`:'Bu müşteriyi silmek istediğinize emin misiniz?','👤');if(!ok)return;customers=customers.filter(c=>c.id!==id);orders=orders.filter(o=>o.customerId!==id);saveAll();renderAll();toast('Müşteri silindi.');}
 
-function saveCustomer() {
-  const name = document.getElementById('cName').value.trim();
-  const phone = document.getElementById('cPhone').value.trim();
-  if(!name) { showToast('Ad soyad zorunludur.','error'); return; }
-  if(!phone) { showToast('Telefon zorunludur.','error'); return; }
-
-  const data = { name, phone,
-    email: document.getElementById('cEmail').value.trim(),
-    address: document.getElementById('cAddress').value.trim(),
-    notes: document.getElementById('cNotes').value.trim()
-  };
-
-  const editId = document.getElementById('customerEditId').value;
-  if(editId) {
-    const idx = customers.findIndex(c => c.id === parseInt(editId));
-    if(idx>=0) customers[idx] = {...customers[idx], ...data};
-    showToast('Müşteri güncellendi.');
-  } else {
-    data.id = nextCid++;
-    customers.push(data);
-    showToast('Yeni müşteri eklendi.');
-  }
-  saveAll();
-  closeCustomerModal();
-  renderAll();
-}
-
-function editCustomer(id) {
-  const c = customers.find(x => x.id === id);
-  if(c) openCustomerModal(c);
-}
-function deleteCustomer(id) {
-  if(!confirm('Bu müşteriyi silmek istediğinize emin misiniz? Müşteriye ait siparişler de silinecektir.')) return;
-  customers = customers.filter(c => c.id !== id);
-  orders = orders.filter(o => o.customerId !== id);
-  saveAll();
-  renderAll();
-  showToast('Müşteri silindi.');
-}
-
-// Close modals on overlay click
-document.getElementById('orderModal').addEventListener('click', function(e){ if(e.target===this) closeOrderModal(); });
-document.getElementById('customerModal').addEventListener('click', function(e){ if(e.target===this) closeCustomerModal(); });
-
-// ===================== DETAIL MODAL =====================
-function openDetailModal(id) {
-  const o = orders.find(x => x.id === id);
-  if(!o) return;
-  const c = getCustomer(o.customerId);
-  const total = Number(o.amount)||0;
-  const paid = calcPaid(o);
-  const rem = Math.max(0, total - paid);
-  const pct = total > 0 ? Math.min(100, (paid/total)*100) : 0;
-  document.getElementById('detailModalTitle').textContent = (c?c.name:'Sipariş') + ' — Detay';
-  document.getElementById('detailModalBody').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Müşteri</div><div style="font-weight:700">${c?c.name:'-'}</div></div>
-      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Telefon</div><div style="font-weight:700">${c?c.phone:'-'}</div></div>
-      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Fiş No</div><div style="font-weight:700">#${o.fisNo||'-'}</div></div>
-      <div style="background:#f9fafb;padding:14px;border-radius:10px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Düğün Tarihi</div><div style="font-weight:700">${formatDate(o.weddingDate)}</div></div>
-    </div>
-    <div style="background:var(--primary-light);border-radius:12px;padding:16px;margin-bottom:20px">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
-        <div><div style="font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:4px">Toplam</div><div style="font-size:20px;font-weight:800;color:var(--primary)">${tryLocale(total)}</div></div>
-        <div><div style="font-size:11px;color:var(--success);font-weight:700;text-transform:uppercase;margin-bottom:4px">Ödenen</div><div style="font-size:20px;font-weight:800;color:var(--success)">${tryLocale(paid)}</div></div>
-        <div><div style="font-size:11px;color:var(--danger);font-weight:700;text-transform:uppercase;margin-bottom:4px">Kalan</div><div style="font-size:20px;font-weight:800;color:${rem>0?'var(--danger)':'var(--success)'}">${tryLocale(rem)}</div></div>
+// ═══════════ DETAIL ═══════════
+function openDet(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  const c=getCust(o.customerId),total=+o.amount||0,p=paid(o),r=Math.max(0,total-p);
+  const pct=total>0?Math.min(100,(p/total)*100):0;
+  document.getElementById('detTitle').textContent=(c?c.name:'Sipariş')+' — Detay';
+  const payRows=[['Peşinat',o.deposit],['1. Ödeme',o.p1],['2. Ödeme',o.p2],['3. Ödeme',o.p3],['4. Ödeme',o.p4]].filter(([,v])=>+v>0);
+  document.getElementById('detBody').innerHTML=`
+    <div style="background:linear-gradient(135deg,#7c3aed,#5b21b6);border-radius:var(--r);padding:18px;color:#fff;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">
+        <div><div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Toplam</div><div style="font-size:17px;font-weight:800">${fmt(total)}</div></div>
+        <div><div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Ödenen</div><div style="font-size:17px;font-weight:800">${fmt(p)}</div></div>
+        <div><div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Kalan</div><div style="font-size:17px;font-weight:800">${fmt(r)}</div></div>
       </div>
-      <div style="margin-top:12px;background:rgba(255,255,255,.6);border-radius:99px;height:8px;overflow:hidden">
-        <div style="width:${pct}%;height:100%;background:${rem<=0?'var(--success)':'var(--primary)'};border-radius:99px;transition:.4s"></div>
-      </div>
-      <div style="text-align:center;margin-top:6px;font-size:12px;color:var(--primary);font-weight:600">${Math.round(pct)}% ödendi</div>
+      <div style="margin-top:12px;background:rgba(255,255,255,.25);border-radius:99px;height:6px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#fff;border-radius:99px"></div></div>
+      <div style="text-align:center;margin-top:5px;font-size:11px;opacity:.8;font-weight:600">${Math.round(pct)}% ödendi</div>
     </div>
-    <div style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Ödeme Detayları</div>
-    <table style="width:100%;font-size:14px;border-collapse:collapse">
-      <tr style="background:#f9fafb"><td style="padding:10px 12px;border-radius:8px 0 0 8px;color:var(--text-muted);font-weight:600">Peşinat</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.deposit||0)}</td></tr>
-      <tr><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">1. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p1||0)}</td></tr>
-      <tr style="background:#f9fafb"><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">2. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p2||0)}</td></tr>
-      <tr><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">3. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p3||0)}</td></tr>
-      <tr style="background:#f9fafb"><td style="padding:10px 12px;color:var(--text-muted);font-weight:600">4. Ödeme</td><td style="padding:10px 12px;text-align:right;font-weight:700">${tryLocale(o.p4||0)}</td></tr>
-    </table>
-    ${o.notes ? '<div style="margin-top:16px;background:#f9fafb;border-radius:10px;padding:14px"><div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:6px">Notlar</div><div style="font-size:14px">'+o.notes+'</div></div>' : ''}
-    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
-      ${rem > 0 ? '<button class="btn btn-primary" onclick="closeDetailModal();openPaymentAddModal('+o.id+')">+ Ödeme Ekle</button>' : ''}
-      <button class="btn btn-outline" onclick="closeDetailModal()">Kapat</button>
+    <div class="d-grid">
+      <div class="d-item"><div class="d-lbl">Müşteri</div><div class="d-val">${c?c.name:'-'}</div></div>
+      <div class="d-item"><div class="d-lbl">Telefon</div><div class="d-val">${c?c.phone:'-'}</div></div>
+      <div class="d-item"><div class="d-lbl">Fiş No</div><div class="d-val">#${o.fisNo||'-'}</div></div>
+      <div class="d-item"><div class="d-lbl">Düğün Tarihi</div><div class="d-val">${fmtD(o.weddingDate)}</div></div>
     </div>
-  `;
-  document.getElementById('detailModal').classList.add('open');
+    ${payRows.length?`<div style="font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px">Ödemeler</div>${payRows.map(([l,v],i)=>`<div class="pay-row-d" style="${i%2===0?'background:var(--card2)':''}"><span style="color:var(--tm);font-weight:600">${l}</span><span style="font-weight:700">${fmt(v)}</span></div>`).join('')}`:''}
+    ${o.notes?`<div style="margin-top:12px;background:var(--card2);border-radius:var(--r2);padding:11px;border:1px solid var(--border)"><div style="font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Notlar</div><div style="font-size:13px">${o.notes}</div></div>`:''}
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      ${r>0?`<button class="btn btn-prim btn-sm" onclick="closeDet();openPA(${o.id})">${I.plus} Ödeme Ekle</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="closeDet()">Kapat</button>
+    </div>`;
+  document.getElementById('detOverlay').classList.add('open');
 }
-function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+function closeDet(){document.getElementById('detOverlay').classList.remove('open');}
 
-// ===================== PAYMENT ADD MODAL =====================
-function openPaymentAddModal(id) {
-  const o = orders.find(x => x.id === id);
-  if(!o) return;
-  const c = getCustomer(o.customerId);
-  const total = Number(o.amount)||0;
-  const paid = calcPaid(o);
-  const rem = Math.max(0, total - paid);
-  document.getElementById('paymentAddOrderId').value = id;
-  document.getElementById('paymentAddTitle').textContent = (c?c.name:'Sipariş') + ' — Ödeme Ekle';
-  document.getElementById('paymentAddInfo').innerHTML =
-    '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text-muted);font-weight:600">Toplam Tutar:</span><span style="font-weight:700">'+tryLocale(total)+'</span></div>'
-    +'<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text-muted);font-weight:600">Ödenen:</span><span style="font-weight:700;color:var(--success)">'+tryLocale(paid)+'</span></div>'
-    +'<div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted);font-weight:600">Kalan:</span><span style="font-weight:800;color:var(--danger)">'+tryLocale(rem)+'</span></div>';
-  document.getElementById('paymentAddAmount').value = '';
-  document.getElementById('paymentAddNote').value = '';
-  document.getElementById('paymentAddModal').classList.add('open');
+// ═══════════ PAY ADD ═══════════
+function openPA(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  const c=getCust(o.customerId),total=+o.amount||0,p=paid(o),r=Math.max(0,total-p);
+  document.getElementById('paOrdId').value=id;document.getElementById('paTitle').textContent=(c?c.name:'-')+' — Ödeme';
+  document.getElementById('paInfo').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--tm);font-weight:600">Toplam:</span><span style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--tm);font-weight:600">Ödenen:</span><span style="font-weight:700;color:var(--ok)">${fmt(p)}</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--tm);font-weight:600">Kalan:</span><span style="font-weight:800;color:var(--err)">${fmt(r)}</span></div>`;
+  document.getElementById('paAmt').value='';document.getElementById('paNote').value='';
+  document.getElementById('paOverlay').classList.add('open');setTimeout(()=>document.getElementById('paAmt').focus(),80);
 }
-function closePaymentAddModal() { document.getElementById('paymentAddModal').classList.remove('open'); }
-
-function savePaymentAdd() {
-  const id = parseInt(document.getElementById('paymentAddOrderId').value);
-  const amount = parseFloat(document.getElementById('paymentAddAmount').value);
-  if(!amount || amount <= 0) { showToast('Geçerli bir tutar girin.','error'); return; }
-  
-  const o = orders.find(x => x.id === id);
-  if(!o) return;
-  
-  // Find the next empty payment slot
-  const slots = ['deposit','p1','p2','p3','p4'];
-  let placed = false;
-  for(const slot of slots) {
-    if(!Number(o[slot])) {
-      o[slot] = amount;
-      placed = true;
-      break;
-    }
-  }
-  if(!placed) {
-    // All slots full, add to p4 (accumulate)
-    o.p4 = (Number(o.p4)||0) + amount;
-  }
-  
-  saveAll();
-  closePaymentAddModal();
-  renderAll();
-  showToast('Ödeme kaydedildi. ✓');
+function closePA(){document.getElementById('paOverlay').classList.remove('open');}
+function savePA(){
+  const id=parseInt(document.getElementById('paOrdId').value),amount=parseFloat(document.getElementById('paAmt').value);
+  if(!amount||amount<=0){toast('Geçerli bir tutar girin.','fail');return;}
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  const r=rem(o);if(amount>r){toast(`Maksimum ${fmt(r)} girebilirsiniz.`,'fail');return;}
+  const slots=['deposit','p1','p2','p3','p4'];let placed=false;
+  for(const s of slots){if(!+o[s]){o[s]=amount;placed=true;break;}}
+  if(!placed)o.p4=(+o.p4||0)+amount;
+  saveAll();closePA();renderAll();toast(`${fmt(amount)} kaydedildi ✓`);
 }
 
-document.getElementById('detailModal').addEventListener('click', function(e){ if(e.target===this) closeDetailModal(); });
-document.getElementById('paymentAddModal').addEventListener('click', function(e){ if(e.target===this) closePaymentAddModal(); });
+// ESC
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.getElementById('paOverlay').classList.contains('open'))closePA();
+  else if(document.getElementById('detOverlay').classList.contains('open'))closeDet();
+  else if(document.getElementById('ordOverlay').classList.contains('open'))closeOrderModal();
+  else if(document.getElementById('custOverlay').classList.contains('open'))closeCustModal();
+});
 
+// BAŞLAT
+renderAll();
 </script>
 </body>
 </html>
