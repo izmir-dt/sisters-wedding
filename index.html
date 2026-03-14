@@ -673,6 +673,7 @@
            onerror="this.style.display='none';" alt="Sisters Wedding">
     </div>
     <div class="header-actions">
+      <button class="btn-action" onclick="openModal('overlay-help')" title="Yardım (?)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);font-weight:800;min-width:36px;">?</button>
       <div class="theme-toggle" onclick="toggleTheme()" title="Koyu/Açık mod">
         <span class="toggle-icon">☀️</span>
         <div class="toggle-track"><div class="toggle-knob"></div></div>
@@ -692,9 +693,6 @@
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Hizmet Bedeli
-      </button>
-      <button class="btn-action" onclick="openModal('overlay-help')" title="Yardım (?)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);">
-        ?
       </button>
       <button class="btn-action btn-primary-action" onclick="openNewOrder()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -2052,6 +2050,15 @@ function resetServiceModal() {
   document.getElementById('sf-existing-customer').value = '';
   document.getElementById('sf-new-customer-form').style.display = '';
   document.getElementById('sf-date').valueAsDate = new Date();
+}
+
+function openNewOrder() {
+  const data = loadData();
+  const sel = document.getElementById('existing-customer');
+  sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>';
+  data.customers.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+  resetNewOrderModal();
+  openModal('overlay-new');
 }
 
 function openServiceFee() {
