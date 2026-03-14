@@ -595,6 +595,20 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
 
+  /* ===== CATEGORY BUTTONS ===== */
+  .cat-btn {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid var(--border);
+    background: var(--card); font-size: 12px; font-weight: 700; cursor: pointer;
+    color: var(--text); transition: all 0.15s;
+  }
+  .cat-btn.active {
+    border-color: var(--primary); background: var(--primary-light); color: var(--primary);
+  }
+  .staff-btn-active-S { border-color: #7c3aed !important; background: rgba(124,58,237,0.1) !important; color: #7c3aed !important; }
+  .staff-btn-active-E { border-color: #0284c7 !important; background: rgba(2,132,199,0.1) !important; color: #0284c7 !important; }
+  .kind-btn-active-O  { border-color: #d97706 !important; background: rgba(217,119,6,0.1) !important; color: #d97706 !important; }
+  .kind-btn-active-H  { border-color: #059669 !important; background: rgba(5,150,105,0.1) !important; color: #059669 !important; }
+
   /* ===== MOBILE CARDS ===== */
   .mobile-cards { display: none; flex-direction: column; gap: 10px; width: 100%; }
   .m-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px 14px; }
@@ -678,6 +692,9 @@
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Hizmet Bedeli
+      </button>
+      <button class="btn-action" onclick="openModal('overlay-help')" title="Yardım (?)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);">
+        ?
       </button>
       <button class="btn-action btn-primary-action" onclick="openNewOrder()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -958,19 +975,25 @@
 
 <!-- NEW ORDER MODAL -->
 <div class="overlay" id="overlay-new">
-  <div class="modal">
+  <div class="modal" style="max-width:520px;">
     <div class="modal-header">
-      <div class="modal-title">Yeni Sipariş</div>
+      <div class="modal-title" id="order-modal-title">Yeni Sipariş</div>
       <button class="modal-close" onclick="closeModal('overlay-new')">×</button>
     </div>
     <div class="modal-body">
+
+      <!-- STEPPER -->
       <div class="stepper">
         <div class="step" id="step1-indicator"><div class="step-num">1</div><span>Müşteri</span></div>
         <div class="step-line"></div>
         <div class="step" id="step2-indicator"><div class="step-num">2</div><span>Sipariş</span></div>
+        <div class="step-line"></div>
+        <div class="step" id="step3-indicator"><div class="step-num">3</div><span>Ödeme</span></div>
       </div>
 
+      <!-- ADIM 1: MÜŞTERİ -->
       <div id="step1">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Kayıtlı bir müşteriyi seçin ya da yeni müşteri bilgilerini girin.</p>
         <div class="form-group">
           <label class="form-label">Kayıtlı Müşteri Seç</label>
           <select class="form-control" id="existing-customer" onchange="onExistingCustomerSelect()">
@@ -999,13 +1022,57 @@
         </div>
       </div>
 
+      <!-- ADIM 2: SİPARİŞ BİLGİLERİ -->
       <div id="step2" style="display:none;">
-        <div id="service-deduction-info" style="display:none;" class="service-info" style="margin-bottom:12px;">
+        <div id="service-deduction-info" style="display:none;" class="service-info">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
           <span id="service-deduction-text"></span>
         </div>
+
+        <!-- KİMİN MÜŞTERİSİ + ÜRÜN TÜRÜ - büyük seçim butonları -->
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Kimin Müşterisi *</label>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button type="button" id="btn-staff-S" onclick="selectStaff('S')"
+              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
+              👩 Seher
+            </button>
+            <button type="button" id="btn-staff-E" onclick="selectStaff('E')"
+              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
+              👩 Ebru
+            </button>
+          </div>
+          <input type="hidden" id="order-staff" value="">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Ürün Türü *</label>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button type="button" id="btn-kind-O" onclick="selectKind('Ö')"
+              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
+              ✂️ Özel Dikim
+            </button>
+            <button type="button" id="btn-kind-H" onclick="selectKind('H')"
+              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
+              🏪 Hazır
+            </button>
+          </div>
+          <input type="hidden" id="order-type" value="">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Kategori</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+            <button type="button" class="cat-btn active" data-cat="Gelinlik" onclick="selectCategory(this)">👰 Gelinlik</button>
+            <button type="button" class="cat-btn" data-cat="Abiye" onclick="selectCategory(this)">💃 Abiye</button>
+            <button type="button" class="cat-btn" data-cat="Kinalik" onclick="selectCategory(this)">🧕 Kınalık</button>
+            <button type="button" class="cat-btn" data-cat="Diger" onclick="selectCategory(this)">🛍️ Diğer</button>
+          </div>
+          <input type="hidden" id="order-category-val" value="Gelinlik">
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Fiş No</label>
@@ -1016,58 +1083,33 @@
             <input type="date" class="form-control" id="order-date">
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Kimin Müşterisi</label>
-            <select class="form-control" id="order-staff">
-              <option value="">— Seçin —</option>
-              <option value="S">Seher</option>
-              <option value="E">Ebru</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Ürün Türü</label>
-            <select class="form-control" id="order-type">
-              <option value="">— Seçin —</option>
-              <option value="Ö">Özel Dikim</option>
-              <option value="H">Hazır</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Kategori</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
-              <input type="radio" name="order-category" value="Gelinlik" checked> 👰 Gelinlik
-            </label>
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
-              <input type="radio" name="order-category" value="Abiye"> 💃 Abiye
-            </label>
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
-              <input type="radio" name="order-category" value="Kinalik"> 🧕 Kınalık
-            </label>
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
-              <input type="radio" name="order-category" value="Diger"> 🛍️ Diğer
-            </label>
-          </div>
-        </div>
         <div class="form-group">
           <label class="form-label">Düğün Tarihi</label>
           <input type="date" class="form-control" id="wedding-date">
         </div>
         <div class="form-group">
-          <label class="form-label">Gelinlik Toplam Tutarı (₺) *</label>
+          <label class="form-label">Gelinlik / Ürün Toplam Tutarı (₺) *</label>
           <input type="number" class="form-control" id="order-total" placeholder="0" oninput="calcRemaining()">
         </div>
         <div class="form-group">
           <label class="form-label">Not</label>
           <input type="text" class="form-control" id="order-note" placeholder="Not...">
         </div>
+      </div>
+
+      <!-- ADIM 3: ÖDEME PLANI -->
+      <div id="step3" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+          Peşinat ve sonraki ödemeleri planlayın. Tüm alanlar isteğe bağlıdır, sonradan da eklenebilir.
+        </p>
         <div class="payment-plan">
           <div class="payment-plan-title">Ödeme Planı (₺)</div>
-          <div class="payment-row" id="service-deduction-row" style="display:none;">
+          <div id="service-deduction-row" style="display:none;" class="payment-row">
             <label style="color:var(--service-color);">Hizmet Bed. İndirimi</label>
             <input type="number" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--text);">
+            Toplam: <span id="pp-total-display" style="color:var(--primary);">₺0</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
             <div>
@@ -1100,16 +1142,19 @@
               <option value="Havale">🏦 Havale / EFT</option>
             </select>
           </div>
-          <div class="payment-row" style="margin-bottom:0;margin-top:4px;">
-            <label style="color:var(--danger);font-weight:700;">Kalan</label>
-            <input type="number" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;">
+          <div class="payment-row" style="margin-top:6px;margin-bottom:0;">
+            <label style="color:var(--danger);font-weight:700;">Kalan Borç</label>
+            <input type="number" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;max-width:180px;">
           </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('overlay-new')">İptal</button>
-      <button class="btn btn-primary" id="step-btn" onclick="handleStepBtn()">Devam →</button>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-footer" style="gap:8px;">
+      <button class="btn btn-secondary" id="step-back-btn" onclick="orderStepBack()" style="display:none;">← Geri</button>
+      <button class="btn btn-secondary" onclick="closeModal('overlay-new')" id="step-cancel-btn">İptal</button>
+      <button class="btn btn-primary" id="step-btn" onclick="orderStepNext()">Devam →</button>
     </div>
   </div>
 </div>
@@ -1380,6 +1425,84 @@
   </div>
 </div>
 
+
+<!-- YARDIM MODALI -->
+<div class="overlay" id="overlay-help" style="z-index:9998;">
+  <div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto;">
+    <div class="modal-header">
+      <div class="modal-title">📖 Kullanım Kılavuzu</div>
+      <button class="modal-close" onclick="closeModal('overlay-help')">×</button>
+    </div>
+    <div class="modal-body" style="padding-top:8px;">
+
+      <div style="background:var(--primary-light);border-radius:10px;padding:12px 16px;margin-bottom:18px;">
+        <div style="font-weight:800;font-size:14px;color:var(--primary);margin-bottom:4px;">Hoş geldiniz! 👋</div>
+        <div style="font-size:13px;color:var(--text);">Bu uygulama Sisters Wedding sipariş ve tahsilat takip sistemidir.</div>
+      </div>
+
+      <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🔢 Nasıl Çalışır?</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:20px;flex-shrink:0;">📊</span>
+          <div><strong>Ana Ekran</strong> — Özet rakamlar ve grafikler her zaman görünür. Stat kartlara tıklayarak ilgili listeyi açın, tekrar tıklayınca kapanır.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:20px;flex-shrink:0;">➕</span>
+          <div><strong>Yeni Sipariş</strong> — Sağ üstteki butona tıklayın. 3 adımda tamamlanır: Müşteri → Sipariş Detayı → Ödeme Planı.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:20px;flex-shrink:0;">💳</span>
+          <div><strong>Ödeme Almak</strong> — Sipariş listesinde "Detay" butonuna tıklayın, açılan pencerede "Ödeme Ekle" diyerek tahsilat kaydedin.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:20px;flex-shrink:0;">💰</span>
+          <div><strong>Hizmet Bedeli</strong> — Müşteri önce danışma ücreti ödediyse bu kısma girin. Sipariş oluşturulduğunda otomatik düşülür.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--bg);border-radius:8px;">
+          <span style="font-size:20px;flex-shrink:0;">💾</span>
+          <div><strong>Yedek</strong> — Veriler tarayıcıda saklanır. Düzenli olarak "Yedek" butonundan JSON dosyası indirin. 7 günde yedek alınmamışsa kırmızı nokta çıkar.</div>
+        </div>
+      </div>
+
+      <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">⌨️ Klavye Kısayolları</div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;margin-bottom:18px;">
+        <kbd style="background:var(--bg);border:1.5px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700;">N</kbd>
+        <span style="font-size:13px;">Yeni sipariş aç</span>
+        <kbd style="background:var(--bg);border:1.5px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700;">H</kbd>
+        <span style="font-size:13px;">Hizmet bedeli ekle</span>
+        <kbd style="background:var(--bg);border:1.5px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700;">ESC</kbd>
+        <span style="font-size:13px;">Açık pencereyi kapat / listeyi kapat</span>
+        <kbd style="background:var(--bg);border:1.5px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700;">Enter</kbd>
+        <span style="font-size:13px;">Sipariş formunda bir sonraki adıma geç</span>
+        <kbd style="background:var(--bg);border:1.5px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;font-family:monospace;font-weight:700;">?</kbd>
+        <span style="font-size:13px;">Bu yardım penceresini aç</span>
+      </div>
+
+      <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:10px;">🏷️ S/E ve Ö/H Ne Demek?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div style="padding:10px;background:rgba(124,58,237,0.08);border-radius:8px;border:1.5px solid rgba(124,58,237,0.2);">
+          <div style="font-weight:800;color:#7c3aed;">S = Seher</div>
+          <div style="font-size:12px;color:var(--text-muted);">Seher'in müşterisi</div>
+        </div>
+        <div style="padding:10px;background:rgba(2,132,199,0.08);border-radius:8px;border:1.5px solid rgba(2,132,199,0.2);">
+          <div style="font-weight:800;color:#0284c7;">E = Ebru</div>
+          <div style="font-size:12px;color:var(--text-muted);">Ebru'nun müşterisi</div>
+        </div>
+        <div style="padding:10px;background:rgba(217,119,6,0.08);border-radius:8px;border:1.5px solid rgba(217,119,6,0.2);">
+          <div style="font-weight:800;color:#d97706;">Ö = Özel Dikim</div>
+          <div style="font-size:12px;color:var(--text-muted);">Müşteriye özel dikilen ürün</div>
+        </div>
+        <div style="padding:10px;background:rgba(5,150,105,0.08);border-radius:8px;border:1.5px solid rgba(5,150,105,0.2);">
+          <div style="font-weight:800;color:#059669;">H = Hazır</div>
+          <div style="font-size:12px;color:var(--text-muted);">Hazır ürün satışı</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('overlay-help')">Anladım ✓</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===== CUSTOM CONFIRM / ALERT =====
@@ -1996,38 +2119,154 @@ function resetNewOrderModal() {
   selectedCustomerId = null;
   document.getElementById('step1').style.display = '';
   document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'none';
   document.getElementById('step-btn').textContent = 'Devam →';
+  document.getElementById('step-back-btn').style.display = 'none';
+  document.getElementById('step-cancel-btn').style.display = '';
   setStepIndicator(1);
-  ['new-name','new-phone','new-email','new-note-cust','fis-no','order-date','wedding-date','order-total','order-note','pp-1','pp-2','pp-3','pp-4','pp-1-date','pp-remaining','pp-service-deduction'].forEach(id => {
+
+  ['new-name','new-phone','new-email','new-note-cust','fis-no','order-date',
+   'wedding-date','order-total','order-note','pp-1','pp-2','pp-3','pp-4',
+   'pp-1-date','pp-remaining','pp-service-deduction','order-staff','order-type'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('existing-customer').value = '';
   document.getElementById('new-customer-form').style.display = '';
   document.getElementById('service-deduction-info').style.display = 'none';
   document.getElementById('service-deduction-row').style.display = 'none';
-  document.getElementById('order-staff').value = '';
-  document.getElementById('order-type').value = '';
-  const catRadio = document.querySelector('input[name="order-category"][value="Gelinlik"]');
-  if (catRadio) catRadio.checked = true;
   document.getElementById('deposit-detail-row').style.display = 'none';
   document.getElementById('deposit-method-row').style.display = 'none';
-  document.getElementById('pp-1-method').value = '';
+  document.getElementById('order-category-val').value = 'Gelinlik';
+
+  // Reset staff/kind/category buttons
+  ['btn-staff-S','btn-staff-E'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = ''; el.style.borderColor = 'var(--border)'; el.style.background = 'var(--card)'; el.style.color = 'var(--text)'; }
+  });
+  ['btn-kind-O','btn-kind-H'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.borderColor = 'var(--border)'; el.style.background = 'var(--card)'; el.style.color = 'var(--text)'; }
+  });
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  const defCat = document.querySelector('.cat-btn[data-cat="Gelinlik"]');
+  if (defCat) defCat.classList.add('active');
   document.getElementById('order-date').valueAsDate = new Date();
 }
 
 function setStepIndicator(step) {
-  document.getElementById('step1-indicator').className = 'step ' + (step === 1 ? 'active' : 'done');
-  document.getElementById('step2-indicator').className = 'step ' + (step === 2 ? 'active' : '');
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step' + i + '-indicator');
+    if (!el) return;
+    el.className = 'step ' + (i < step ? 'done' : i === step ? 'active' : '');
+  });
 }
 
-function openNewOrder() {
-  const data = loadData();
-  const sel = document.getElementById('existing-customer');
-  sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>';
-  data.customers.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
-  resetNewOrderModal();
-  openModal('overlay-new');
+function selectStaff(val) {
+  document.getElementById('order-staff').value = val;
+  const sBtn = document.getElementById('btn-staff-S');
+  const eBtn = document.getElementById('btn-staff-E');
+  if (val === 'S') {
+    sBtn.style.cssText += ';border-color:#7c3aed;background:rgba(124,58,237,0.12);color:#7c3aed;';
+    eBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
+  } else {
+    eBtn.style.cssText += ';border-color:#0284c7;background:rgba(2,132,199,0.12);color:#0284c7;';
+    sBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
+  }
 }
+
+function selectKind(val) {
+  document.getElementById('order-type').value = val;
+  const oBtn = document.getElementById('btn-kind-O');
+  const hBtn = document.getElementById('btn-kind-H');
+  if (val === 'Ö') {
+    oBtn.style.cssText += ';border-color:#d97706;background:rgba(217,119,6,0.12);color:#d97706;';
+    hBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
+  } else {
+    hBtn.style.cssText += ';border-color:#059669;background:rgba(5,150,105,0.12);color:#059669;';
+    oBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
+  }
+}
+
+function selectCategory(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('order-category-val').value = btn.dataset.cat;
+}
+
+function orderStepNext() {
+  if (newOrderStep === 1) {
+    // Validate step 1
+    if (!selectedCustomerId) {
+      const name = document.getElementById('new-name').value.trim();
+      const phone = document.getElementById('new-phone').value.trim();
+      if (!name) { showAlert('Lütfen müşteri adını girin.', 'Eksik Bilgi'); return; }
+      if (!phone) { showAlert('Lütfen telefon numarasını girin.', 'Eksik Bilgi'); return; }
+    }
+    // Advance to step 2
+    newOrderStep = 2;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = '';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step-btn').textContent = 'Devam →';
+    document.getElementById('step-back-btn').style.display = '';
+    setStepIndicator(2);
+    // Show service deduction if exists
+    const data = loadData();
+    if (selectedCustomerId) {
+      const svcTotal = getCustomerServiceTotal(data, selectedCustomerId);
+      const info = document.getElementById('service-deduction-info');
+      if (svcTotal > 0) {
+        info.style.display = 'flex';
+        document.getElementById('service-deduction-text').textContent =
+          'Bu müşteriye ' + fmt(svcTotal) + ' hizmet bedeli uygulanacak.';
+        document.getElementById('service-deduction-row').style.display = 'flex';
+        document.getElementById('pp-service-deduction').value = svcTotal;
+      } else {
+        info.style.display = 'none';
+      }
+    }
+
+  } else if (newOrderStep === 2) {
+    // Validate step 2
+    const total = document.getElementById('order-total').value.trim();
+    const orderDate = document.getElementById('order-date').value;
+    if (!total) { showAlert('Lütfen toplam tutarı girin.', 'Eksik Bilgi'); return; }
+    if (!orderDate) { showAlert('Lütfen sipariş tarihini seçin.', 'Eksik Bilgi'); return; }
+    // Update total display in step 3
+    document.getElementById('pp-total-display').textContent = fmt(parseFloat(total));
+    calcRemaining();
+    // Advance to step 3
+    newOrderStep = 3;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = '';
+    document.getElementById('step-btn').textContent = 'Kaydet ✓';
+    setStepIndicator(3);
+
+  } else if (newOrderStep === 3) {
+    saveNewOrder();
+  }
+}
+
+function orderStepBack() {
+  if (newOrderStep === 2) {
+    newOrderStep = 1;
+    document.getElementById('step1').style.display = '';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step-btn').textContent = 'Devam →';
+    document.getElementById('step-back-btn').style.display = 'none';
+    setStepIndicator(1);
+  } else if (newOrderStep === 3) {
+    newOrderStep = 2;
+    document.getElementById('step2').style.display = '';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step-btn').textContent = 'Devam →';
+    setStepIndicator(2);
+  }
+}
+
+function handleStepBtn() { orderStepNext(); }
 
 function onExistingCustomerSelect() {
   const val = document.getElementById('existing-customer').value;
@@ -2035,73 +2274,23 @@ function onExistingCustomerSelect() {
   selectedCustomerId = val || null;
 }
 
-function handleStepBtn() {
-  if (newOrderStep === 1) {
-    if (!selectedCustomerId) {
-      const name  = document.getElementById('new-name').value.trim();
-      const phone = document.getElementById('new-phone').value.trim();
-      if (!name)  { alert('Lütfen müşteri adını girin.'); return; }
-      if (!phone) { alert('Lütfen telefon numarasını girin.'); return; }
-    }
-    newOrderStep = 2;
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = '';
-    document.getElementById('step-btn').textContent = 'Kaydet';
-    setStepIndicator(2);
-
-    const data = loadData();
-    if (!document.getElementById('fis-no').value) {
-      document.getElementById('fis-no').value = String(data.orders.length + 1).padStart(4, '0');
-    }
-
-    // Mevcut hizmet bedeli var mı kontrol et
-    if (selectedCustomerId) {
-      const svcTotal = getCustomerServiceTotal(data, selectedCustomerId);
-      if (svcTotal > 0) {
-        document.getElementById('service-deduction-info').style.display = 'flex';
-        document.getElementById('service-deduction-text').textContent =
-          `Bu müşterinin ${fmt(svcTotal)} hizmet bedeli gelinlik ücretinden düşülecek.`;
-        document.getElementById('service-deduction-row').style.display = 'flex';
-        document.getElementById('pp-service-deduction').value = svcTotal;
-      }
-    }
-    calcRemaining();
-  } else {
-    saveNewOrder();
-  }
-}
-
-function calcRemaining() {
-  const total  = parseFloat(document.getElementById('order-total').value) || 0;
-  const svcDed = parseFloat(document.getElementById('pp-service-deduction').value) || 0;
-  const p1 = parseFloat(document.getElementById('pp-1').value) || 0;
-  const p2 = parseFloat(document.getElementById('pp-2').value) || 0;
-  const p3 = parseFloat(document.getElementById('pp-3').value) || 0;
-  const p4 = parseFloat(document.getElementById('pp-4').value) || 0;
-  const net = Math.max(0, total - svcDed);
-  document.getElementById('pp-remaining').value = Math.max(0, net - p1 - p2 - p3 - p4) || '';
-  // Show deposit date/method rows if peşinat entered
-  const hasDeposit = p1 > 0;
-  document.getElementById('deposit-detail-row').style.display = hasDeposit ? 'flex' : 'none';
-  document.getElementById('deposit-method-row').style.display = hasDeposit ? 'flex' : 'none';
-  if (hasDeposit && !document.getElementById('pp-1-date').value) {
-    document.getElementById('pp-1-date').value = document.getElementById('order-date').value || '';
-  }
-}
 
 function saveNewOrder() {
   const total = document.getElementById('order-total').value.trim();
   const orderDate = document.getElementById('order-date').value;
-  if (!total || !orderDate) { alert('Lütfen sipariş tarihini ve tutarı girin.'); return; }
+  if (!total || !orderDate) { showAlert('Lütfen sipariş tarihini ve tutarı girin.', 'Eksik Bilgi'); return; }
 
   const data = loadData();
   let customerId = selectedCustomerId;
 
   if (!customerId) {
+    const name  = document.getElementById('new-name').value.trim();
+    const phone = document.getElementById('new-phone').value.trim();
+    if (!name)  { showAlert('Lütfen müşteri adını girin.', 'Eksik Bilgi'); return; }
+    if (!phone) { showAlert('Lütfen telefon numarasını girin.', 'Eksik Bilgi'); return; }
     const newCust = {
       id: genId(),
-      name:  document.getElementById('new-name').value.trim(),
-      phone: document.getElementById('new-phone').value.trim(),
+      name, phone,
       email: document.getElementById('new-email').value.trim(),
       note:  document.getElementById('new-note-cust').value.trim(),
     };
@@ -2113,9 +2302,9 @@ function saveNewOrder() {
   const pp2 = parseFloat(document.getElementById('pp-2').value) || 0;
   const pp3 = parseFloat(document.getElementById('pp-3').value) || 0;
   const pp4 = parseFloat(document.getElementById('pp-4').value) || 0;
-  const pp1Date = document.getElementById('pp-1-date').value || orderDate;
+  const pp1Date   = document.getElementById('pp-1-date').value || orderDate;
   const pp1Method = document.getElementById('pp-1-method').value || '';
-  const payments = [];
+  const payments  = [];
   if (pp1 > 0) {
     const depositNote = ['Peşinat', pp1Method].filter(Boolean).join(' — ');
     payments.push({ id: genId(), amount: pp1, date: pp1Date, note: depositNote, method: pp1Method });
@@ -2124,7 +2313,6 @@ function saveNewOrder() {
   if (pp3 > 0) payments.push({ id: genId(), amount: pp3, date: orderDate, note: '2. Ödeme' });
   if (pp4 > 0) payments.push({ id: genId(), amount: pp4, date: orderDate, note: '3. Ödeme' });
 
-  const catChecked = document.querySelector('input[name="order-category"]:checked');
   data.orders.push({
     id: genId(),
     customerId,
@@ -2135,7 +2323,7 @@ function saveNewOrder() {
     note:       document.getElementById('order-note').value.trim(),
     staff:      document.getElementById('order-staff').value,
     orderKind:  document.getElementById('order-type').value,
-    category:   catChecked ? catChecked.value : 'Gelinlik',
+    category:   document.getElementById('order-category-val').value || 'Gelinlik',
     payments,
   });
 
@@ -2583,6 +2771,42 @@ function exportExcel() {
 }
 
 renderAll();
+
+// ===== KLAVYE KISAYOLLARI =====
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement.tagName;
+  const inInput = ['INPUT','TEXTAREA','SELECT'].includes(tag);
+  const anyModalOpen = document.querySelector('.overlay.active');
+
+  // ESC — kapat
+  if (e.key === 'Escape') {
+    const openOverlay = document.querySelector('.overlay.active');
+    if (openOverlay) {
+      const id = openOverlay.id;
+      if (id === 'overlay-confirm' || id === 'overlay-alert') return;
+      closeModal(id);
+    } else if (activePanel) {
+      closePanel();
+    }
+    return;
+  }
+
+  // Sipariş formunda Enter = ileri adım
+  if (e.key === 'Enter' && document.getElementById('overlay-new')?.classList.contains('active')) {
+    if (!inInput || e.ctrlKey) {
+      e.preventDefault();
+      orderStepNext();
+    }
+    return;
+  }
+
+  // Kısayollar — sadece modal kapalıyken
+  if (anyModalOpen || inInput) return;
+
+  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openNewOrder(); }
+  if (e.key === 'h' || e.key === 'H') { e.preventDefault(); openServiceFee(); }
+  if (e.key === '?') { e.preventDefault(); openModal('overlay-help'); }
+});
 
 // ===== QUICK UPDATE (inline edit) =====
 function quickUpdateOrder(orderId, field, value) {
