@@ -3144,101 +3144,104 @@ function exportPDF() {
 
 // ===== EXCEL =====
 function exportExcel() {
-  const data = loadData();
-  const totalSales = data.orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
-  const totalDebt  = data.orders.reduce((s, o) => {
-    const net = getNetTotal(data, o);
-    const paid = (o.payments || []).reduce((ps, p) => ps + (parseFloat(p.amount) || 0), 0);
+  const data       = loadData();
+  const totalSales = data.orders.reduce((s,o) => s + (parseFloat(o.total)||0), 0);
+  const totalDebt  = data.orders.reduce((s,o) => {
+    const net  = getNetTotal(data,o);
+    const paid = (o.payments||[]).reduce((ps,p)=>ps+(parseFloat(p.amount)||0),0);
     return s + Math.max(0, net - paid);
   }, 0);
 
-  const staffStyle = 'ss:StyleID="s1"';
-  const redStyle   = 'ss:StyleID="s2"';
-  const hdrStyle   = 'ss:StyleID="s3"';
-  const hdrBlue    = 'ss:StyleID="s4"';
-  const sumGreen   = 'ss:StyleID="s5"';
-  const sumRed     = 'ss:StyleID="s6"';
+  // ── SheetJS benzeri basit XLSX oluşturma (XML tabanlı gerçek xlsx) ──
+  // Tablo çizgisi ve kolon genişlikleri için HTML tablo → Excel dönüşümü kullanılıyor
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const fmtN = n => n > 0 ? n.toLocaleString('tr-TR') : '';
 
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:x="urn:schemas-microsoft-com:office:excel">
-<Styles>
-  <Style ss:ID="s1"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1"/></Style>
-  <Style ss:ID="s2"><Font ss:Color="#DC2626" ss:Bold="1"/><Alignment ss:Horizontal="Right"/></Style>
-  <Style ss:ID="s3"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1"/><Interior ss:Color="#B8D4EC" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="s4"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2563EB" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="s5"><Font ss:Bold="1"/><Interior ss:Color="#22C55E" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="s6"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#DC2626" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="num"><Alignment ss:Horizontal="Right"/></Style>
-  <Style ss:ID="numred"><Alignment ss:Horizontal="Right"/><Font ss:Color="#DC2626" ss:Bold="1"/></Style>
-</Styles>
-<Worksheet ss:Name="Sipariş Takip">
-<Table>
-  <Row>
-    <Cell ss:MergeAcross="5" ${sumGreen}><Data ss:Type="String">TOPLAM SATIŞ</Data></Cell>
-    <Cell ${sumGreen}><Data ss:Type="Number">${totalSales}</Data></Cell>
-    <Cell ss:MergeAcross="3"></Cell>
-    <Cell ss:MergeAcross="5" ${sumRed}><Data ss:Type="String">TOPLAM BORÇ</Data></Cell>
-    <Cell ${sumRed}><Data ss:Type="Number">${totalDebt}</Data></Cell>
-  </Row>
-  <Row></Row>
-  <Row>
-    <Cell ss:MergeAcross="14"><Data ss:Type="String">SistersS Sipariş Takip Çizelgesi</Data></Cell>
-  </Row>
-  <Row>
-    <Cell ${hdrStyle}><Data ss:Type="String">S/E</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">Tür</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">AD SOYAD</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">FİŞ NO</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">TELEFON</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">SİPARİŞ TARİHİ</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">DÜĞÜN TARİHİ</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">NOTLAR</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">SATIŞ TUTARI</Data></Cell>
-    <Cell ${hdrBlue}><Data ss:Type="String">PEŞİN</Data></Cell>
-    <Cell ${hdrBlue}><Data ss:Type="String">1</Data></Cell>
-    <Cell ${hdrBlue}><Data ss:Type="String">2</Data></Cell>
-    <Cell ${hdrBlue}><Data ss:Type="String">3</Data></Cell>
-    <Cell ${hdrBlue}><Data ss:Type="String">4</Data></Cell>
-    <Cell ${hdrStyle}><Data ss:Type="String">KALAN BORÇ</Data></Cell>
-  </Row>`;
-
-  data.orders.forEach(o => {
+  const rows = data.orders.map(o => {
     const cust  = data.customers.find(c => c.id === o.customerId) || {};
     const pmts  = o.payments || [];
     const pesin = pmts.find(p => p.note && p.note.includes('Peşinat'));
     const rest  = pmts.filter(p => !p.note || !p.note.includes('Peşinat'));
-    const paid  = pmts.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const paid  = pmts.reduce((s,p) => s+(parseFloat(p.amount)||0), 0);
     const net   = getNetTotal(data, o);
     const kalan = Math.max(0, net - paid);
-    const p = [pesin, rest[0], rest[1], rest[2], rest[3]].map(x => x ? parseFloat(x.amount) || 0 : 0);
-    const kalanStyle = kalan > 0 ? 'ss:StyleID="numred"' : 'ss:StyleID="num"';
-    xml += `
-  <Row>
-    <Cell ${staffStyle}><Data ss:Type="String">${o.staff||''}</Data></Cell>
-    <Cell ${staffStyle}><Data ss:Type="String">${o.orderKind||''}</Data></Cell>
-    <Cell><Data ss:Type="String">${(cust.name||'').replace(/&/g,'&amp;')}</Data></Cell>
-    <Cell ss:StyleID="s1"><Data ss:Type="String">${o.fisNo||''}</Data></Cell>
-    <Cell><Data ss:Type="String">${cust.phone||''}</Data></Cell>
-    <Cell ss:StyleID="s1"><Data ss:Type="String">${fmtDate(o.orderDate)}</Data></Cell>
-    <Cell ss:StyleID="s1"><Data ss:Type="String">${fmtDate(o.weddingDate)}</Data></Cell>
-    <Cell><Data ss:Type="String">${(o.note||'').replace(/&/g,'&amp;')}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="Number">${parseFloat(o.total)||0}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="${p[0]>0?'Number':'String'}">${p[0]>0?p[0]:''}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="${p[1]>0?'Number':'String'}">${p[1]>0?p[1]:''}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="${p[2]>0?'Number':'String'}">${p[2]>0?p[2]:''}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="${p[3]>0?'Number':'String'}">${p[3]>0?p[3]:''}</Data></Cell>
-    <Cell ss:StyleID="num"><Data ss:Type="${p[4]>0?'Number':'String'}">${p[4]>0?p[4]:''}</Data></Cell>
-    <Cell ${kalanStyle}><Data ss:Type="${kalan>0?'Number':'String'}">${kalan>0?kalan:0}</Data></Cell>
-  </Row>`;
+    const p     = [pesin, rest[0], rest[1], rest[2], rest[3]].map(x => x ? parseFloat(x.amount)||0 : 0);
+    return { o, cust, p, kalan, net };
   });
 
-  xml += '\n</Table></Worksheet></Workbook>';
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  // HTML tablosu — Excel HTML import formatı (tablo çizgileri çalışır)
+  const borderStyle = 'border:1px solid #aac;';
+  const tdBase      = `style="font-family:Arial;font-size:9pt;padding:4px 6px;${borderStyle}"`;
+  const tdNum       = `style="font-family:Arial;font-size:9pt;padding:4px 6px;${borderStyle}text-align:right;"`;
+  const tdCtr       = `style="font-family:Arial;font-size:9pt;padding:4px 6px;${borderStyle}text-align:center;"`;
+  const thBase      = `style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 6px;${borderStyle}background:#B8D4EC;text-align:center;"`;
+  const thBlue      = `style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 6px;${borderStyle}background:#2563EB;color:#fff;text-align:center;"`;
+  const thTitle     = `style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 6px;${borderStyle}background:#B8D4EC;"`;
+
+  let html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+<x:ExcelWorksheet><x:Name>Sipariş Takip</x:Name>
+<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+</head><body>
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-family:Arial;font-size:9pt;">
+  <tr>
+    <td colspan="7" style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 8px;background:#4CAF50;color:#fff;border:1px solid #aac;">TOPLAM SATIŞ</td>
+    <td colspan="2" style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 8px;background:#4CAF50;color:#fff;border:1px solid #aac;text-align:right;">${totalSales.toLocaleString('tr-TR')}</td>
+    <td colspan="2" style="border:none;"></td>
+    <td colspan="3" style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 8px;background:#DC2626;color:#fff;border:1px solid #aac;">TOPLAM BORÇ</td>
+    <td style="font-family:Arial;font-size:9pt;font-weight:bold;padding:5px 8px;background:#DC2626;color:#fff;border:1px solid #aac;text-align:right;">${totalDebt.toLocaleString('tr-TR')}</td>
+  </tr>
+  <tr><td colspan="15" style="padding:4px;border:none;"></td></tr>
+  <tr>
+    <td colspan="15" style="font-family:Arial;font-size:13pt;font-weight:bold;padding:6px 8px;border:1px solid #aac;">SistersS Sipariş Takip Çizelgesi</td>
+  </tr>
+  <tr>
+    <th ${thBase}>S/E</th>
+    <th ${thBase}>Tür</th>
+    <th ${thBase}>AD SOYAD</th>
+    <th ${thBase}>FİŞ NO</th>
+    <th ${thBase}>TELEFON</th>
+    <th ${thBase}>SİPARİŞ TARİHİ</th>
+    <th ${thBase}>DÜĞÜN TARİHİ</th>
+    <th ${thBase}>NOTLAR</th>
+    <th ${thBase}>SATIŞ TUTARI</th>
+    <th ${thBlue}>PEŞİN</th>
+    <th ${thBlue}>1</th>
+    <th ${thBlue}>2</th>
+    <th ${thBlue}>3</th>
+    <th ${thBlue}>4</th>
+    <th ${thBase}>KALAN BORÇ</th>
+  </tr>
+  ${rows.map(({o,cust,p,kalan}) => `
+  <tr>
+    <td ${tdCtr}>${esc(o.staff)}</td>
+    <td ${tdCtr}>${esc(o.orderKind)}</td>
+    <td ${tdBase}>${esc(cust.name)}</td>
+    <td ${tdCtr}>${esc(o.fisNo)}</td>
+    <td ${tdBase}>${esc(cust.phone)}</td>
+    <td ${tdCtr}>${fmtDate(o.orderDate)}</td>
+    <td ${tdCtr}>${fmtDate(o.weddingDate)}</td>
+    <td ${tdBase}>${esc(o.note)}</td>
+    <td ${tdNum}>${(parseFloat(o.total)||0).toLocaleString('tr-TR')}</td>
+    <td ${tdNum}>${fmtN(p[0])}</td>
+    <td ${tdNum}>${fmtN(p[1])}</td>
+    <td ${tdNum}>${fmtN(p[2])}</td>
+    <td ${tdNum}>${fmtN(p[3])}</td>
+    <td ${tdNum}>${fmtN(p[4])}</td>
+    <td style="font-family:Arial;font-size:9pt;padding:4px 6px;${borderStyle}text-align:right;${kalan>0?'color:#DC2626;font-weight:bold;':''}">${kalan>0?kalan.toLocaleString('tr-TR'):'0'}</td>
+  </tr>`).join('')}
+</table>
+</body></html>`;
+
+  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'siparis-takip.xls'; a.click();
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'siparis-takip.xls'; a.click();
   URL.revokeObjectURL(url);
 }
 
