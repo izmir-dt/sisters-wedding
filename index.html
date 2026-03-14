@@ -3242,7 +3242,69 @@ function exportExcel() {
   URL.revokeObjectURL(url);
 }
 
+// ── DEMO VERİ (ilk açılışta, veri yoksa otomatik yüklenir) ──
+(function loadDemoIfEmpty() {
+  const existing = JSON.parse(localStorage.getItem('sw_orders') || '[]');
+  if (existing.length > 0) return;
+
+  const today = new Date();
+  const d = n => { const dt = new Date(today); dt.setDate(dt.getDate()+n); return dt.toISOString().slice(0,10); };
+
+  const customers = [
+    { id:'dm1', name:'Ayşe Yılmaz',  phone:'0532 111 22 33', email:'ayse@mail.com',   note:'' },
+    { id:'dm2', name:'Fatma Kaya',   phone:'0533 222 33 44', email:'',                note:'VIP müşteri' },
+    { id:'dm3', name:'Zeynep Arslan',phone:'0534 333 44 55', email:'zeynep@mail.com', note:'' },
+    { id:'dm4', name:'Merve Demir',  phone:'0535 444 55 66', email:'',                note:'Kına da alacak' },
+    { id:'dm5', name:'Selin Çelik',  phone:'0536 555 66 77', email:'selin@mail.com',  note:'' },
+    { id:'dm6', name:'Elif Şahin',   phone:'0537 666 77 88', email:'',                note:'' },
+    { id:'dm7', name:'Büşra Koç',    phone:'0538 777 88 99', email:'busra@mail.com',  note:'Özel ölçü' },
+    { id:'dm8', name:'Gülşen Aydın', phone:'0539 888 99 00', email:'',                note:'' },
+  ];
+
+  const orders = [
+    { id:'do1', customerId:'dm1', fisNo:'3730', orderDate:d(-60), weddingDate:d(45),
+      total:150000, note:'Gelinlik + abiye', staff:'S', orderKind:'Ö', category:'Gelinlik',
+      payments:[{id:'p1a',amount:30000,date:d(-60),note:'Peşinat — Nakit',method:'Nakit'},
+                {id:'p1b',amount:50000,date:d(-30),note:'1. Ödeme',method:'Kart'}] },
+    { id:'do2', customerId:'dm2', fisNo:'3731', orderDate:d(-45), weddingDate:d(20),
+      total:220000, note:'VIP paket', staff:'E', orderKind:'Ö', category:'Gelinlik',
+      payments:[{id:'p2a',amount:50000,date:d(-45),note:'Peşinat — Havale',method:'Havale'},
+                {id:'p2b',amount:80000,date:d(-15),note:'1. Ödeme',method:'Kart'},
+                {id:'p2c',amount:90000,date:d(-2), note:'2. Ödeme',method:'Nakit'}] },
+    { id:'do3', customerId:'dm3', fisNo:'3732', orderDate:d(-30), weddingDate:d(90),
+      total:95000, note:'', staff:'S', orderKind:'H', category:'Abiye',
+      payments:[{id:'p3a',amount:20000,date:d(-30),note:'Peşinat — Nakit',method:'Nakit'}] },
+    { id:'do4', customerId:'dm4', fisNo:'3733', orderDate:d(-20), weddingDate:d(15),
+      total:180000, note:'Kına kıyafeti dahil', staff:'E', orderKind:'Ö', category:'Kinalik',
+      payments:[{id:'p4a',amount:40000,date:d(-20),note:'Peşinat — Kart',method:'Kart'},
+                {id:'p4b',amount:60000,date:d(-5), note:'1. Ödeme',method:'Havale'}] },
+    { id:'do5', customerId:'dm5', fisNo:'3734', orderDate:d(-10), weddingDate:d(120),
+      total:75000, note:'', staff:'S', orderKind:'H', category:'Gelinlik',
+      payments:[{id:'p5a',amount:15000,date:d(-10),note:'Peşinat — Nakit',method:'Nakit'}] },
+    { id:'do6', customerId:'dm6', fisNo:'3735', orderDate:d(-5), weddingDate:d(60),
+      total:120000, note:'Nişan elbisesi', staff:'E', orderKind:'Ö', category:'Abiye',
+      payments:[] },
+    { id:'do7', customerId:'dm7', fisNo:'3736', orderDate:d(-3), weddingDate:d(200),
+      total:200000, note:'Özel ölçü, uzun etek', staff:'S', orderKind:'Ö', category:'Gelinlik',
+      payments:[{id:'p7a',amount:50000,date:d(-3),note:'Peşinat — Kart',method:'Kart'}] },
+    { id:'do8', customerId:'dm8', fisNo:'3737', orderDate:d(-1), weddingDate:d(30),
+      total:60000, note:'', staff:'E', orderKind:'H', category:'Diger',
+      payments:[{id:'p8a',amount:60000,date:d(-1),note:'Peşinat — Nakit',method:'Nakit'}] },
+  ];
+
+  localStorage.setItem('sw_customers', JSON.stringify(customers));
+  localStorage.setItem('sw_orders',    JSON.stringify(orders));
+  localStorage.setItem('sw_services',  JSON.stringify([]));
+})();
+
 renderAll();
+
+// Bulut bağlıysa yükle, değilse yerel mod
+if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
+  cloudLoad();
+} else {
+  setBadge('local');
+}
 
 // ===== KLAVYE KISAYOLLARI =====
 document.addEventListener('keydown', (e) => {
