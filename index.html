@@ -607,12 +607,62 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
 
+  /* ===== MOBILE CARDS ===== */
+  .mobile-cards { display: none; flex-direction: column; gap: 10px; width: 100%; }
+  .m-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px 14px; }
+  .m-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .m-card-name { font-weight: 800; font-size: 14px; color: var(--text); flex: 1; cursor: pointer; }
+  .m-card-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .m-card-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+  .m-card-item { display: flex; flex-direction: column; gap: 2px; }
+  .m-card-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .m-card-value { font-size: 13px; font-weight: 600; color: var(--text); }
+  .m-card-full { grid-column: 1 / -1; }
+  .m-card-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .m-card-actions .btn { flex: 1; font-size: 12px; padding: 7px 10px; }
+  .m-tag { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+  .m-tag-s { background: rgba(124,58,237,0.12); color: #7c3aed; }
+  .m-tag-e { background: rgba(14,165,233,0.12); color: #0284c7; }
+  .m-tag-o { background: rgba(217,119,6,0.12); color: #b45309; }
+  .m-tag-h { background: rgba(5,150,105,0.12); color: #047857; }
+
   @media(max-width:900px) {
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .charts-grid { grid-template-columns: 1fr; }
     .content { padding: 18px 16px; }
     .header-top { padding: 0 16px; }
     .tab-nav { padding: 0 16px; }
+  }
+  @media(max-width:768px) {
+    html, body { overflow-x: hidden; }
+    .content { padding: 14px 12px; }
+    .header-top { padding: 0 12px; height: 56px; }
+    .header-actions .btn-action span:not(.backup-badge) { display: none; }
+    .tab-nav { padding: 0 8px; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-item { padding: 12px 10px; font-size: 11px; white-space: nowrap; }
+    .tab-item svg { display: none; }
+    table { display: none !important; }
+    .mobile-cards { display: flex !important; }
+    .table-wrap { border: none; background: transparent; box-shadow: none; padding: 0; }
+    .section-header { margin-bottom: 12px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-card { padding: 12px; }
+    .stat-card-value { font-size: 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    .modal { width: 95vw !important; max-height: 90vh; overflow-y: auto; }
+    .modal-footer { flex-direction: column; gap: 8px; }
+    .modal-footer .btn { width: 100%; }
+    .payment-plan > div[style*="grid"] { grid-template-columns: 1fr 1fr !important; }
+    .btn-csv { font-size: 12px; padding: 7px 12px; }
+  }
+  @media(max-width:480px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stat-card { padding: 10px; }
+    .stat-card-value { font-size: 16px; }
+    .stat-card-label { font-size: 9px; }
+    .chart-card { padding: 12px 10px; }
+    .header-actions { gap: 5px; }
   }
 </style>
 </head>
@@ -770,9 +820,10 @@
           </tr>
         </thead>
         <tbody id="orders-tbody">
-          <tr><td colspan="10"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>
+          <tr><td colspan="13"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>
         </tbody>
       </table>
+      <div class="mobile-cards" id="orders-mobile"></div>
     </div>
   </div>
 
@@ -792,6 +843,7 @@
           <tr><td colspan="7"><div class="empty-state"><p>Henüz müşteri yok.</p></div></td></tr>
         </tbody>
       </table>
+      <div class="mobile-cards" id="customers-mobile"></div>
     </div>
   </div>
 
@@ -823,6 +875,7 @@
           <tr><td colspan="6"><div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div></td></tr>
         </tbody>
       </table>
+      <div class="mobile-cards" id="services-mobile"></div>
     </div>
   </div>
 
@@ -846,6 +899,7 @@
           <tr><td colspan="9"><div class="empty-state"><p>Henüz kayıt yok.</p></div></td></tr>
         </tbody>
       </table>
+      <div class="mobile-cards" id="cari-mobile"></div>
     </div>
   </div>
 
@@ -865,6 +919,7 @@
           <tr><td colspan="7"><div class="empty-state"><p>Bekleyen tahsilat yok.</p></div></td></tr>
         </tbody>
       </table>
+      <div class="mobile-cards" id="bekleyen-mobile"></div>
     </div>
   </div>
 
@@ -1486,9 +1541,11 @@ function statusBadge(status) {
 }
 
 function renderOrdersTable(data) {
-  const tbody = document.getElementById('orders-tbody');
+  const tbody  = document.getElementById('orders-tbody');
+  const mobile = document.getElementById('orders-mobile');
   if (!data.orders.length) {
-    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>';
+    tbody.innerHTML  = '<tr><td colspan="13"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>';
+    mobile.innerHTML = '<div class="empty-state"><p>Henüz sipariş yok.</p></div>';
     return;
   }
   tbody.innerHTML = data.orders.map(o => {
@@ -1518,12 +1575,43 @@ function renderOrdersTable(data) {
       <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
     </tr>`;
   }).join('');
+
+  mobile.innerHTML = data.orders.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net  = getNetTotal(data, o);
+    const remaining = net - paid;
+    const status = getStatus(o, data);
+    const catIcon = {Gelinlik:'👰', Abiye:'💃', Kinalik:'🧕', Diger:'🛍️'}[o.category] || '';
+    const staffTag = o.staff ? `<span class="m-tag m-tag-${o.staff.toLowerCase()}">${o.staff === 'S' ? 'Seher' : 'Ebru'}</span>` : '';
+    const kindTag  = o.orderKind ? `<span class="m-tag ${o.orderKind === 'Ö' ? 'm-tag-o' : 'm-tag-h'}">${o.orderKind === 'Ö' ? 'Özel' : 'Hazır'}</span>` : '';
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name" onclick="openDetail('${o.id}')">${cust.name || '—'}</span>
+        <div class="m-card-badges">${staffTag}${kindTag}${statusBadge(status)}</div>
+      </div>
+      <div class="m-card-rows" onclick="openDetail('${o.id}')">
+        <div class="m-card-item"><span class="m-card-label">Kategori</span><span class="m-card-value">${catIcon} ${o.category || '—'}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Fiş No</span><span class="m-card-value">${o.fisNo || '—'}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Düğün</span><span class="m-card-value">${fmtDate(o.weddingDate)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(net)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Ödenen</span><span class="m-card-value" style="color:var(--success);">${fmt(paid)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Kalan</span><span class="m-card-value" style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'};">${fmt(remaining)}</span></div>
+      </div>
+      <div class="m-card-actions">
+        <button class="btn btn-secondary" onclick="openDetail('${o.id}')">Detay</button>
+        <button class="btn btn-primary" onclick="openAddPaymentById('${o.id}')">Ödeme Ekle</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderCustomersTable(data) {
-  const tbody = document.getElementById('customers-tbody');
+  const tbody  = document.getElementById('customers-tbody');
+  const mobile = document.getElementById('customers-mobile');
   if (!data.customers.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Henüz müşteri yok.</p></div></td></tr>';
+    tbody.innerHTML  = '<tr><td colspan="7"><div class="empty-state"><p>Henüz müşteri yok.</p></div></td></tr>';
+    mobile.innerHTML = '<div class="empty-state"><p>Henüz müşteri yok.</p></div>';
     return;
   }
   tbody.innerHTML = data.customers.map(c => {
@@ -1543,12 +1631,36 @@ function renderCustomersTable(data) {
       </td>
     </tr>`;
   }).join('');
+
+  mobile.innerHTML = data.customers.map(c => {
+    const custOrders = data.orders.filter(o => o.customerId === c.id);
+    const total = custOrders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+    const svcTotal = getCustomerServiceTotal(data, c.id);
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name">${c.name}</span>
+        <div class="m-card-badges">
+          <button class="action-btn" onclick="openEditCustomer('${c.id}')">Düzenle</button>
+          <button class="action-btn" onclick="deleteCustomer('${c.id}')" style="color:var(--danger);">Sil</button>
+        </div>
+      </div>
+      <div class="m-card-rows">
+        <div class="m-card-item"><span class="m-card-label">Telefon</span><span class="m-card-value">${c.phone || '—'}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Sipariş</span><span class="m-card-value">${custOrders.length} adet</span></div>
+        <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(total)}</span></div>
+        ${svcTotal > 0 ? `<div class="m-card-item"><span class="m-card-label">Hizmet Bed.</span><span class="m-card-value" style="color:var(--service-color);">${fmt(svcTotal)}</span></div>` : ''}
+        ${c.email ? `<div class="m-card-item m-card-full"><span class="m-card-label">E-posta</span><span class="m-card-value">${c.email}</span></div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderServicesTable(data) {
-  const tbody = document.getElementById('services-tbody');
+  const tbody  = document.getElementById('services-tbody');
+  const mobile = document.getElementById('services-mobile');
   if (!data.services.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div></td></tr>';
+    tbody.innerHTML  = '<tr><td colspan="6"><div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div></td></tr>';
+    mobile.innerHTML = '<div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div>';
     return;
   }
   tbody.innerHTML = data.services.map(s => {
@@ -1565,12 +1677,36 @@ function renderServicesTable(data) {
       <td><button class="action-btn" onclick="deleteService('${s.id}')" style="color:var(--danger);">Sil</button></td>
     </tr>`;
   }).join('');
+
+  mobile.innerHTML = data.services.map(s => {
+    const cust = data.customers.find(c => c.id === s.customerId) || {};
+    const hasOrder = data.orders.some(o => o.customerId === s.customerId);
+    const badge = hasOrder
+      ? '<span class="badge badge-success">Uygulandı ✓</span>'
+      : '<span class="badge badge-warning">Bekliyor</span>';
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name">${cust.name || '—'}</span>
+        <div class="m-card-badges">${badge}</div>
+      </div>
+      <div class="m-card-rows">
+        <div class="m-card-item"><span class="m-card-label">Tarih</span><span class="m-card-value">${fmtDate(s.date)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Hizmet Bedeli</span><span class="m-card-value" style="color:var(--service-color);font-weight:800;">${fmt(s.amount)}</span></div>
+        ${s.note ? `<div class="m-card-item m-card-full"><span class="m-card-label">Not</span><span class="m-card-value">${s.note}</span></div>` : ''}
+      </div>
+      <div class="m-card-actions">
+        <button class="btn btn-danger" onclick="deleteService('${s.id}')">Sil</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderCariTable(data) {
-  const tbody = document.getElementById('cari-tbody');
+  const tbody  = document.getElementById('cari-tbody');
+  const mobile = document.getElementById('cari-mobile');
   if (!data.orders.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>Henüz kayıt yok.</p></div></td></tr>';
+    tbody.innerHTML  = '<tr><td colspan="9"><div class="empty-state"><p>Henüz kayıt yok.</p></div></td></tr>';
+    mobile.innerHTML = '<div class="empty-state"><p>Henüz kayıt yok.</p></div>';
     return;
   }
   tbody.innerHTML = data.orders.map(o => {
@@ -1598,17 +1734,50 @@ function renderCariTable(data) {
       <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
     </tr>`;
   }).join('');
+
+  mobile.innerHTML = data.orders.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid  = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const gross = parseFloat(o.total) || 0;
+    const net   = getNetTotal(data, o);
+    const remaining = net - paid;
+    const pct = net > 0 ? Math.min(100, Math.round((paid / net) * 100)) : 100;
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name">${cust.name || '—'}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);">Fiş: ${o.fisNo || '—'}</span>
+      </div>
+      <div class="m-card-rows">
+        <div class="m-card-item"><span class="m-card-label">Gelinlik</span><span class="m-card-value">${fmt(gross)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Net Toplam</span><span class="m-card-value"><strong>${fmt(net)}</strong></span></div>
+        <div class="m-card-item"><span class="m-card-label">Ödenen</span><span class="m-card-value" style="color:var(--success);">${fmt(paid)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Kalan</span><span class="m-card-value" style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'};">${fmt(remaining)}</span></div>
+        <div class="m-card-item m-card-full">
+          <span class="m-card-label">İlerleme</span>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+            <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <span style="font-size:12px;font-weight:700;color:var(--text-muted);">${pct}%</span>
+          </div>
+        </div>
+      </div>
+      <div class="m-card-actions">
+        <button class="btn btn-secondary" onclick="openDetail('${o.id}')">Detay</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderBekleyenTable(data) {
-  const tbody = document.getElementById('bekleyen-tbody');
+  const tbody  = document.getElementById('bekleyen-tbody');
+  const mobile = document.getElementById('bekleyen-mobile');
   const pending = data.orders.filter(o => {
     const net  = getNetTotal(data, o);
     const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
     return paid < net;
   });
   if (!pending.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Bekleyen tahsilat yok.</p></div></td></tr>';
+    tbody.innerHTML  = '<tr><td colspan="7"><div class="empty-state"><p>Bekleyen tahsilat yok.</p></div></td></tr>';
+    mobile.innerHTML = '<div class="empty-state"><p>Bekleyen tahsilat yok 🎉</p></div>';
     return;
   }
   tbody.innerHTML = pending.map(o => {
@@ -1625,6 +1794,28 @@ function renderBekleyenTable(data) {
       <td>${statusBadge(getStatus(o, data))}</td>
       <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
     </tr>`;
+  }).join('');
+
+  mobile.innerHTML = pending.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net  = getNetTotal(data, o);
+    const remaining = net - paid;
+    return `<div class="m-card">
+      <div class="m-card-top">
+        <span class="m-card-name">${cust.name || '—'}</span>
+        ${statusBadge(getStatus(o, data))}
+      </div>
+      <div class="m-card-rows">
+        <div class="m-card-item"><span class="m-card-label">Fiş No</span><span class="m-card-value">${o.fisNo || '—'}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Düğün</span><span class="m-card-value">${fmtDate(o.weddingDate)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Net Toplam</span><span class="m-card-value">${fmt(net)}</span></div>
+        <div class="m-card-item"><span class="m-card-label">Kalan</span><span class="m-card-value" style="color:var(--danger);font-weight:800;">${fmt(remaining)}</span></div>
+      </div>
+      <div class="m-card-actions">
+        <button class="btn btn-primary" onclick="openDetail('${o.id}')">Detay / Ödeme Al</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1979,15 +2170,41 @@ function openDetail(orderId) {
       }).join('')
     : '<div style="color:var(--text-muted);font-size:13px;font-weight:600;">Henüz ödeme yok.</div>';
 
-  const staffLabel = order.staff === 'S' ? '👩 Seher' : order.staff === 'E' ? '👩 Ebru' : '—';
-  const kindLabel  = order.orderKind === 'Ö' ? '✂️ Özel Dikim' : order.orderKind === 'H' ? '🏪 Hazır' : '—';
   const catIcons   = {Gelinlik:'👰 Gelinlik', Abiye:'💃 Abiye', Kinalik:'🧕 Kınalık', Diger:'🛍️ Diğer'};
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-row"><span class="dl">Müşteri</span><span class="dv">${cust.name || '—'}</span></div>
     <div class="detail-row"><span class="dl">Telefon</span><span class="dv">${cust.phone || '—'}</span></div>
-    <div class="detail-row"><span class="dl">Kimin Müşterisi</span><span class="dv">${staffLabel}</span></div>
-    <div class="detail-row"><span class="dl">Ürün Türü</span><span class="dv">${kindLabel}</span></div>
-    <div class="detail-row"><span class="dl">Kategori</span><span class="dv">${catIcons[order.category] || order.category || '—'}</span></div>
+    <div class="detail-row">
+      <span class="dl">Kimin Müşterisi</span>
+      <span class="dv">
+        <select onchange="quickUpdateOrder('${order.id}','staff',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
+          <option value="" ${!order.staff?'selected':''}>— Seçin —</option>
+          <option value="S" ${order.staff==='S'?'selected':''}>👩 Seher</option>
+          <option value="E" ${order.staff==='E'?'selected':''}>👩 Ebru</option>
+        </select>
+      </span>
+    </div>
+    <div class="detail-row">
+      <span class="dl">Ürün Türü</span>
+      <span class="dv">
+        <select onchange="quickUpdateOrder('${order.id}','orderKind',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
+          <option value="" ${!order.orderKind?'selected':''}>— Seçin —</option>
+          <option value="Ö" ${order.orderKind==='Ö'?'selected':''}>✂️ Özel Dikim</option>
+          <option value="H" ${order.orderKind==='H'?'selected':''}>🏪 Hazır</option>
+        </select>
+      </span>
+    </div>
+    <div class="detail-row">
+      <span class="dl">Kategori</span>
+      <span class="dv">
+        <select onchange="quickUpdateOrder('${order.id}','category',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
+          <option value="Gelinlik" ${order.category==='Gelinlik'||!order.category?'selected':''}>👰 Gelinlik</option>
+          <option value="Abiye" ${order.category==='Abiye'?'selected':''}>💃 Abiye</option>
+          <option value="Kinalik" ${order.category==='Kinalik'?'selected':''}>🧕 Kınalık</option>
+          <option value="Diger" ${order.category==='Diger'?'selected':''}>🛍️ Diğer</option>
+        </select>
+      </span>
+    </div>
     <div class="detail-row"><span class="dl">Fiş No</span><span class="dv">${order.fisNo || '—'}</span></div>
     <div class="detail-row"><span class="dl">Sipariş Tarihi</span><span class="dv">${fmtDate(order.orderDate)}</span></div>
     <div class="detail-row"><span class="dl">Düğün Tarihi</span><span class="dv">${fmtDate(order.weddingDate)}</span></div>
@@ -2020,6 +2237,11 @@ function deleteOrder() {
       renderAll();
     }
   );
+}
+
+function openAddPaymentById(orderId) {
+  currentOrderId = orderId;
+  openAddPayment();
 }
 
 function openAddPayment() {
@@ -2362,6 +2584,16 @@ function exportExcel() {
 }
 
 renderAll();
+
+// ===== QUICK UPDATE (inline edit) =====
+function quickUpdateOrder(orderId, field, value) {
+  const data = loadData();
+  const order = data.orders.find(o => o.id === orderId);
+  if (!order) return;
+  order[field] = value;
+  saveData(data);
+  renderAll();
+}
 
 // ===== BACKUP / RESTORE =====
 let _restoreData = null;
