@@ -2511,8 +2511,9 @@ function closeModal(id) {
 document.querySelectorAll('.overlay').forEach(ov => {
   ov.addEventListener('click', e => {
     if (e.target !== ov) return;
-    // Yeni sipariş formu dışarı tıklayınca kapanmasın
-    if (ov.id === 'overlay-new') return;
+    // Bu modaller dışarı tıklayınca kapanmasın
+    const noClose = ['overlay-new','overlay-detail','overlay-edit-order','overlay-edit-customer','overlay-confirm','overlay-alert'];
+    if (noClose.includes(ov.id)) return;
     ov.classList.remove('open');
     if (ov.id === 'overlay-service') resetServiceModal();
   });
