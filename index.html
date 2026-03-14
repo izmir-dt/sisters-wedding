@@ -3150,27 +3150,14 @@ function exportExcel() {
   }, 0);
 
   const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const tl   = n => n > 0 ? '₺' + n.toLocaleString('tr-TR') : '';
-  const tl0  = n => '₺' + (parseFloat(n)||0).toLocaleString('tr-TR');
+  // TL formatı: sadece sayı, binlik nokta yok (Excel kendi formatlar)
+  // Ama görsel olarak ₺ ile göstermek için metin olarak yazacağız
+  const tlStr = n => n > 0 ? '₺' + Number(n).toLocaleString('tr-TR') : '';
+  const tl0   = n => '₺' + (Number(n)||0).toLocaleString('tr-TR');
 
-  // Kimin müşterisi kodunu tam isme çevir
-  const staffLabel = code => {
-    if (!code) return '';
-    const found = (settings.staff||[]).find(x => x.code === code);
-    return found ? found.label : code;
-  };
-  // Ürün türü kodunu tam ada çevir
-  const kindLabel = code => {
-    if (!code) return '';
-    const found = (settings.kinds||[]).find(x => x.code === code);
-    return found ? found.label : code;
-  };
-  // Kategori kodunu tam ada çevir
-  const catLabel = code => {
-    if (!code) return '';
-    const found = (settings.cats||[]).find(x => x.code === code);
-    return found ? (found.emoji + ' ' + found.label) : code;
-  };
+  const staffLabel = code => { const f=(settings.staff||[]).find(x=>x.code===code); return f?f.label:code||''; };
+  const kindLabel  = code => { const f=(settings.kinds||[]).find(x=>x.code===code); return f?f.label:code||''; };
+  const catLabel   = code => { const f=(settings.cats||[]).find(x=>x.code===code); return f?(f.emoji+' '+f.label):code||''; };
 
   const rows = data.orders.map(o => {
     const cust  = data.customers.find(c => c.id === o.customerId) || {};
@@ -3181,15 +3168,15 @@ function exportExcel() {
     const net   = getNetTotal(data, o);
     const kalan = Math.max(0, net - paid);
     const p     = [pesin, rest[0], rest[1], rest[2], rest[3]].map(x => x ? parseFloat(x.amount)||0 : 0);
-    return { o, cust, p, kalan, net };
+    return { o, cust, p, kalan };
   });
 
-  const bdr  = 'border:1px solid #b0c4d8;';
-  const tdB  = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}"`;
-  const tdN  = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;"`;
-  const tdC  = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:center;"`;
-  const thB  = `style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 7px;${bdr}background:#B8D4EC;text-align:center;white-space:nowrap;"`;
-  const thBl = `style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 7px;${bdr}background:#1D4ED8;color:#fff;text-align:center;white-space:nowrap;"`;
+  const bdr = 'border:1px solid #b0c4d8;';
+  const tdB = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}"`;
+  const tdN = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;"`;
+  const tdC = `style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:center;"`;
+  const thB = `style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 7px;${bdr}background:#B8D4EC;text-align:center;white-space:nowrap;"`;
+  const thBl= `style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 7px;${bdr}background:#1D4ED8;color:#fff;text-align:center;white-space:nowrap;"`;
 
   const html = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -3198,45 +3185,21 @@ function exportExcel() {
 <head><meta charset="UTF-8">
 <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
 <x:ExcelWorksheet><x:Name>Sipariş Takip</x:Name>
-<x:WorksheetOptions>
-  <x:DisplayGridlines/>
-  <x:FreezePanes/>
-  <x:FrozenNoSplit/>
-  <x:SplitHorizontal>5</x:SplitHorizontal>
-  <x:TopRowBottomPane>5</x:TopRowBottomPane>
-</x:WorksheetOptions>
 </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
 </head><body>
-<table border="1" cellspacing="0" cellpadding="0"
-  style="border-collapse:collapse;font-family:Calibri;font-size:10pt;">
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-family:Calibri;font-size:10pt;">
 
-  <!-- ÖZET SATIRI -->
   <tr>
-    <td colspan="8" style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#16A34A;color:#fff;${bdr}white-space:nowrap;">
-      TOPLAM SATIŞ
-    </td>
-    <td colspan="2" style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#16A34A;color:#fff;${bdr}text-align:right;white-space:nowrap;">
-      ${tl0(totalSales)}
-    </td>
-    <td style="${bdr}background:#fff;"></td>
-    <td colspan="3" style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#DC2626;color:#fff;${bdr}white-space:nowrap;">
-      TOPLAM BORÇ
-    </td>
-    <td style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#DC2626;color:#fff;${bdr}text-align:right;white-space:nowrap;">
-      ${tl0(totalDebt)}
-    </td>
+    <td colspan="8" style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#16A34A;color:#fff;${bdr}">TOPLAM SATIŞ</td>
+    <td style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#16A34A;color:#fff;${bdr}text-align:right;">${tl0(totalSales)}</td>
+    <td style="${bdr}"></td>
+    <td colspan="3" style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#DC2626;color:#fff;${bdr}">TOPLAM BORÇ</td>
+    <td style="font-family:Calibri;font-size:10pt;font-weight:bold;padding:6px 10px;background:#DC2626;color:#fff;${bdr}text-align:right;">${tl0(totalDebt)}</td>
   </tr>
-
-  <tr><td colspan="15" style="padding:3px;border:none;"></td></tr>
-
-  <!-- BAŞLIK -->
+  <tr><td colspan="14" style="padding:3px;border:none;"></td></tr>
   <tr>
-    <td colspan="15" style="font-family:Calibri;font-size:14pt;font-weight:bold;padding:8px 10px;${bdr}background:#EFF6FF;">
-      SistersS Sipariş Takip Çizelgesi
-    </td>
+    <td colspan="14" style="font-family:Calibri;font-size:14pt;font-weight:bold;padding:8px 10px;${bdr}background:#EFF6FF;">SistersS Sipariş Takip Çizelgesi</td>
   </tr>
-
-  <!-- KOLON BAŞLIKLARI -->
   <tr>
     <th ${thB}>Müşteri Sahibi</th>
     <th ${thB}>Ürün Türü</th>
@@ -3247,18 +3210,13 @@ function exportExcel() {
     <th ${thB}>Sipariş Tarihi</th>
     <th ${thB}>Düğün Tarihi</th>
     <th ${thB}>Notlar</th>
-    <th ${thB}>Satış Tutarı (₺)</th>
-    <th ${thBl}>Peşinat (₺)</th>
-    <th ${thBl}>1. Ödeme (₺)</th>
-    <th ${thBl}>2. Ödeme (₺)</th>
-    <th ${thBl}>3. Ödeme (₺)</th>
-    <th ${thB} title="= Satış Tutarı - Toplam Ödemeler">Kalan Borç (₺)<br><span style="font-size:8pt;font-weight:normal;">=J-K-L-M-N</span></th>
+    <th ${thB}>Satış Tutarı</th>
+    <th ${thBl}>Peşinat</th>
+    <th ${thBl}>1. Ödeme</th>
+    <th ${thBl}>2. Ödeme</th>
+    <th ${thB}>Kalan Borç</th>
   </tr>
-
-  ${rows.map(({o,cust,p,kalan},i) => {
-    const rowNum = i + 5; // Excel satır numarası (1:özet, 2:boş, 3:başlık, 4:kolon, 5+:veri)
-    const colJ = rowNum; // Satış Tutarı sütunu J
-    return `
+  ${rows.map(({o,cust,p,kalan},i) => `
   <tr style="background:${i%2===0?'#fff':'#F8FAFC'};">
     <td ${tdB}>${esc(staffLabel(o.staff))}</td>
     <td ${tdB}>${esc(kindLabel(o.orderKind))}</td>
@@ -3269,21 +3227,18 @@ function exportExcel() {
     <td ${tdC}>${fmtDate(o.orderDate)}</td>
     <td ${tdC}>${fmtDate(o.weddingDate)}</td>
     <td ${tdB}>${esc(o.note)}</td>
-    <td ${tdN} x:num>${parseFloat(o.total)||0}</td>
-    <td ${tdN} x:num>${p[0]||0}</td>
-    <td ${tdN} x:num>${p[1]||0}</td>
-    <td ${tdN} x:num>${p[2]||0}</td>
-    <td ${tdN} x:num>${p[3]||0}</td>
-    <td style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;font-weight:bold;${kalan>0?'color:#DC2626;background:#FFF5F5;':'color:#16A34A;'}" x:num>
-      ${kalan}
+    <td ${tdN}>${tl0(o.total)}</td>
+    <td ${tdN}>${tlStr(p[0])}</td>
+    <td ${tdN}>${tlStr(p[1])}</td>
+    <td ${tdN}>${tlStr(p[2])}</td>
+    <td style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;font-weight:bold;${kalan>0?'color:#DC2626;background:#FFF5F5;':'color:#16A34A;'}">
+      ${tl0(kalan)}
     </td>
-  </tr>`;
-  }).join('')}
-
+  </tr>`).join('')}
 </table>
 </body></html>`;
 
-  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob(['﻿' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   const dt   = new Date().toISOString().slice(0,10);
