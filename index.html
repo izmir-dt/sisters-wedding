@@ -638,9 +638,12 @@
   @media(max-width:768px) {
     html, body { overflow-x: hidden; }
     .main { padding: 14px 12px; }
-    .header-top { padding: 0 12px; height: 56px; }
-    .header-actions .btn-action span:not([id]) { display: none; }
-    .header-actions { gap: 4px; }
+    .header-top { padding: 0 10px; height: 56px; }
+    .header-actions { gap: 6px; }
+    /* Mobilde sadece + butonu ve ⋮ menü kalır */
+    .btn-action-hide-mobile { display: none !important; }
+    .theme-toggle { display: none !important; }
+    .btn-mobile-menu { display: flex !important; }
     table { display: none !important; }
     .mobile-cards { display: flex !important; }
     .table-wrap { border: none; background: transparent; box-shadow: none; padding: 0; }
@@ -649,11 +652,14 @@
     .stat-card { padding: 12px; }
     .stat-card-value { font-size: 20px; }
     .form-row { grid-template-columns: 1fr; }
-    .modal { width: 95vw !important; max-height: 90vh; overflow-y: auto; }
+    .modal { width: 96vw !important; max-height: 93vh; overflow-y: auto; }
     .modal-footer { flex-direction: column; gap: 8px; }
     .modal-footer .btn { width: 100%; }
     .payment-plan > div[style*="grid"] { grid-template-columns: 1fr 1fr !important; }
     .btn-csv { font-size: 12px; padding: 7px 12px; }
+    /* Detay modal mobilde */
+    #overlay-detail .modal { flex-direction: column; }
+    #detail-body > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
   }
   @media(max-width:480px) {
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; max-width: 100%; }
@@ -662,6 +668,9 @@
     .stat-card-label { font-size: 9px; }
     .chart-card { padding: 12px 10px; }
     .header-actions { gap: 5px; }
+    .btn-label-desktop { display: none; }
+    .btn-label-mobile { display: inline !important; font-size: 20px; font-weight: 800; }
+    .btn-primary-action { min-width: 42px; padding: 0 12px; }
   }
 </style>
 </head>
@@ -669,7 +678,7 @@
 
 <!-- HEADER -->
 <header class="header">
-  <div class="header-top">
+  <div class="header-top" style="position:relative;">
     <div class="brand" style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
       <a href="https://www.sistersweddingkarsiyaka.com/" target="_blank" style="display:flex;align-items:center;text-decoration:none;">
         <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
@@ -679,16 +688,17 @@
         style="font-size:14px;cursor:pointer;font-weight:800;color:#9ca3af;user-select:none;">○</span>
     </div>
     <div class="header-actions">
-      <button class="btn-action" onclick="openSettingsModal()" title="Özel Seçenekler (⚙️)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);">
+      <!-- Masaüstü butonlar -->
+      <button class="btn-action btn-action-hide-mobile" onclick="openSettingsModal()" title="Özel Seçenekler" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <button class="btn-action" onclick="openModal('overlay-help')" title="Yardım (?)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);font-weight:800;min-width:36px;">?</button>
-      <div class="theme-toggle" onclick="toggleTheme()" title="Koyu/Açık mod">
+      <button class="btn-action btn-action-hide-mobile" onclick="openModal('overlay-help')" title="Yardım" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);font-weight:800;min-width:36px;">?</button>
+      <div class="theme-toggle btn-action-hide-mobile" onclick="toggleTheme()" title="Koyu/Açık mod">
         <span class="toggle-icon">☀️</span>
         <div class="toggle-track"><div class="toggle-knob"></div></div>
         <span class="toggle-icon">🌙</span>
       </div>
-      <button class="btn-action" onclick="openBackupModal()" title="Yedek Al / Geri Yükle" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);position:relative;">
+      <button class="btn-action btn-action-hide-mobile" onclick="openBackupModal()" title="Yedek" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);position:relative;">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
@@ -697,18 +707,36 @@
         Yedek
         <span id="backup-badge" style="display:none;position:absolute;top:4px;right:4px;width:7px;height:7px;background:#e53e3e;border-radius:50%;"></span>
       </button>
-      <button class="btn-action btn-service-action" onclick="openServiceFee()">
+      <button class="btn-action btn-service-action btn-action-hide-mobile" onclick="openServiceFee()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Hizmet Bedeli
       </button>
+
+      <!-- Mobil: ⋮ menü butonu -->
+      <button class="btn-action btn-mobile-menu" onclick="toggleMobileMenu()" title="Menü"
+        style="display:none;background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);font-size:18px;font-weight:800;min-width:38px;letter-spacing:1px;">
+        ⋮
+      </button>
+
+      <!-- Yeni Sipariş - her zaman görünür -->
       <button class="btn-action btn-primary-action" onclick="openNewOrder()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
-        Yeni Sipariş
+        <span class="btn-label-desktop">Yeni Sipariş</span>
+        <span class="btn-label-mobile" style="display:none;">+</span>
       </button>
+    </div>
+
+    <!-- Mobil açılır menü -->
+    <div id="mobile-menu" style="display:none;position:absolute;top:56px;right:10px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:999;min-width:200px;overflow:hidden;">
+      <button onclick="toggleTheme();toggleMobileMenu();" style="width:100%;text-align:left;padding:12px 16px;border:none;background:none;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);">☀️ / 🌙 &nbsp; Tema Değiştir</button>
+      <button onclick="openServiceFee();toggleMobileMenu();" style="width:100%;text-align:left;padding:12px 16px;border:none;background:none;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);">➕ Hizmet Bedeli Ekle</button>
+      <button onclick="openSettingsModal();toggleMobileMenu();" style="width:100%;text-align:left;padding:12px 16px;border:none;background:none;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);">⚙️ Özel Seçenekler</button>
+      <button onclick="openBackupModal();toggleMobileMenu();" style="width:100%;text-align:left;padding:12px 16px;border:none;background:none;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);">💾 Yedek Al / Geri Yükle</button>
+      <button onclick="openModal('overlay-help');toggleMobileMenu();" style="width:100%;text-align:left;padding:12px 16px;border:none;background:none;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;">❓ Yardım</button>
     </div>
   </div>
 </header>
@@ -3340,6 +3368,20 @@ if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
 } else {
   setBadge('local');
 }
+
+// ===== MOBİL MENÜ =====
+function toggleMobileMenu() {
+  const m = document.getElementById('mobile-menu');
+  if (!m) return;
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('mobile-menu');
+  if (!menu) return;
+  if (!e.target.closest('#mobile-menu') && !e.target.closest('.btn-mobile-menu')) {
+    menu.style.display = 'none';
+  }
+});
 
 // ===== KLAVYE KISAYOLLARI =====
 document.addEventListener('keydown', (e) => {
