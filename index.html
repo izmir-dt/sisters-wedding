@@ -201,6 +201,16 @@
   .stat-card:hover { transform: translateY(-2px); }
   .stat-card.clickable { cursor: pointer; }
 
+  .stat-card-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; flex-shrink: 0;
+  }
+  .stat-card-label { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
+  .stat-card-value { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 3px; word-break: break-all; }
+  .stat-card-sub   { font-size: 11px; color: var(--primary); font-weight: 600; }
+  .service-val     { color: var(--service-color) !important; }
+
   .stat-label {
     font-size: 10px;
     font-weight: 700;
@@ -889,6 +899,401 @@
 
 </div><!-- /main -->
 
+<div class="overlay" id="overlay-service">
+  <div class="modal" style="width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Hizmet Bedeli Ekle</div>
+      <button class="modal-close" onclick="closeModal('overlay-service')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="service-info" style="margin-bottom:16px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+        </svg>
+        Sipariş verilirse bu tutar gelinlik ücretinden düşülür.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kayıtlı Müşteri Seç</label>
+        <select class="form-control" id="sf-existing-customer" onchange="onSFCustomerSelect()">
+          <option value="">— Yeni müşteri ekle —</option>
+        </select>
+      </div>
+      <div id="sf-new-customer-form">
+        <div class="form-group">
+          <label class="form-label">Ad Soyad *</label>
+          <input type="text" class="form-control" id="sf-name" placeholder="Adı Soyadı">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Telefon *</label>
+            <input type="tel" class="form-control" id="sf-phone" placeholder="0555 000 00 00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-posta</label>
+            <input type="email" class="form-control" id="sf-email" placeholder="ornek@mail.com">
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Hizmet Bedeli (₺) *</label>
+          <input type="number" class="form-control service-input" id="sf-amount" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tarih *</label>
+          <input type="date" class="form-control" id="sf-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="sf-note" placeholder="Not...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-service')">İptal</button>
+      <button class="btn btn-primary" onclick="saveServiceFee()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ORDER MODAL -->
+<div class="overlay" id="overlay-new">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Yeni Sipariş</div>
+      <button class="modal-close" onclick="closeModal('overlay-new')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="stepper">
+        <div class="step" id="step1-indicator"><div class="step-num">1</div><span>Müşteri</span></div>
+        <div class="step-line"></div>
+        <div class="step" id="step2-indicator"><div class="step-num">2</div><span>Sipariş</span></div>
+      </div>
+
+      <div id="step1">
+        <div class="form-group">
+          <label class="form-label">Kayıtlı Müşteri Seç</label>
+          <select class="form-control" id="existing-customer" onchange="onExistingCustomerSelect()">
+            <option value="">— Yeni müşteri ekle —</option>
+          </select>
+        </div>
+        <div id="new-customer-form">
+          <div class="form-group">
+            <label class="form-label">Ad Soyad *</label>
+            <input type="text" class="form-control" id="new-name" placeholder="Adı Soyadı">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Telefon *</label>
+              <input type="tel" class="form-control" id="new-phone" placeholder="0555 000 00 00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-posta</label>
+              <input type="email" class="form-control" id="new-email" placeholder="ornek@mail.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Not</label>
+            <input type="text" class="form-control" id="new-note-cust" placeholder="Not...">
+          </div>
+        </div>
+      </div>
+
+      <div id="step2" style="display:none;">
+        <div id="service-deduction-info" style="display:none;" class="service-info" style="margin-bottom:12px;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span id="service-deduction-text"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fiş No</label>
+            <input type="text" class="form-control" id="fis-no" placeholder="Otomatik">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sipariş Tarihi *</label>
+            <input type="date" class="form-control" id="order-date">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Kimin Müşterisi</label>
+            <select class="form-control" id="order-staff">
+              <option value="">— Seçin —</option>
+              <option value="S">Seher</option>
+              <option value="E">Ebru</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ürün Türü</label>
+            <select class="form-control" id="order-type">
+              <option value="">— Seçin —</option>
+              <option value="Ö">Özel Dikim</option>
+              <option value="H">Hazır</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Gelinlik" checked> 👰 Gelinlik
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Abiye"> 💃 Abiye
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Kinalik"> 🧕 Kınalık
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Diger"> 🛍️ Diğer
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Düğün Tarihi</label>
+          <input type="date" class="form-control" id="wedding-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gelinlik Toplam Tutarı (₺) *</label>
+          <input type="number" class="form-control" id="order-total" placeholder="0" oninput="calcRemaining()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Not</label>
+          <input type="text" class="form-control" id="order-note" placeholder="Not...">
+        </div>
+        <div class="payment-plan">
+          <div class="payment-plan-title">Ödeme Planı (₺)</div>
+          <div class="payment-row" id="service-deduction-row" style="display:none;">
+            <label style="color:var(--service-color);">Hizmet Bed. İndirimi</label>
+            <input type="number" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
+              <input type="number" class="form-control" id="pp-1" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
+              <input type="number" class="form-control" id="pp-2" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
+              <input type="number" class="form-control" id="pp-3" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
+              <input type="number" class="form-control" id="pp-4" placeholder="0" oninput="calcRemaining()">
+            </div>
+          </div>
+          <div class="payment-row" id="deposit-detail-row" style="display:none;">
+            <label>Peşinat Tarihi</label>
+            <input type="date" id="pp-1-date" class="form-control" style="max-width:180px;">
+          </div>
+          <div class="payment-row" id="deposit-method-row" style="display:none;">
+            <label>Ödeme Yöntemi</label>
+            <select id="pp-1-method" class="form-control" style="max-width:180px;">
+              <option value="">— Seçin —</option>
+              <option value="Nakit">💵 Nakit</option>
+              <option value="Kart">💳 Kart</option>
+              <option value="Havale">🏦 Havale / EFT</option>
+            </select>
+          </div>
+          <div class="payment-row" style="margin-bottom:0;margin-top:4px;">
+            <label style="color:var(--danger);font-weight:700;">Kalan</label>
+            <input type="number" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-new')">İptal</button>
+      <button class="btn btn-primary" id="step-btn" onclick="handleStepBtn()">Devam →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="overlay-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Sipariş Detayı</div>
+      <button class="modal-close" onclick="closeModal('overlay-detail')">×</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteOrder()">Sil</button>
+      <button class="btn btn-secondary" onclick="openEditOrder()">Düzenle</button>
+      <button class="btn btn-primary" onclick="openAddPayment()">Ödeme Ekle</button>
+      <button class="btn btn-secondary" onclick="closeModal('overlay-detail')">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="overlay" id="overlay-payment">
+  <div class="modal" style="width:360px;">
+    <div class="modal-header">
+      <div class="modal-title">Ödeme Ekle</div>
+      <button class="modal-close" onclick="closeModal('overlay-payment')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tutar (₺) *</label>
+        <input type="number" class="form-control" id="pay-amount" placeholder="0">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tarih</label>
+          <input type="date" class="form-control" id="pay-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ödeme Yöntemi</label>
+          <select class="form-control" id="pay-method">
+            <option value="">— Seçin —</option>
+            <option value="Nakit">💵 Nakit</option>
+            <option value="Kart">💳 Kart</option>
+            <option value="Havale">🏦 Havale / EFT</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="pay-note" placeholder="İsteğe bağlı not...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-payment')">İptal</button>
+      <button class="btn btn-primary" onclick="savePayment()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ORDER MODAL -->
+<div class="overlay" id="overlay-edit-order">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Siparişi Düzenle</div>
+      <button class="modal-close" onclick="closeModal('overlay-edit-order')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fiş No</label>
+          <input type="text" class="form-control" id="edit-fis">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sipariş Tarihi</label>
+          <input type="date" class="form-control" id="edit-order-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Düğün Tarihi</label>
+        <input type="date" class="form-control" id="edit-wedding-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gelinlik Toplam Tutarı (₺)</label>
+        <input type="number" class="form-control" id="edit-total" oninput="calcEditRemaining()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="edit-note">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kimin Müşterisi</label>
+          <select class="form-control" id="edit-staff">
+            <option value="">— Seçin —</option>
+            <option value="S">Seher</option>
+            <option value="E">Ebru</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ürün Türü</label>
+          <select class="form-control" id="edit-kind">
+            <option value="">— Seçin —</option>
+            <option value="Ö">Özel Dikim</option>
+            <option value="H">Hazır</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select class="form-control" id="edit-category">
+          <option value="Gelinlik">👰 Gelinlik</option>
+          <option value="Abiye">💃 Abiye</option>
+          <option value="Kinalik">🧕 Kınalık</option>
+          <option value="Diger">🛍️ Diğer</option>
+        </select>
+      </div>
+      <div class="payment-plan">
+        <div class="payment-plan-title">Ödeme Planı (₺)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
+            <input type="number" class="form-control" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-4" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+        </div>
+        <div class="payment-row" style="margin-bottom:0;">
+          <label style="color:var(--danger);font-weight:700;">Kalan</label>
+          <input type="number" class="form-control" id="edit-pp-remaining" readonly placeholder="0" style="color:var(--danger);">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-edit-order')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEditOrder()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CUSTOMER MODAL -->
+<div class="overlay" id="overlay-edit-customer">
+  <div class="modal" style="width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">Müşteriyi Düzenle</div>
+      <button class="modal-close" onclick="closeModal('overlay-edit-customer')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Ad Soyad *</label>
+        <input type="text" class="form-control" id="ec-name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Telefon</label>
+          <input type="tel" class="form-control" id="ec-phone">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-posta</label>
+          <input type="email" class="form-control" id="ec-email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="ec-note">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-edit-customer')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEditCustomer()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <!-- CUSTOM CONFIRM MODAL -->
 <div class="overlay" id="overlay-confirm" style="z-index:9999;">
   <div class="modal" style="width:420px;">
@@ -974,6 +1379,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
 // ===== CUSTOM CONFIRM / ALERT =====
