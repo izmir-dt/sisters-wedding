@@ -831,7 +831,7 @@
     <div class="section-header">
       <div class="section-title">Cari Hesap</div>
       <div style="display:flex;gap:8px;">
-        <button class="btn-csv" onclick="exportCSV()">CSV İndir</button>
+        <button class="btn-csv" onclick="exportPDF()">PDF İndir</button>
         <button class="btn-csv" style="background:var(--success);" onclick="exportExcel()">Excel İndir</button>
       </div>
     </div>
@@ -1036,14 +1036,28 @@
           <input type="text" class="form-control" id="order-note" placeholder="Not...">
         </div>
         <div class="payment-plan">
-          <div class="payment-plan-title">Peşinat Bilgileri</div>
+          <div class="payment-plan-title">Ödeme Planı (₺)</div>
           <div class="payment-row" id="service-deduction-row" style="display:none;">
             <label style="color:var(--service-color);">Hizmet Bed. İndirimi</label>
             <input type="number" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
           </div>
-          <div class="payment-row">
-            <label>Peşinat (₺)</label>
-            <input type="number" id="pp-1" placeholder="0" oninput="calcRemaining()">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
+              <input type="number" class="form-control" id="pp-1" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
+              <input type="number" class="form-control" id="pp-2" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
+              <input type="number" class="form-control" id="pp-3" placeholder="0" oninput="calcRemaining()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
+              <input type="number" class="form-control" id="pp-4" placeholder="0" oninput="calcRemaining()">
+            </div>
           </div>
           <div class="payment-row" id="deposit-detail-row" style="display:none;">
             <label>Peşinat Tarihi</label>
@@ -1058,9 +1072,9 @@
               <option value="Havale">🏦 Havale / EFT</option>
             </select>
           </div>
-          <div class="payment-row" style="margin-bottom:0;">
-            <label style="color:var(--danger);">Kalan</label>
-            <input type="number" id="pp-remaining" readonly placeholder="0">
+          <div class="payment-row" style="margin-bottom:0;margin-top:4px;">
+            <label style="color:var(--danger);font-weight:700;">Kalan</label>
+            <input type="number" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;">
           </div>
         </div>
       </div>
@@ -1187,21 +1201,27 @@
       </div>
       <div class="payment-plan">
         <div class="payment-plan-title">Ödeme Planı (₺)</div>
-        <div class="payment-row">
-          <label>Peşinat</label>
-          <input type="number" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
-        </div>
-        <div class="payment-row">
-          <label>2. Ödeme</label>
-          <input type="number" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
-        </div>
-        <div class="payment-row">
-          <label>3. Ödeme</label>
-          <input type="number" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
+            <input type="number" class="form-control" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
+            <input type="number" class="form-control" id="edit-pp-4" placeholder="0" oninput="calcEditRemaining()">
+          </div>
         </div>
         <div class="payment-row" style="margin-bottom:0;">
-          <label style="color:var(--danger);">Kalan</label>
-          <input type="number" id="edit-pp-remaining" readonly placeholder="0">
+          <label style="color:var(--danger);font-weight:700;">Kalan</label>
+          <input type="number" class="form-control" id="edit-pp-remaining" readonly placeholder="0" style="color:var(--danger);">
         </div>
       </div>
     </div>
@@ -1788,7 +1808,7 @@ function resetNewOrderModal() {
   document.getElementById('step2').style.display = 'none';
   document.getElementById('step-btn').textContent = 'Devam →';
   setStepIndicator(1);
-  ['new-name','new-phone','new-email','new-note-cust','fis-no','order-date','wedding-date','order-total','order-note','pp-1','pp-1-date','pp-remaining','pp-service-deduction'].forEach(id => {
+  ['new-name','new-phone','new-email','new-note-cust','fis-no','order-date','wedding-date','order-total','order-note','pp-1','pp-2','pp-3','pp-4','pp-1-date','pp-remaining','pp-service-deduction'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('existing-customer').value = '';
@@ -1862,12 +1882,15 @@ function handleStepBtn() {
 }
 
 function calcRemaining() {
-  const total = parseFloat(document.getElementById('order-total').value) || 0;
+  const total  = parseFloat(document.getElementById('order-total').value) || 0;
   const svcDed = parseFloat(document.getElementById('pp-service-deduction').value) || 0;
   const p1 = parseFloat(document.getElementById('pp-1').value) || 0;
+  const p2 = parseFloat(document.getElementById('pp-2').value) || 0;
+  const p3 = parseFloat(document.getElementById('pp-3').value) || 0;
+  const p4 = parseFloat(document.getElementById('pp-4').value) || 0;
   const net = Math.max(0, total - svcDed);
-  document.getElementById('pp-remaining').value = Math.max(0, net - p1) || '';
-  // Show deposit date/method rows if amount entered
+  document.getElementById('pp-remaining').value = Math.max(0, net - p1 - p2 - p3 - p4) || '';
+  // Show deposit date/method rows if peşinat entered
   const hasDeposit = p1 > 0;
   document.getElementById('deposit-detail-row').style.display = hasDeposit ? 'flex' : 'none';
   document.getElementById('deposit-method-row').style.display = hasDeposit ? 'flex' : 'none';
@@ -1897,6 +1920,9 @@ function saveNewOrder() {
   }
 
   const pp1 = parseFloat(document.getElementById('pp-1').value) || 0;
+  const pp2 = parseFloat(document.getElementById('pp-2').value) || 0;
+  const pp3 = parseFloat(document.getElementById('pp-3').value) || 0;
+  const pp4 = parseFloat(document.getElementById('pp-4').value) || 0;
   const pp1Date = document.getElementById('pp-1-date').value || orderDate;
   const pp1Method = document.getElementById('pp-1-method').value || '';
   const payments = [];
@@ -1904,6 +1930,9 @@ function saveNewOrder() {
     const depositNote = ['Peşinat', pp1Method].filter(Boolean).join(' — ');
     payments.push({ id: genId(), amount: pp1, date: pp1Date, note: depositNote, method: pp1Method });
   }
+  if (pp2 > 0) payments.push({ id: genId(), amount: pp2, date: orderDate, note: '1. Ödeme' });
+  if (pp3 > 0) payments.push({ id: genId(), amount: pp3, date: orderDate, note: '2. Ödeme' });
+  if (pp4 > 0) payments.push({ id: genId(), amount: pp4, date: orderDate, note: '3. Ödeme' });
 
   const catChecked = document.querySelector('input[name="order-category"]:checked');
   data.orders.push({
@@ -2031,7 +2060,7 @@ function openEditOrder() {
   document.getElementById('edit-staff').value = order.staff || '';
   document.getElementById('edit-kind').value = order.orderKind || '';
   document.getElementById('edit-category').value = order.category || 'Gelinlik';
-  ['edit-pp-1','edit-pp-2','edit-pp-3','edit-pp-remaining'].forEach(id => document.getElementById(id).value = '');
+  ['edit-pp-1','edit-pp-2','edit-pp-3','edit-pp-4','edit-pp-remaining'].forEach(id => document.getElementById(id).value = '');
   closeModal('overlay-detail');
   openModal('overlay-edit-order');
 }
@@ -2041,7 +2070,8 @@ function calcEditRemaining() {
   const p1 = parseFloat(document.getElementById('edit-pp-1').value) || 0;
   const p2 = parseFloat(document.getElementById('edit-pp-2').value) || 0;
   const p3 = parseFloat(document.getElementById('edit-pp-3').value) || 0;
-  document.getElementById('edit-pp-remaining').value = Math.max(0, total - p1 - p2 - p3) || '';
+  const p4 = parseFloat(document.getElementById('edit-pp-4').value) || 0;
+  document.getElementById('edit-pp-remaining').value = Math.max(0, total - p1 - p2 - p3 - p4) || '';
 }
 
 function saveEditOrder() {
@@ -2118,63 +2148,216 @@ function deleteCustomer(custId) {
   );
 }
 
-// ===== CSV =====
-function exportCSV() {
+// ===== PDF =====
+function exportPDF() {
   const data = loadData();
-  const rows = [['Müşteri', 'Fiş No', 'Hizmet Bed.', 'Gelinlik', 'Net Toplam', 'Ödenen', 'Kalan', 'Durum']];
-  data.orders.forEach(o => {
+  const totalSales = data.orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+  const totalPaid  = data.orders.reduce((s, o) =>
+    s + (o.payments || []).reduce((ps, p) => ps + (parseFloat(p.amount) || 0), 0), 0);
+  const totalDebt  = data.orders.reduce((s, o) => {
+    const net = getNetTotal(data, o);
+    const paid = (o.payments || []).reduce((ps, p) => ps + (parseFloat(p.amount) || 0), 0);
+    return s + Math.max(0, net - paid);
+  }, 0);
+
+  const rows = data.orders.map(o => {
     const cust = data.customers.find(c => c.id === o.customerId) || {};
-    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
-    const svcD = getCustomerServiceTotal(data, o.customerId);
-    const net  = Math.max(0, (parseFloat(o.total) || 0) - svcD);
-    rows.push([cust.name || '', o.fisNo || '', svcD, o.total || 0, net, paid.toFixed(0), (net - paid).toFixed(0), getStatus(o, data)]);
+    const pmts = o.payments || [];
+    const pesin = pmts.find(p => p.note && p.note.includes('Peşinat'));
+    const rest  = pmts.filter(p => !p.note || !p.note.includes('Peşinat'));
+    const paid  = pmts.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net   = getNetTotal(data, o);
+    return {
+      staff: o.staff || '', kind: o.orderKind || '',
+      name: cust.name || '—', fisNo: o.fisNo || '',
+      phone: cust.phone || '',
+      orderDate: fmtDate(o.orderDate), weddingDate: fmtDate(o.weddingDate),
+      note: o.note || '',
+      total: parseFloat(o.total) || 0,
+      pesin: pesin ? parseFloat(pesin.amount) : 0,
+      p1: rest[0] ? parseFloat(rest[0].amount) : 0,
+      p2: rest[1] ? parseFloat(rest[1].amount) : 0,
+      p3: rest[2] ? parseFloat(rest[2].amount) : 0,
+      p4: rest[3] ? parseFloat(rest[3].amount) : 0,
+      kalan: Math.max(0, net - paid),
+    };
   });
-  const csv  = '\uFEFF' + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+  const fmtN = n => n > 0 ? n.toLocaleString('tr-TR') : '';
+
+  const tableRows = rows.map(r => `
+    <tr>
+      <td class="center">${r.staff}</td>
+      <td class="center">${r.kind}</td>
+      <td>${r.name}</td>
+      <td class="center">${r.fisNo}</td>
+      <td>${r.phone}</td>
+      <td class="center">${r.orderDate}</td>
+      <td class="center">${r.weddingDate}</td>
+      <td>${r.note}</td>
+      <td class="num">${fmtN(r.total)}</td>
+      <td class="num">${fmtN(r.pesin)}</td>
+      <td class="num">${fmtN(r.p1)}</td>
+      <td class="num">${fmtN(r.p2)}</td>
+      <td class="num">${fmtN(r.p3)}</td>
+      <td class="num">${fmtN(r.p4)}</td>
+      <td class="num ${r.kalan > 0 ? 'red' : ''}">${fmtN(r.kalan)}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
+  <title>SistersS Sipariş Takip Çizelgesi</title>
+  <style>
+    @page { size: A3 landscape; margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 9px; color: #222; }
+    .summary { display: flex; gap: 40px; margin-bottom: 10px; }
+    .sum-box { background: #e8f4fd; padding: 6px 18px; border-radius: 4px; font-size: 10px; }
+    .sum-box span { font-weight: 700; font-size: 13px; }
+    .sum-box.red { background: #fee2e2; }
+    .sum-box.red span { color: #dc2626; }
+    h2 { font-size: 16px; margin: 0 0 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #b8d4ec; color: #1a365d; font-size: 8px; font-weight: 700; text-align: center; padding: 4px 3px; border: 1px solid #aac; }
+    td { border: 1px solid #dde; padding: 3px 4px; vertical-align: middle; }
+    tr:nth-child(even) td { background: #f8f9fa; }
+    .center { text-align: center; }
+    .num { text-align: right; font-weight: 600; }
+    .red { color: #dc2626; font-weight: 700; }
+    .tahsilat-header { background: #2563eb; color: #fff; text-align: center; }
+    .toplam-row td { background: #fff3cd; font-weight: 700; }
+  </style>
+  </head><body>
+  <div class="summary">
+    <div><h2>SistersS Sipariş Takip Çizelgesi</h2></div>
+    <div class="sum-box">TOPLAM SATIŞ &nbsp; <span>${totalSales.toLocaleString('tr-TR')}</span></div>
+    <div class="sum-box red">TOPLAM BORÇ &nbsp; <span>${totalDebt.toLocaleString('tr-TR')}</span></div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2">S/E</th>
+        <th rowspan="2">Tür</th>
+        <th rowspan="2">AD SOYAD</th>
+        <th rowspan="2">FİŞ NO</th>
+        <th rowspan="2">TELEFON</th>
+        <th rowspan="2">SİPARİŞ TARİHİ</th>
+        <th rowspan="2">DÜĞÜN TARİHİ</th>
+        <th rowspan="2">NOTLAR</th>
+        <th rowspan="2">SATIŞ TUTARI</th>
+        <th colspan="5" class="tahsilat-header">TAHSİLAT</th>
+        <th rowspan="2">KALAN BORÇ</th>
+      </tr>
+      <tr>
+        <th>PEŞİN</th><th>1</th><th>2</th><th>3</th><th>4</th>
+      </tr>
+    </thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+  <script>window.onload = () => window.print();<\/script>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'cari-hesap.csv'; a.click();
-  URL.revokeObjectURL(url);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 // ===== EXCEL =====
 function exportExcel() {
   const data = loadData();
-  const rows = [['Müşteri', 'Fiş No', 'Sipariş Tarihi', 'Düğün Tarihi', 'Hizmet Bed.', 'Gelinlik Tutarı', 'Net Toplam', 'Ödenen', 'Kalan', 'Durum']];
-  data.orders.forEach(o => {
-    const cust = data.customers.find(c => c.id === o.customerId) || {};
-    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
-    const svcD = getCustomerServiceTotal(data, o.customerId);
-    const net  = Math.max(0, (parseFloat(o.total) || 0) - svcD);
-    rows.push([
-      cust.name || '', o.fisNo || '',
-      fmtDate(o.orderDate), fmtDate(o.weddingDate),
-      svcD, parseFloat(o.total) || 0, net, paid, net - paid, getStatus(o, data)
-    ]);
-  });
+  const totalSales = data.orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+  const totalDebt  = data.orders.reduce((s, o) => {
+    const net = getNetTotal(data, o);
+    const paid = (o.payments || []).reduce((ps, p) => ps + (parseFloat(p.amount) || 0), 0);
+    return s + Math.max(0, net - paid);
+  }, 0);
 
-  // Build XML-based Excel (xls) without external lib
+  const staffStyle = 'ss:StyleID="s1"';
+  const redStyle   = 'ss:StyleID="s2"';
+  const hdrStyle   = 'ss:StyleID="s3"';
+  const hdrBlue    = 'ss:StyleID="s4"';
+  const sumGreen   = 'ss:StyleID="s5"';
+  const sumRed     = 'ss:StyleID="s6"';
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-<Worksheet ss:Name="Cari Hesap"><Table>`;
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:x="urn:schemas-microsoft-com:office:excel">
+<Styles>
+  <Style ss:ID="s1"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1"/></Style>
+  <Style ss:ID="s2"><Font ss:Color="#DC2626" ss:Bold="1"/><Alignment ss:Horizontal="Right"/></Style>
+  <Style ss:ID="s3"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1"/><Interior ss:Color="#B8D4EC" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="s4"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2563EB" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="s5"><Font ss:Bold="1"/><Interior ss:Color="#22C55E" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="s6"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#DC2626" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="num"><Alignment ss:Horizontal="Right"/></Style>
+  <Style ss:ID="numred"><Alignment ss:Horizontal="Right"/><Font ss:Color="#DC2626" ss:Bold="1"/></Style>
+</Styles>
+<Worksheet ss:Name="Sipariş Takip">
+<Table>
+  <Row>
+    <Cell ss:MergeAcross="5" ${sumGreen}><Data ss:Type="String">TOPLAM SATIŞ</Data></Cell>
+    <Cell ${sumGreen}><Data ss:Type="Number">${totalSales}</Data></Cell>
+    <Cell ss:MergeAcross="3"></Cell>
+    <Cell ss:MergeAcross="5" ${sumRed}><Data ss:Type="String">TOPLAM BORÇ</Data></Cell>
+    <Cell ${sumRed}><Data ss:Type="Number">${totalDebt}</Data></Cell>
+  </Row>
+  <Row></Row>
+  <Row>
+    <Cell ss:MergeAcross="14"><Data ss:Type="String">SistersS Sipariş Takip Çizelgesi</Data></Cell>
+  </Row>
+  <Row>
+    <Cell ${hdrStyle}><Data ss:Type="String">S/E</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">Tür</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">AD SOYAD</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">FİŞ NO</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">TELEFON</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">SİPARİŞ TARİHİ</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">DÜĞÜN TARİHİ</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">NOTLAR</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">SATIŞ TUTARI</Data></Cell>
+    <Cell ${hdrBlue}><Data ss:Type="String">PEŞİN</Data></Cell>
+    <Cell ${hdrBlue}><Data ss:Type="String">1</Data></Cell>
+    <Cell ${hdrBlue}><Data ss:Type="String">2</Data></Cell>
+    <Cell ${hdrBlue}><Data ss:Type="String">3</Data></Cell>
+    <Cell ${hdrBlue}><Data ss:Type="String">4</Data></Cell>
+    <Cell ${hdrStyle}><Data ss:Type="String">KALAN BORÇ</Data></Cell>
+  </Row>`;
 
-  rows.forEach((row, ri) => {
-    xml += '<Row>';
-    row.forEach(cell => {
-      const isNum = ri > 0 && typeof cell === 'number';
-      xml += isNum
-        ? `<Cell><Data ss:Type="Number">${cell}</Data></Cell>`
-        : `<Cell><Data ss:Type="String">${String(cell).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`;
-    });
-    xml += '</Row>';
+  data.orders.forEach(o => {
+    const cust  = data.customers.find(c => c.id === o.customerId) || {};
+    const pmts  = o.payments || [];
+    const pesin = pmts.find(p => p.note && p.note.includes('Peşinat'));
+    const rest  = pmts.filter(p => !p.note || !p.note.includes('Peşinat'));
+    const paid  = pmts.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net   = getNetTotal(data, o);
+    const kalan = Math.max(0, net - paid);
+    const p = [pesin, rest[0], rest[1], rest[2], rest[3]].map(x => x ? parseFloat(x.amount) || 0 : 0);
+    const kalanStyle = kalan > 0 ? 'ss:StyleID="numred"' : 'ss:StyleID="num"';
+    xml += `
+  <Row>
+    <Cell ${staffStyle}><Data ss:Type="String">${o.staff||''}</Data></Cell>
+    <Cell ${staffStyle}><Data ss:Type="String">${o.orderKind||''}</Data></Cell>
+    <Cell><Data ss:Type="String">${(cust.name||'').replace(/&/g,'&amp;')}</Data></Cell>
+    <Cell ss:StyleID="s1"><Data ss:Type="String">${o.fisNo||''}</Data></Cell>
+    <Cell><Data ss:Type="String">${cust.phone||''}</Data></Cell>
+    <Cell ss:StyleID="s1"><Data ss:Type="String">${fmtDate(o.orderDate)}</Data></Cell>
+    <Cell ss:StyleID="s1"><Data ss:Type="String">${fmtDate(o.weddingDate)}</Data></Cell>
+    <Cell><Data ss:Type="String">${(o.note||'').replace(/&/g,'&amp;')}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="Number">${parseFloat(o.total)||0}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="${p[0]>0?'Number':'String'}">${p[0]>0?p[0]:''}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="${p[1]>0?'Number':'String'}">${p[1]>0?p[1]:''}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="${p[2]>0?'Number':'String'}">${p[2]>0?p[2]:''}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="${p[3]>0?'Number':'String'}">${p[3]>0?p[3]:''}</Data></Cell>
+    <Cell ss:StyleID="num"><Data ss:Type="${p[4]>0?'Number':'String'}">${p[4]>0?p[4]:''}</Data></Cell>
+    <Cell ${kalanStyle}><Data ss:Type="${kalan>0?'Number':'String'}">${kalan>0?kalan:0}</Data></Cell>
+  </Row>`;
   });
 
-  xml += '</Table></Worksheet></Workbook>';
-
+  xml += '\n</Table></Worksheet></Workbook>';
   const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'cari-hesap.xls'; a.click();
+  const a = document.createElement('a'); a.href = url; a.download = 'siparis-takip.xls'; a.click();
   URL.revokeObjectURL(url);
 }
 
