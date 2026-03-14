@@ -765,7 +765,7 @@
       <table>
         <thead>
           <tr>
-            <th>Müşteri</th><th>Fiş No</th><th>Sipariş Tarihi</th>
+            <th style="width:30px;">S/E</th><th style="width:30px;">Tür</th><th>Kategori</th><th>Müşteri</th><th>Fiş No</th><th>Sipariş Tarihi</th>
             <th>Düğün Tarihi</th><th>Hizmet Bed.</th><th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th>
           </tr>
         </thead>
@@ -988,6 +988,41 @@
             <input type="date" class="form-control" id="order-date">
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Kimin Müşterisi</label>
+            <select class="form-control" id="order-staff">
+              <option value="">— Seçin —</option>
+              <option value="S">Seher</option>
+              <option value="E">Ebru</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ürün Türü</label>
+            <select class="form-control" id="order-type">
+              <option value="">— Seçin —</option>
+              <option value="Ö">Özel Dikim</option>
+              <option value="H">Hazır</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Gelinlik" checked> 👰 Gelinlik
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Abiye"> 💃 Abiye
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Kinalik"> 🧕 Kınalık
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:600;">
+              <input type="radio" name="order-category" value="Diger"> 🛍️ Diğer
+            </label>
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Düğün Tarihi</label>
           <input type="date" class="form-control" id="wedding-date">
@@ -1123,6 +1158,33 @@
         <label class="form-label">Not</label>
         <input type="text" class="form-control" id="edit-note">
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kimin Müşterisi</label>
+          <select class="form-control" id="edit-staff">
+            <option value="">— Seçin —</option>
+            <option value="S">Seher</option>
+            <option value="E">Ebru</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ürün Türü</label>
+          <select class="form-control" id="edit-kind">
+            <option value="">— Seçin —</option>
+            <option value="Ö">Özel Dikim</option>
+            <option value="H">Hazır</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori</label>
+        <select class="form-control" id="edit-category">
+          <option value="Gelinlik">👰 Gelinlik</option>
+          <option value="Abiye">💃 Abiye</option>
+          <option value="Kinalik">🧕 Kınalık</option>
+          <option value="Diger">🛍️ Diğer</option>
+        </select>
+      </div>
       <div class="payment-plan">
         <div class="payment-plan-title">Ödeme Planı (₺)</div>
         <div class="payment-row">
@@ -1184,6 +1246,39 @@
   </div>
 </div>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div class="overlay" id="overlay-confirm" style="z-index:9999;">
+  <div class="modal" style="width:420px;">
+    <div class="modal-header" style="border-bottom:none;padding-bottom:8px;">
+      <div class="modal-title" id="confirm-title">Emin misiniz?</div>
+      <button class="modal-close" onclick="closeConfirm(false)">×</button>
+    </div>
+    <div class="modal-body" style="padding-top:4px;">
+      <p id="confirm-message" style="font-size:14px;color:var(--text);line-height:1.6;"></p>
+      <p id="confirm-warning" style="display:none;margin-top:10px;font-size:13px;font-weight:700;color:var(--danger);background:rgba(229,62,62,0.08);border-radius:7px;padding:8px 12px;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">İptal</button>
+      <button class="btn btn-danger" id="confirm-ok-btn" onclick="closeConfirm(true)">Sil</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM ALERT MODAL -->
+<div class="overlay" id="overlay-alert" style="z-index:9999;">
+  <div class="modal" style="width:380px;">
+    <div class="modal-header" style="border-bottom:none;padding-bottom:6px;">
+      <div class="modal-title" id="alert-title">Bilgi</div>
+    </div>
+    <div class="modal-body" style="padding-top:4px;">
+      <p id="alert-message" style="font-size:14px;color:var(--text);line-height:1.6;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('overlay-alert')">Tamam</button>
+    </div>
+  </div>
+</div>
+
 <!-- BACKUP MODAL -->
 <div class="overlay" id="overlay-backup">
   <div class="modal" style="width:480px;">
@@ -1238,6 +1333,31 @@
 </div>
 
 <script>
+// ===== CUSTOM CONFIRM / ALERT =====
+let _confirmCallback = null;
+
+function showConfirm(title, message, warning, okLabel, callback) {
+  document.getElementById('confirm-title').textContent = title || 'Emin misiniz?';
+  document.getElementById('confirm-message').textContent = message || '';
+  const warnEl = document.getElementById('confirm-warning');
+  if (warning) { warnEl.textContent = warning; warnEl.style.display = 'block'; }
+  else { warnEl.style.display = 'none'; }
+  document.getElementById('confirm-ok-btn').textContent = okLabel || 'Sil';
+  _confirmCallback = callback;
+  document.getElementById('overlay-confirm').classList.add('active');
+}
+
+function closeConfirm(result) {
+  document.getElementById('overlay-confirm').classList.remove('active');
+  if (_confirmCallback) { const cb = _confirmCallback; _confirmCallback = null; cb(result); }
+}
+
+function showAlert(message, title) {
+  document.getElementById('alert-title').textContent = title || 'Bilgi';
+  document.getElementById('alert-message').textContent = message;
+  document.getElementById('overlay-alert').classList.add('active');
+}
+
 // ===== THEME =====
 function toggleTheme() {
   const html = document.documentElement;
@@ -1348,7 +1468,7 @@ function statusBadge(status) {
 function renderOrdersTable(data) {
   const tbody = document.getElementById('orders-tbody');
   if (!data.orders.length) {
-    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = data.orders.map(o => {
@@ -1358,7 +1478,14 @@ function renderOrdersTable(data) {
     const remaining = net - paid;
     const svcTotal  = getCustomerServiceTotal(data, o.customerId);
     const status    = getStatus(o, data);
+    const staffColor = o.staff === 'S' ? '#7c3aed' : o.staff === 'E' ? '#0ea5e9' : '';
+    const kindColor  = o.orderKind === 'Ö' ? '#d97706' : o.orderKind === 'H' ? '#059669' : '';
+    const catIcon = {Gelinlik:'👰', Abiye:'💃', Kinalik:'🧕', Diger:'🛍️'}[o.category] || '';
+    const catLabel = o.category || '';
     return `<tr>
+      <td style="text-align:center;font-weight:800;font-size:13px;color:${staffColor};">${o.staff || '—'}</td>
+      <td style="text-align:center;font-weight:800;font-size:13px;color:${kindColor};">${o.orderKind || '—'}</td>
+      <td style="font-size:12px;">${catIcon} ${catLabel || '—'}</td>
       <td><strong>${cust.name || '—'}</strong></td>
       <td>${o.fisNo || '—'}</td>
       <td>${fmtDate(o.orderDate)}</td>
@@ -1366,7 +1493,7 @@ function renderOrdersTable(data) {
       <td>${svcTotal > 0 ? `<span style="color:var(--service-color);font-weight:700;">-${fmt(svcTotal)}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
       <td>${fmt(net)}</td>
       <td>${fmt(paid)}</td>
-      <td>${fmt(remaining)}</td>
+      <td style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'};font-weight:700;">${fmt(remaining)}</td>
       <td>${statusBadge(status)}</td>
       <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
     </tr>`;
@@ -1641,7 +1768,8 @@ function saveServiceFee() {
 }
 
 function deleteService(id) {
-  if (!confirm('Bu hizmet bedeli kaydını silmek istiyor musunuz?')) return;
+  showConfirm('Hizmet Bedeli Sil', 'Bu hizmet bedeli kaydını silmek istiyor musunuz?', null, 'Sil', (ok) => {
+    if (!ok) return;
   const data = loadData();
   data.services = data.services.filter(s => s.id !== id);
   saveData(data);
@@ -1666,6 +1794,10 @@ function resetNewOrderModal() {
   document.getElementById('new-customer-form').style.display = '';
   document.getElementById('service-deduction-info').style.display = 'none';
   document.getElementById('service-deduction-row').style.display = 'none';
+  document.getElementById('order-staff').value = '';
+  document.getElementById('order-type').value = '';
+  const catRadio = document.querySelector('input[name="order-category"][value="Gelinlik"]');
+  if (catRadio) catRadio.checked = true;
   document.getElementById('deposit-detail-row').style.display = 'none';
   document.getElementById('deposit-method-row').style.display = 'none';
   document.getElementById('pp-1-method').value = '';
@@ -1772,6 +1904,7 @@ function saveNewOrder() {
     payments.push({ id: genId(), amount: pp1, date: pp1Date, note: depositNote, method: pp1Method });
   }
 
+  const catChecked = document.querySelector('input[name="order-category"]:checked');
   data.orders.push({
     id: genId(),
     customerId,
@@ -1780,6 +1913,9 @@ function saveNewOrder() {
     weddingDate: document.getElementById('wedding-date').value,
     total:      parseFloat(total),
     note:       document.getElementById('order-note').value.trim(),
+    staff:      document.getElementById('order-staff').value,
+    orderKind:  document.getElementById('order-type').value,
+    category:   catChecked ? catChecked.value : 'Gelinlik',
     payments,
   });
 
@@ -1813,9 +1949,15 @@ function openDetail(orderId) {
       }).join('')
     : '<div style="color:var(--text-muted);font-size:13px;font-weight:600;">Henüz ödeme yok.</div>';
 
+  const staffLabel = order.staff === 'S' ? '👩 Seher' : order.staff === 'E' ? '👩 Ebru' : '—';
+  const kindLabel  = order.orderKind === 'Ö' ? '✂️ Özel Dikim' : order.orderKind === 'H' ? '🏪 Hazır' : '—';
+  const catIcons   = {Gelinlik:'👰 Gelinlik', Abiye:'💃 Abiye', Kinalik:'🧕 Kınalık', Diger:'🛍️ Diğer'};
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-row"><span class="dl">Müşteri</span><span class="dv">${cust.name || '—'}</span></div>
     <div class="detail-row"><span class="dl">Telefon</span><span class="dv">${cust.phone || '—'}</span></div>
+    <div class="detail-row"><span class="dl">Kimin Müşterisi</span><span class="dv">${staffLabel}</span></div>
+    <div class="detail-row"><span class="dl">Ürün Türü</span><span class="dv">${kindLabel}</span></div>
+    <div class="detail-row"><span class="dl">Kategori</span><span class="dv">${catIcons[order.category] || order.category || '—'}</span></div>
     <div class="detail-row"><span class="dl">Fiş No</span><span class="dv">${order.fisNo || '—'}</span></div>
     <div class="detail-row"><span class="dl">Sipariş Tarihi</span><span class="dv">${fmtDate(order.orderDate)}</span></div>
     <div class="detail-row"><span class="dl">Düğün Tarihi</span><span class="dv">${fmtDate(order.weddingDate)}</span></div>
@@ -1832,12 +1974,22 @@ function openDetail(orderId) {
 }
 
 function deleteOrder() {
-  if (!confirm('Bu siparişi silmek istediğinizden emin misiniz?')) return;
   const data = loadData();
-  data.orders = data.orders.filter(o => o.id !== currentOrderId);
-  saveData(data);
-  closeModal('overlay-detail');
-  renderAll();
+  const order = data.orders.find(o => o.id === currentOrderId);
+  const cust = data.customers.find(c => c.id === (order || {}).customerId) || {};
+  showConfirm(
+    'Sipariş Sil',
+    `"${cust.name || 'Bu müşteri'}" adına kayıtlı siparişi silmek istediğinizden emin misiniz?`,
+    null, 'Sil',
+    (ok) => {
+      if (!ok) return;
+      const d = loadData();
+      d.orders = d.orders.filter(o => o.id !== currentOrderId);
+      saveData(d);
+      closeModal('overlay-detail');
+      renderAll();
+    }
+  );
 }
 
 function openAddPayment() {
@@ -1875,6 +2027,9 @@ function openEditOrder() {
   document.getElementById('edit-wedding-date').value = order.weddingDate || '';
   document.getElementById('edit-total').value = order.total || '';
   document.getElementById('edit-note').value = order.note || '';
+  document.getElementById('edit-staff').value = order.staff || '';
+  document.getElementById('edit-kind').value = order.orderKind || '';
+  document.getElementById('edit-category').value = order.category || 'Gelinlik';
   ['edit-pp-1','edit-pp-2','edit-pp-3','edit-pp-remaining'].forEach(id => document.getElementById(id).value = '');
   closeModal('overlay-detail');
   openModal('overlay-edit-order');
@@ -1897,6 +2052,9 @@ function saveEditOrder() {
   order.weddingDate = document.getElementById('edit-wedding-date').value;
   order.total       = parseFloat(document.getElementById('edit-total').value) || 0;
   order.note        = document.getElementById('edit-note').value.trim();
+  order.staff       = document.getElementById('edit-staff').value;
+  order.orderKind   = document.getElementById('edit-kind').value;
+  order.category    = document.getElementById('edit-category').value;
   saveData(data);
   closeModal('overlay-edit-order');
   renderAll();
@@ -1939,15 +2097,24 @@ function deleteCustomer(custId) {
   if (!cust) return;
   const hasOrders = data.orders.some(o => o.customerId === custId);
   const hasServices = data.services.some(s => s.customerId === custId);
-  let msg = `"${cust.name}" müşterisini silmek istiyor musunuz?`;
-  if (hasOrders) msg += '\n\n⚠️ Bu müşteriye ait siparişler de silinecek!';
-  if (hasServices) msg += '\n⚠️ Bu müşteriye ait hizmet bedeli kayıtları da silinecek!';
-  if (!confirm(msg)) return;
-  data.customers = data.customers.filter(c => c.id !== custId);
-  if (hasOrders)   data.orders   = data.orders.filter(o => o.customerId !== custId);
-  if (hasServices) data.services = data.services.filter(s => s.customerId !== custId);
-  saveData(data);
-  renderAll();
+  let warnings = [];
+  if (hasOrders) warnings.push('⚠️ Bu müşteriye ait siparişler de silinecek!');
+  if (hasServices) warnings.push('⚠️ Bu müşteriye ait hizmet bedeli kayıtları da silinecek!');
+  showConfirm(
+    'Müşteri Sil',
+    `"${cust.name}" müşterisini silmek istiyor musunuz?`,
+    warnings.join('  ') || null,
+    'Sil',
+    (ok) => {
+      if (!ok) return;
+      const d = loadData();
+      d.customers = d.customers.filter(c => c.id !== custId);
+      if (hasOrders)   d.orders   = d.orders.filter(o => o.customerId !== custId);
+      if (hasServices) d.services = d.services.filter(s => s.customerId !== custId);
+      saveData(d);
+      renderAll();
+    }
+  );
 }
 
 // ===== CSV =====
@@ -2103,12 +2270,16 @@ function readRestoreFile(file) {
 
 function confirmRestore() {
   if (!_restoreData) return;
-  if (!confirm('⚠️ DİKKAT: Mevcut tüm veriler silinecek ve yedeğiniz yüklenecek. Emin misiniz?')) return;
-  saveData(_restoreData);
-  _restoreData = null;
-  closeModal('overlay-backup');
-  renderAll();
-  setTimeout(() => alert('✅ Veriler başarıyla geri yüklendi!'), 200);
+  showConfirm('Geri Yükleme', 'Mevcut tüm veriler silinecek ve yedeğiniz yüklenecek.', '⚠️ Bu işlem geri alınamaz!', 'Geri Yükle', (ok) => {
+    if (!ok) return;
+    saveData(_restoreData);
+    _restoreData = null;
+    closeModal('overlay-backup');
+    renderAll();
+    showAlert('✅ Veriler başarıyla geri yüklendi!', 'Geri Yükleme Başarılı');
+  });
+  return; // early return - rest handled in callback
+
 }
 
 function checkBackupReminder() {
