@@ -175,40 +175,19 @@
   .btn-service-action:hover { opacity: 0.8; transform: translateY(-1px); }
 
   /* ===== TAB NAV ===== */
-  .tab-nav {
-    display: flex;
-    align-items: center;
-    padding: 0 28px;
-    gap: 0;
-    overflow-x: auto;
+  /* Panel system */
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; color: var(--primary);
+    cursor: pointer; margin-bottom: 16px; padding: 6px 0;
   }
-
-  .tab-nav::-webkit-scrollbar { height: 0; }
-
-  .tab-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 14px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-bottom: 2.5px solid transparent;
-    transition: all 0.18s;
-    white-space: nowrap;
-    flex-shrink: 0;
+  .back-btn:hover { opacity: 0.8; }
+  .panel-title {
+    font-size: 18px; font-weight: 800; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
   }
-
-  .tab-item:hover { color: var(--primary); }
-
-  .tab-item.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-  }
-
-  .tab-item svg { opacity: 0.7; }
-  .tab-item.active svg { opacity: 1; }
 
   /* ===== CONTENT ===== */
   .content { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
@@ -631,17 +610,12 @@
     .charts-grid { grid-template-columns: 1fr; }
     .content { padding: 18px 16px; }
     .header-top { padding: 0 16px; }
-    .tab-nav { padding: 0 16px; }
   }
   @media(max-width:768px) {
     html, body { overflow-x: hidden; }
     .content { padding: 14px 12px; }
     .header-top { padding: 0 12px; height: 56px; }
     .header-actions .btn-action span:not(.backup-badge) { display: none; }
-    .tab-nav { padding: 0 8px; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-    .tab-nav::-webkit-scrollbar { display: none; }
-    .tab-item { padding: 12px 10px; font-size: 11px; white-space: nowrap; }
-    .tab-item svg { display: none; }
     table { display: none !important; }
     .mobile-cards { display: flex !important; }
     .table-wrap { border: none; background: transparent; box-shadow: none; padding: 0; }
@@ -674,7 +648,6 @@
     <div class="brand">
       <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
            onerror="this.style.display='none';" alt="Sisters Wedding">
-
     </div>
     <div class="header-actions">
       <div class="theme-toggle" onclick="toggleTheme()" title="Koyu/Açık mod">
@@ -705,78 +678,35 @@
       </button>
     </div>
   </div>
-
-  <!-- TAB NAV -->
-  <nav class="tab-nav">
-    <div class="tab-item active" onclick="showPage('dashboard')" id="tab-dashboard">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-      Özet
-    </div>
-    <div class="tab-item" onclick="showPage('orders')" id="tab-orders">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-        <rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>
-      </svg>
-      Siparişler
-    </div>
-    <div class="tab-item" onclick="showPage('customers')" id="tab-customers">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-      </svg>
-      Müşteriler
-    </div>
-    <div class="tab-item" onclick="showPage('services')" id="tab-services">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-      </svg>
-      Hizmet Bedelleri
-    </div>
-    <div class="tab-item" onclick="showPage('cari')" id="tab-cari">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-      </svg>
-      Cari Hesap
-    </div>
-    <div class="tab-item" onclick="showPage('bekleyen')" id="tab-bekleyen">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-      </svg>
-      Bekleyen Tahsilat
-    </div>
-  </nav>
 </header>
 
 <!-- CONTENT -->
 <div class="content">
 
-  <!-- DASHBOARD -->
-  <div class="page active" id="page-dashboard">
+  <!-- ═══ ANA EKRAN (grafik + stat kartlar) ═══ -->
+  <div id="main-view">
     <div class="stats-grid">
-      <div class="stat-card clickable" onclick="showPage('orders')">
+      <div class="stat-card clickable" onclick="openPanel('orders')">
         <div class="stat-label">Siparişler</div>
         <div class="stat-value" id="stat-orders">0</div>
         <div class="stat-link">Görüntüle →</div>
       </div>
-      <div class="stat-card clickable" onclick="showPage('customers')">
+      <div class="stat-card clickable" onclick="openPanel('customers')">
         <div class="stat-label">Müşteriler</div>
         <div class="stat-value" id="stat-customers">0</div>
         <div class="stat-link">Görüntüle →</div>
       </div>
-      <div class="stat-card clickable" onclick="showPage('cari')">
+      <div class="stat-card clickable" onclick="openPanel('cari')">
         <div class="stat-label">Toplam Satış</div>
         <div class="stat-value" id="stat-total">₺0</div>
         <div class="stat-link">Cari →</div>
       </div>
-      <div class="stat-card clickable" onclick="showPage('bekleyen')">
+      <div class="stat-card clickable" onclick="openPanel('bekleyen')">
         <div class="stat-label">Bekleyen</div>
         <div class="stat-value" id="stat-pending">₺0</div>
         <div class="stat-link">Tahsilat →</div>
       </div>
-      <div class="stat-card clickable" onclick="showPage('services')">
+      <div class="stat-card clickable" onclick="openPanel('services')">
         <div class="stat-label">Hizmet Bedeli</div>
         <div class="stat-value service-val" id="stat-service">₺0</div>
         <div class="stat-link" style="color:var(--service-color);">Görüntüle →</div>
@@ -806,8 +736,12 @@
     </div>
   </div>
 
-  <!-- ORDERS -->
-  <div class="page" id="page-orders">
+  <!-- ═══ SİPARİŞLER PANELİ ═══ -->
+  <div class="panel" id="panel-orders">
+    <div class="back-btn" onclick="closePanel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Ana Sayfaya Dön
+    </div>
     <div class="section-header">
       <div class="section-title">Siparişler</div>
     </div>
@@ -827,8 +761,12 @@
     </div>
   </div>
 
-  <!-- CUSTOMERS -->
-  <div class="page" id="page-customers">
+  <!-- ═══ MÜŞTERİLER PANELİ ═══ -->
+  <div class="panel" id="panel-customers">
+    <div class="back-btn" onclick="closePanel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Ana Sayfaya Dön
+    </div>
     <div class="section-header">
       <div class="section-title">Müşteriler</div>
     </div>
@@ -847,8 +785,12 @@
     </div>
   </div>
 
-  <!-- HİZMET BEDELLERİ -->
-  <div class="page" id="page-services">
+  <!-- ═══ HİZMET BEDELLERİ PANELİ ═══ -->
+  <div class="panel" id="panel-services">
+    <div class="back-btn" onclick="closePanel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Ana Sayfaya Dön
+    </div>
     <div class="section-header">
       <div class="section-title">Hizmet Bedelleri</div>
       <button class="btn-action btn-service-action" onclick="openServiceFee()">
@@ -879,8 +821,12 @@
     </div>
   </div>
 
-  <!-- CARİ -->
-  <div class="page" id="page-cari">
+  <!-- ═══ CARİ HESAP PANELİ ═══ -->
+  <div class="panel" id="panel-cari">
+    <div class="back-btn" onclick="closePanel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Ana Sayfaya Dön
+    </div>
     <div class="section-header">
       <div class="section-title">Cari Hesap</div>
       <div style="display:flex;gap:8px;">
@@ -903,8 +849,12 @@
     </div>
   </div>
 
-  <!-- BEKLEYEN -->
-  <div class="page" id="page-bekleyen">
+  <!-- ═══ BEKLEYEN TAHSİLAT PANELİ ═══ -->
+  <div class="panel" id="panel-bekleyen">
+    <div class="back-btn" onclick="closePanel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Ana Sayfaya Dön
+    </div>
     <div class="section-header">
       <div class="section-title">Bekleyen Tahsilat</div>
     </div>
@@ -922,6 +872,7 @@
       <div class="mobile-cards" id="bekleyen-mobile"></div>
     </div>
   </div>
+
 
 </div><!-- /content -->
 
@@ -1490,13 +1441,23 @@ function getNetTotal(data, order) {
 }
 
 // ===== NAV =====
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
+function openPanel(name) {
+  document.getElementById('main-view').style.display = 'none';
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
   renderAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function closePanel() {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('main-view').style.display = '';
+  renderAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// keep showPage as alias for compatibility
+function showPage(name) { openPanel(name); }
 
 // ===== RENDER =====
 let barChart = null, pieChart = null;
