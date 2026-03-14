@@ -4,1581 +4,2127 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SisterS Sipariş Takip</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='white'/><text x='32' y='50' text-anchor='middle' font-family='Georgia,Times New Roman,serif' font-size='52' font-weight='400' fill='%231a1625'>S</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #f4f3f8;
-  --surface: #ffffff;
-  --surface2: #f0eef8;
-  --border: #e2dff0;
-  --text: #1a1625;
-  --text2: #6b6480;
-  --text3: #9e97b8;
-  --accent: #7c5cbf;
-  --accent2: #a07ee0;
-  --accent-bg: #ede8fa;
-  --green: #22c55e;
-  --green-bg: #dcfce7;
-  --red: #ef4444;
-  --red-bg: #fee2e2;
-  --yellow: #f59e0b;
-  --yellow-bg: #fef3c7;
-  --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
-  --shadow-md: 0 4px 24px rgba(0,0,0,.10);
-  --radius: 14px;
-  --radius-sm: 8px;
-}
-[data-theme="dark"] {
-  --bg: #0d1117;
-  --surface: #161b22;
-  --surface2: #21262d;
-  --border: #30363d;
-  --text: #e6edf3;
-  --text2: #8b949e;
-  --text3: #484f58;
-  --accent: #a371f7;
-  --accent2: #c19eff;
-  --accent-bg: #1f1535;
-  --green: #3fb950;
-  --green-bg: #0d2a14;
-  --red: #f85149;
-  --red-bg: #2d1116;
-  --yellow: #d29922;
-  --yellow-bg: #2d2000;
-  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 24px rgba(0,0,0,.6);
-}
-/* ===== BASE ===== */
-*{margin:0;padding:0;box-sizing:border-box}
-html{overflow-x:hidden}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
-/* ===== TOPBAR ===== */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);width:100%}
-.topbar-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+  :root, [data-theme="light"] {
+    --primary: #1e6fbf;
+    --primary-dark: #155a9e;
+    --primary-light: #c8dff5;
+    --accent: #4a90d9;
+    --bg: #f4f8fd;
+    --bg2: #eaf2fb;
+    --card: #ffffff;
+    --text: #1a2a3d;
+    --text-muted: #5a7a9a;
+    --border: #cde0f5;
+    --success: #2e9e5e;
+    --warning: #d4870a;
+    --danger: #c0392b;
+    --shadow: 0 2px 12px rgba(30,111,191,0.08);
+    --toggle-bg: #c8dff5;
+    --toggle-knob: #1e6fbf;
+    --service-color: #7c3aed;
+    --service-bg: #ede9fe;
+  }
 
-/* Logo: light temada PNG, dark temada SVG text */
-.logo-img{height:36px;object-fit:contain;display:block}
-[data-theme="dark"] .logo-img{display:none}
-.logo-dark{display:none;flex-direction:column;line-height:1}
-[data-theme="dark"] .logo-dark{display:flex}
-.logo-dark-main{font-size:17px;font-weight:900;letter-spacing:1px;color:#e6edf3}
-.logo-dark-sub{font-size:8px;font-weight:600;letter-spacing:4px;color:#a371f7;text-transform:uppercase;margin-top:1px}
+  [data-theme="dark"] {
+    --primary: #4a90d9;
+    --primary-dark: #2e6fb3;
+    --primary-light: #1a3a5c;
+    --accent: #6ab4f5;
+    --bg: #0f1c2e;
+    --bg2: #162540;
+    --card: #1a2e48;
+    --text: #d6eaf8;
+    --text-muted: #6a9ab8;
+    --border: #1e3a58;
+    --success: #27ae60;
+    --warning: #e67e22;
+    --danger: #e74c3c;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --toggle-bg: #1a3a5c;
+    --toggle-knob: #4a90d9;
+    --service-color: #a78bfa;
+    --service-bg: #2d1f5c;
+  }
 
-.topbar-title{font-size:12px;color:var(--text2);padding-left:12px;border-left:1px solid var(--border);white-space:nowrap}
-.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.btn-icon{width:40px;height:40px;border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:.15s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
-.btn-icon:hover{background:var(--surface2);color:var(--accent)}
-.btn-primary{display:flex;align-items:center;gap:6px;padding:0 14px;height:40px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-.btn-primary:hover{background:var(--accent2)}
-.btn-secondary{display:flex;align-items:center;gap:6px;padding:0 12px;height:40px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-.btn-secondary:hover{background:var(--surface2);color:var(--text)}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== MAIN ===== */
-.main{max-width:1300px;margin:0 auto;padding:20px 16px;width:100%}
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.25s, color 0.25s;
+  }
 
-/* ===== STAT CARDS ===== */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;width:100%}
-.stat-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
-.stat-card:active{transform:scale(.97)}
-.stat-card.active{border-color:var(--accent);background:var(--accent-bg)}
-.stat-card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0}
-.stat-card-label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stat-card-value{font-size:20px;font-weight:800;color:var(--text);margin-bottom:2px;word-break:break-all}
-.stat-card-sub{font-size:11px;color:var(--accent);font-weight:500}
+  /* ===== HEADER ===== */
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+    transition: background 0.25s;
+  }
 
-/* ===== PANELS ===== */
-.panel{display:none;animation:fadeIn .18s ease;width:100%}
-.panel.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+  }
 
-/* ===== CHARTS ===== */
-.charts-view{display:block;width:100%}
-.charts-view.hidden{display:none}
-.charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;width:100%}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;min-width:0}
-.chart-card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.chart-card p{font-size:12px;color:var(--text2);margin-bottom:16px}
-.chart-wrap{position:relative;height:260px;width:100%}
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-/* ===== SECTION HEADER ===== */
-.sec-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text)}
-.sec-title svg{color:var(--accent);flex-shrink:0}
-.search-input{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;height:40px;min-width:0;flex:1;max-width:260px}
-.search-input input{border:none;background:transparent;font-size:14px;color:var(--text);outline:none;width:100%;min-width:0}
-.search-input input::placeholder{color:var(--text3)}
+  .brand img {
+    height: 28px;
+    filter: var(--logo-filter, none);
+    opacity: 0.85;
+  }
 
-/* ===== TABLE (desktop only) ===== */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;width:100%}
-table{width:100%;border-collapse:collapse;table-layout:fixed}
-th{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2)}
-td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--surface2)}
+  [data-theme="dark"] .brand img { filter: brightness(0) invert(1); }
 
-/* ===== BADGE ===== */
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.badge-green{background:var(--green-bg);color:var(--green)}
-.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
-.badge-red{background:var(--red-bg);color:var(--red)}
+  .brand-name {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
 
-/* ===== PROGRESS ===== */
-.progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;min-width:60px;max-width:100px}
-.progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s}
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-/* ===== BACK BTN ===== */
-.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:14px;padding:8px 12px;border-radius:var(--radius-sm);transition:.15s;-webkit-tap-highlight-color:transparent}
-.back-btn:hover{background:var(--surface2);color:var(--text)}
-.website-btn{text-decoration:none;overflow:hidden;padding:0 10px!important}
+  /* THEME TOGGLE */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
 
-/* ===== ACTION ROW ===== */
-.action-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+  .toggle-track {
+    width: 40px;
+    height: 21px;
+    border-radius: 11px;
+    background: var(--toggle-bg);
+    position: relative;
+    border: 1.5px solid var(--border);
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
 
-/* ===== MODAL ===== */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;padding:0}
-.modal-overlay.open{display:flex}
-.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-md);animation:slideModal .22s ease}
-@keyframes slideModal{from{transform:translateY(60px);opacity:.6}to{transform:translateY(0);opacity:1}}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;position:sticky;top:0;background:var(--surface);z-index:1;border-bottom:1px solid var(--border);padding-bottom:14px}
-.modal-header h2{font-size:16px;font-weight:700;color:var(--text)}
-.modal-body{padding:18px 20px}
-.modal-footer{padding:0 20px 20px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-.modal-footer .btn-primary,.modal-footer .btn-secondary{flex:1;min-width:0;justify-content:center;height:44px;font-size:14px}
+  .toggle-knob {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--toggle-knob);
+    position: absolute;
+    top: 2px; left: 2px;
+    transition: transform 0.25s;
+  }
 
-/* ===== FORM ===== */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-group label{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
-.form-group input,.form-group select,.form-group textarea{
-  background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  padding:11px 14px;font-size:15px;color:var(--text);outline:none;transition:.15s;
-  font-family:inherit;width:100%;-webkit-appearance:none;
-}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
-.form-group textarea{resize:vertical;min-height:70px}
-.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:18px}
-.step{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text3)}
-.step.active{color:var(--accent)}
-.step-num{width:24px;height:24px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
-.step-divider{flex:1;height:1px;background:var(--border)}
-.new-customer-section{background:var(--accent-bg);border:1.5px dashed var(--accent);border-radius:var(--radius-sm);padding:14px;margin-top:10px;display:none}
-.new-customer-section.open{display:block}
-.divider{height:1px;background:var(--border);margin:14px 0}
-.pay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.pay-item{display:flex;flex-direction:column;gap:4px}
-.pay-item label{font-size:12px;font-weight:700;color:var(--text2)}
-.pay-item input{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:15px;color:var(--text);outline:none;width:100%;-webkit-appearance:none}
-.pay-item input:focus{border-color:var(--accent)}
-.err{font-size:12px;color:var(--red);margin-top:6px;font-weight:600}
+  [data-theme="dark"] .toggle-knob { transform: translateX(19px); }
 
-/* ===== DETAIL MODAL ===== */
-.detail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;gap:10px}
-.detail-row:last-child{border-bottom:none}
-.detail-label{color:var(--text2);font-weight:500;flex-shrink:0}
-.detail-value{color:var(--text);font-weight:700;text-align:right;word-break:break-word}
-.pay-history{margin-top:14px}
-.pay-history-item{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:14px}
+  .toggle-icon { font-size: 13px; }
 
-/* ===== TOAST ===== */
-.toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;width:calc(100% - 32px);max-width:340px;pointer-events:none}
-.toast{background:#1e1b2e;color:#f0eeff;padding:13px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;box-shadow:var(--shadow-md);animation:slideUp .2s ease;text-align:center}
-@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.toast.success{background:#14532d;color:#dcfce7}
-.toast.error{background:#7f1d1d;color:#fee2e2}
+  /* BUTTONS */
+  .btn-action {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
 
-/* ===== EMPTY ===== */
-.empty{text-align:center;padding:48px 20px;color:var(--text3)}
-.empty p{font-size:14px}
+  .btn-primary-action {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(30,111,191,0.25);
+  }
 
-/* ===== UPCOMING ===== */
-.upcoming-list{display:flex;flex-direction:column;gap:8px}
-.upcoming-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.upcoming-name{font-size:14px;font-weight:700;color:var(--text)}
-.upcoming-date{font-size:12px;color:var(--text2);margin-top:2px}
-.days-badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+  .btn-primary-action:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
-/* ===== MOBILE CARDS ===== */
-.mobile-cards{display:none;flex-direction:column;gap:10px;width:100%}
-.m-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;active:background:var(--surface2)}
-.m-card:active{background:var(--surface2)}
-.m-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px}
-.m-card-name{font-size:15px;font-weight:700;color:var(--text)}
-.m-card-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
-.m-card-item{display:flex;flex-direction:column;gap:1px}
-.m-card-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.m-card-value{font-size:13px;color:var(--text);font-weight:600}
+  .btn-service-action {
+    background: var(--service-bg);
+    color: var(--service-color);
+    border: 1.5px solid var(--service-color);
+  }
 
-/* ===== RESPONSIVE ===== */
-@media(max-width:1024px){
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .charts-grid{grid-template-columns:1fr}
-}
-@media(max-width:768px){
-  .topbar-title{display:none}
-  .main{padding:14px 12px}
-  table{display:none}
-  .mobile-cards{display:flex!important}
-  .table-wrap{border:none;background:transparent;box-shadow:none}
-  .form-grid{grid-template-columns:1fr}
-  .action-row{gap:8px}
-  .action-row .sec-title{font-size:14px}
-  .modal-footer{flex-direction:column}
-  .modal-footer .btn-primary,.modal-footer .btn-secondary{flex:none;width:100%}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
-  .stat-card{padding:12px}
-  .stat-card-value{font-size:18px}
-  .stat-card-label{font-size:9px}
-  .stat-card-icon{width:32px;height:32px;margin-bottom:8px}
-  .btn-primary span.btn-label{display:none}
-  .topbar{height:56px;padding:0 14px;gap:8px}
-  .chart-card{padding:14px 10px}
-  .chart-wrap{height:220px}
-}
+  .btn-service-action:hover { opacity: 0.8; transform: translateY(-1px); }
+
+  /* ===== TAB NAV ===== */
+  .tab-nav {
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .tab-nav::-webkit-scrollbar { height: 0; }
+
+  .tab-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: all 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tab-item:hover { color: var(--primary); }
+
+  .tab-item.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .tab-item svg { opacity: 0.7; }
+  .tab-item.active svg { opacity: 1; }
+
+  /* ===== CONTENT ===== */
+  .content { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* ===== STAT CARDS ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 26px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.18s, background 0.25s;
+    cursor: default;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card.clickable { cursor: pointer; }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-value.service-val { color: var(--service-color); }
+
+  .stat-link {
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  /* ===== CHARTS ===== */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+
+  .chart-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: background 0.25s;
+  }
+
+  .chart-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+  .chart-sub { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 210px; }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title { font-size: 16px; font-weight: 800; color: var(--text); }
+
+  .btn-csv {
+    background: var(--success);
+    color: #fff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.18s;
+  }
+
+  .btn-csv:hover { opacity: 0.85; }
+
+  /* ===== TABLE ===== */
+  .table-wrap {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: background 0.25s;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  thead th {
+    background: var(--bg2);
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  td { padding: 11px 15px; vertical-align: middle; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .badge-success { background: #d4edda; color: #1a6e3a; }
+  .badge-warning { background: #fff3cd; color: #8a6200; }
+  .badge-danger  { background: #fde0de; color: #9b2315; }
+  .badge-service { background: var(--service-bg); color: var(--service-color); }
+
+  [data-theme="dark"] .badge-success { background: #1a3d28; color: #52d68a; }
+  [data-theme="dark"] .badge-warning { background: #3d2a00; color: #f0a500; }
+  [data-theme="dark"] .badge-danger  { background: #3d1010; color: #f07070; }
+
+  .progress-bar {
+    background: var(--border);
+    border-radius: 6px;
+    height: 7px;
+    min-width: 80px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: var(--primary);
+    transition: width 0.4s;
+  }
+
+  .action-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    padding: 4px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--primary);
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .action-btn:hover { background: var(--primary-light); border-color: var(--primary-light); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state { text-align: center; padding: 44px 20px; color: var(--text-muted); }
+  .empty-state p { font-size: 13px; font-weight: 600; }
+
+  /* ===== UPCOMING ===== */
+  .upcoming-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    transition: background 0.25s;
+  }
+
+  .upcoming-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .upcoming-item:last-child { border-bottom: none; }
+  .upcoming-name { font-weight: 700; }
+  .upcoming-date { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .upcoming-days { background: var(--primary); color: #fff; border-radius: 6px; padding: 3px 11px; font-size: 12px; font-weight: 700; }
+
+  /* ===== SERVICE FEE INFO BOX ===== */
+  .service-info {
+    background: var(--service-bg);
+    border: 1.5px solid var(--service-color);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--service-color);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== PAGE VIEWS ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== MODAL ===== */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,25,50,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border-radius: 16px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    transition: background 0.25s;
+  }
+
+  .modal-header {
+    padding: 20px 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title { font-size: 17px; font-weight: 800; color: var(--text); }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+
+  .modal-close:hover { background: var(--border); }
+
+  .modal-body { padding: 20px 24px; }
+
+  /* STEPPER */
+  .stepper { display: flex; align-items: center; margin-bottom: 22px; }
+
+  .step { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .step.active { color: var(--primary); }
+  .step.done { color: var(--success); }
+
+  .step-num {
+    width: 25px; height: 25px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+    background: var(--card);
+  }
+
+  .step.done .step-num { background: var(--success); border-color: var(--success); color: #fff; }
+  .step.active .step-num { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px; }
+
+  /* FORM */
+  .form-group { margin-bottom: 13px; }
+
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s, background 0.25s;
+  }
+
+  .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,111,191,0.10); }
+  select.form-control { cursor: pointer; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* service fee highlight in form */
+  .form-control.service-input { border-color: var(--service-color); }
+  .form-control.service-input:focus { box-shadow: 0 0 0 3px rgba(124,58,237,0.10); }
+
+  .payment-plan {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin-top: 8px;
+  }
+
+  .payment-plan-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+  .payment-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+  .payment-row label { color: var(--text-muted); font-weight: 700; min-width: 100px; }
+
+  .payment-row input {
+    width: 140px;
+    padding: 6px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    outline: none;
+    background: var(--card);
+    color: var(--text);
+  }
+
+  .payment-row input:focus { border-color: var(--primary); }
+  .payment-row input[readonly] { background: var(--bg); color: var(--text-muted); }
+
+  .modal-footer {
+    padding: 13px 24px 20px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    padding: 9px 19px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: none;
+  }
+
+  .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(30,111,191,0.2); }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: var(--bg2); color: var(--text-muted); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: #fde8e8; color: var(--danger); border: 1.5px solid #f5c6c6; }
+  .btn-danger:hover { background: #fbd3d3; }
+  [data-theme="dark"] .btn-danger { background: #3d1010; border-color: #5a2020; }
+
+  /* DETAIL */
+  .detail-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .dl { color: var(--text-muted); font-weight: 700; }
+  .detail-row .dv { font-weight: 700; color: var(--text); }
+
+  .payment-history { margin-top: 13px; background: var(--bg2); border-radius: 10px; padding: 12px 14px; }
+  .ph-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .ph-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); }
+  .ph-item:last-child { border-bottom: none; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+
+  @media(max-width:900px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .content { padding: 18px 16px; }
+    .header-top { padding: 0 16px; }
+    .tab-nav { padding: 0 16px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <a class="topbar-logo" href="#">
-    <img class="logo-img"
-         src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
-         alt="Sisters Wedding"
-         onerror="this.style.display='none'">
-    <div class="logo-dark">
-      <span class="logo-dark-main">SISTERS</span>
-      <span class="logo-dark-sub">WEDDING</span>
-    </div>
-  </a>
-  <span class="topbar-title">Sipariş Takip</span>
-  <div class="topbar-actions">
-    <button class="btn-primary" onclick="openNewOrder()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      <span class="btn-label">Yeni Sipariş</span>
-    </button>
-    <a href="https://www.sistersweddingkarsiyaka.com/" target="_blank" class="btn-icon website-btn" title="Sisters Wedding — Web Sitesine Git" style="font-family:'Georgia','Times New Roman',serif;font-size:20px;font-weight:400;color:var(--text);letter-spacing:0;text-decoration:none">
-      S
-    </a>
-    <button class="btn-icon" onclick="toggleTheme()" title="Tema değiştir">
-      <svg id="theme-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-    </button>
-  </div>
-</div>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="brand">
+      <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
+           onerror="this.style.display='none';" alt="Sisters Wedding">
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- STAT CARDS -->
-  <div class="stats-grid">
-    <div class="stat-card" id="card-orders" onclick="togglePanel('orders')">
-      <div class="stat-card-icon" style="background:#ede8fa">
-        <svg width="20" height="20" fill="none" stroke="#7c5cbf" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      </div>
-      <div class="stat-card-label">Siparişler</div>
-      <div class="stat-card-value" id="stat-orders">0</div>
-      <div class="stat-card-sub">Görüntüle →</div>
     </div>
-    <div class="stat-card" id="card-customers" onclick="togglePanel('customers')">
-      <div class="stat-card-icon" style="background:#e0f2fe">
-        <svg width="20" height="20" fill="none" stroke="#0284c7" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="header-actions">
+      <div class="theme-toggle" onclick="toggleTheme()" title="Koyu/Açık mod">
+        <span class="toggle-icon">☀️</span>
+        <div class="toggle-track"><div class="toggle-knob"></div></div>
+        <span class="toggle-icon">🌙</span>
       </div>
-      <div class="stat-card-label">Müşteriler</div>
-      <div class="stat-card-value" id="stat-customers">0</div>
-      <div class="stat-card-sub">Görüntüle →</div>
-    </div>
-    <div class="stat-card" id="card-sales" onclick="togglePanel('cari')">
-      <div class="stat-card-icon" style="background:#dcfce7">
-        <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-      </div>
-      <div class="stat-card-label">Toplam Satış</div>
-      <div class="stat-card-value" id="stat-sales">₺0</div>
-      <div class="stat-card-sub">Cari →</div>
-    </div>
-    <div class="stat-card" id="card-pending" onclick="togglePanel('pending')">
-      <div class="stat-card-icon" style="background:#fef3c7">
-        <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <div class="stat-card-label">Bekleyen</div>
-      <div class="stat-card-value" id="stat-pending">₺0</div>
-      <div class="stat-card-sub">Tahsilat →</div>
+      <button class="btn-action" onclick="openBackupModal()" title="Yedek Al / Geri Yükle" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);position:relative;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Yedek
+        <span id="backup-badge" style="display:none;position:absolute;top:4px;right:4px;width:7px;height:7px;background:#e53e3e;border-radius:50%;"></span>
+      </button>
+      <button class="btn-action btn-service-action" onclick="openServiceFee()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Hizmet Bedeli
+      </button>
+      <button class="btn-action btn-primary-action" onclick="openNewOrder()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Yeni Sipariş
+      </button>
     </div>
   </div>
 
-  <!-- DEFAULT: CHARTS -->
-  <div class="charts-view" id="charts-view">
+  <!-- TAB NAV -->
+  <nav class="tab-nav">
+    <div class="tab-item active" onclick="showPage('dashboard')" id="tab-dashboard">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Özet
+    </div>
+    <div class="tab-item" onclick="showPage('orders')" id="tab-orders">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/>
+      </svg>
+      Siparişler
+    </div>
+    <div class="tab-item" onclick="showPage('customers')" id="tab-customers">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+      Müşteriler
+    </div>
+    <div class="tab-item" onclick="showPage('services')" id="tab-services">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+      </svg>
+      Hizmet Bedelleri
+    </div>
+    <div class="tab-item" onclick="showPage('cari')" id="tab-cari">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+      </svg>
+      Cari Hesap
+    </div>
+    <div class="tab-item" onclick="showPage('bekleyen')" id="tab-bekleyen">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Bekleyen Tahsilat
+    </div>
+  </nav>
+</header>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card clickable" onclick="showPage('orders')">
+        <div class="stat-label">Siparişler</div>
+        <div class="stat-value" id="stat-orders">0</div>
+        <div class="stat-link">Görüntüle →</div>
+      </div>
+      <div class="stat-card clickable" onclick="showPage('customers')">
+        <div class="stat-label">Müşteriler</div>
+        <div class="stat-value" id="stat-customers">0</div>
+        <div class="stat-link">Görüntüle →</div>
+      </div>
+      <div class="stat-card clickable" onclick="showPage('cari')">
+        <div class="stat-label">Toplam Satış</div>
+        <div class="stat-value" id="stat-total">₺0</div>
+        <div class="stat-link">Cari →</div>
+      </div>
+      <div class="stat-card clickable" onclick="showPage('bekleyen')">
+        <div class="stat-label">Bekleyen</div>
+        <div class="stat-value" id="stat-pending">₺0</div>
+        <div class="stat-link">Tahsilat →</div>
+      </div>
+      <div class="stat-card clickable" onclick="showPage('services')">
+        <div class="stat-label">Hizmet Bedeli</div>
+        <div class="stat-value service-val" id="stat-service">₺0</div>
+        <div class="stat-link" style="color:var(--service-color);">Görüntüle →</div>
+      </div>
+    </div>
+
     <div class="charts-grid">
       <div class="chart-card">
-        <h3>Aylık Satış & Tahsilat</h3>
-        <p>Son 6 aylık performans</p>
+        <div class="chart-title">Aylık Satış &amp; Tahsilat</div>
+        <div class="chart-sub">Son 6 aylık performans</div>
         <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Ödeme Durumu</h3>
-        <p>Genel dağılım</p>
-        <div class="chart-wrap"><canvas id="chart-doughnut"></canvas></div>
+        <div class="chart-title">Ödeme Durumu</div>
+        <div class="chart-sub">Genel dağılım</div>
+        <div class="chart-wrap"><canvas id="chart-pie"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Yaklaşan Düğünler (30 gün)</div>
+    </div>
+    <div class="upcoming-card">
+      <div id="upcoming-list">
+        <div class="empty-state"><p>Yaklaşan 30 günde düğün bulunmuyor.</p></div>
       </div>
     </div>
   </div>
 
-  <!-- PANEL: SİPARİŞLER -->
-  <div class="panel" id="panel-orders">
-    <span class="back-btn" onclick="closePanel()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Grafiklere Dön
-    </span>
-    <div class="action-row">
-      <div class="sec-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        Siparişler
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <div class="search-input">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="text" placeholder="Ara..." oninput="filterOrders(this.value)" id="order-search">
-        </div>
+  <!-- ORDERS -->
+  <div class="page" id="page-orders">
+    <div class="section-header">
+      <div class="section-title">Siparişler</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Müşteri</th><th>Fiş No</th><th>Sipariş Tarihi</th>
+            <th>Düğün Tarihi</th><th>Hizmet Bed.</th><th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <tr><td colspan="10"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="page" id="page-customers">
+    <div class="section-header">
+      <div class="section-title">Müşteriler</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Hizmet Bed.</th><th>Sipariş</th><th>Toplam</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="customers-tbody">
+          <tr><td colspan="7"><div class="empty-state"><p>Henüz müşteri yok.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HİZMET BEDELLERİ -->
+  <div class="page" id="page-services">
+    <div class="section-header">
+      <div class="section-title">Hizmet Bedelleri</div>
+      <button class="btn-action btn-service-action" onclick="openServiceFee()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Yeni Hizmet Bedeli
+      </button>
+    </div>
+    <div class="service-info">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      </svg>
+      Müşteri sipariş verirse, hizmet bedeli toplam gelinlik ücretinden otomatik düşülür.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Müşteri</th><th>Tarih</th><th>Hizmet Bedeli</th><th>Sipariş Durumu</th><th>Not</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="services-tbody">
+          <tr><td colspan="6"><div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARİ -->
+  <div class="page" id="page-cari">
+    <div class="section-header">
+      <div class="section-title">Cari Hesap</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-csv" onclick="exportCSV()">CSV İndir</button>
+        <button class="btn-csv" style="background:var(--success);" onclick="exportExcel()">Excel İndir</button>
       </div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr>
-          <th>Müşteri</th><th>Fiş No</th><th>Sipariş Tarihi</th><th>Düğün Tarihi</th>
-          <th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>Durum</th><th></th>
-        </tr></thead>
-        <tbody id="orders-tbody"></tbody>
+        <thead>
+          <tr>
+            <th>Müşteri</th><th>Fiş No</th><th>Hizmet Bed.</th><th>Gelinlik</th><th>Net Toplam</th><th>Ödenen</th><th>Kalan</th><th>İlerleme</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="cari-tbody">
+          <tr><td colspan="9"><div class="empty-state"><p>Henüz kayıt yok.</p></div></td></tr>
+        </tbody>
       </table>
-      <div class="mobile-cards" id="orders-mobile"></div>
     </div>
   </div>
 
-  <!-- PANEL: MÜŞTERİLER -->
-  <div class="panel" id="panel-customers">
-    <span class="back-btn" onclick="closePanel()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Grafiklere Dön
-    </span>
-    <div class="action-row">
-      <div class="sec-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        Müşteriler
-      </div>
-      <div class="search-input">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" placeholder="Ara..." oninput="filterCustomers(this.value)">
-      </div>
+  <!-- BEKLEYEN -->
+  <div class="page" id="page-bekleyen">
+    <div class="section-header">
+      <div class="section-title">Bekleyen Tahsilat</div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Ad Soyad</th><th>Telefon</th><th>E-posta</th><th>Sipariş</th><th>Toplam</th><th></th></tr></thead>
-        <tbody id="customers-tbody"></tbody>
+        <thead>
+          <tr>
+            <th>Müşteri</th><th>Fiş No</th><th>Düğün Tarihi</th><th>Net Toplam</th><th>Kalan</th><th>Durum</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="bekleyen-tbody">
+          <tr><td colspan="7"><div class="empty-state"><p>Bekleyen tahsilat yok.</p></div></td></tr>
+        </tbody>
       </table>
-      <div class="mobile-cards" id="customers-mobile"></div>
     </div>
   </div>
 
-  <!-- PANEL: CARİ HESAP -->
-  <div class="panel" id="panel-cari">
-    <span class="back-btn" onclick="closePanel()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Grafiklere Dön
-    </span>
-    <div class="action-row">
-      <div class="sec-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Cari Hesap
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <div class="search-input">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="text" placeholder="Müşteri ara..." oninput="filterCari(this.value)">
-        </div>
-        <button class="btn-secondary" onclick="exportCSV()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          CSV
-        </button>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Müşteri</th><th>Fiş No</th><th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>İlerleme</th><th></th></tr></thead>
-        <tbody id="cari-tbody"></tbody>
-      </table>
-      <div class="mobile-cards" id="cari-mobile"></div>
-    </div>
-  </div>
+</div><!-- /content -->
 
-  <!-- PANEL: BEKLEYEN (TAHSİLAT) -->
-  <div class="panel" id="panel-pending">
-    <span class="back-btn" onclick="closePanel()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      Grafiklere Dön
-    </span>
-    <div class="sec-title" style="margin-bottom:16px">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Bekleyen Tahsilat
+<!-- SERVICE FEE MODAL -->
+<div class="overlay" id="overlay-service">
+  <div class="modal" style="width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Hizmet Bedeli Ekle</div>
+      <button class="modal-close" onclick="closeModal('overlay-service')">×</button>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Müşteri</th><th>Fiş No</th><th>Düğün Tarihi</th><th>Toplam</th><th>Kalan</th><th>Durum</th><th></th></tr></thead>
-        <tbody id="pending-tbody"></tbody>
-      </table>
-      <div class="mobile-cards" id="pending-mobile"></div>
-    </div>
-    <!-- Yaklaşan Düğünler -->
-    <div style="margin-top:28px">
-      <div class="sec-title" style="margin-bottom:14px">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Yaklaşan Düğünler (30 gün)
+    <div class="modal-body">
+      <div class="service-info" style="margin-bottom:16px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+        </svg>
+        Sipariş verilirse bu tutar gelinlik ücretinden düşülür.
       </div>
-      <div class="upcoming-list" id="upcoming-list"></div>
-    </div>
-  </div>
-
-</div><!-- /main -->
-
-<!-- ===================== MODALS ===================== -->
-
-<!-- YENİ SİPARİŞ MODAL -->
-<div class="modal-overlay" id="modal-order" onclick="overlayClose(event,'modal-order')">
-<div class="modal">
-  <div class="modal-header">
-    <h2 id="modal-order-title">Yeni Sipariş</h2>
-    <button class="btn-icon" onclick="closeModal('modal-order')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="modal-body">
-    <!-- STEP 1: MÜŞTERİ -->
-    <div id="order-step1">
-      <div class="step-indicator">
-        <div class="step active"><div class="step-num">1</div> Müşteri</div>
-        <div class="step-divider"></div>
-        <div class="step" id="step2-indicator"><div class="step-num">2</div> Sipariş</div>
-      </div>
-      <div class="form-group" style="margin-bottom:14px">
-        <label>Kayıtlı Müşteri Seç</label>
-        <select id="sel-customer" onchange="onCustomerSelect()">
+      <div class="form-group">
+        <label class="form-label">Kayıtlı Müşteri Seç</label>
+        <select class="form-control" id="sf-existing-customer" onchange="onSFCustomerSelect()">
           <option value="">— Yeni müşteri ekle —</option>
         </select>
       </div>
-      <div class="new-customer-section" id="new-customer-section">
-        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Yeni Müşteri Bilgileri</div>
-        <div class="form-grid">
+      <div id="sf-new-customer-form">
+        <div class="form-group">
+          <label class="form-label">Ad Soyad *</label>
+          <input type="text" class="form-control" id="sf-name" placeholder="Adı Soyadı">
+        </div>
+        <div class="form-row">
           <div class="form-group">
-            <label>Ad Soyad *</label>
-            <input type="text" id="nc-name" placeholder="Ayşe Yılmaz">
+            <label class="form-label">Telefon *</label>
+            <input type="tel" class="form-control" id="sf-phone" placeholder="0555 000 00 00">
           </div>
           <div class="form-group">
-            <label>Telefon *</label>
-            <input type="tel" id="nc-phone" placeholder="05xx xxx xx xx" maxlength="11">
-          </div>
-          <div class="form-group">
-            <label>E-posta</label>
-            <input type="email" id="nc-email" placeholder="ayse@email.com">
-          </div>
-          <div class="form-group">
-            <label>Not</label>
-            <input type="text" id="nc-note" placeholder="Opsiyonel">
+            <label class="form-label">E-posta</label>
+            <input type="email" class="form-control" id="sf-email" placeholder="ornek@mail.com">
           </div>
         </div>
       </div>
-      <div id="err-step1" class="err"></div>
-    </div>
-    <!-- STEP 2: SİPARİŞ -->
-    <div id="order-step2" style="display:none">
-      <div class="step-indicator">
-        <div class="step"><div class="step-num">✓</div> Müşteri</div>
-        <div class="step-divider"></div>
-        <div class="step active"><div class="step-num">2</div> Sipariş</div>
-      </div>
-      <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:14px" id="step2-customer-label"></div>
-      <div class="form-grid">
+      <div class="form-row">
         <div class="form-group">
-          <label>Fiş No</label>
-          <input type="text" id="o-fis" placeholder="#3734">
+          <label class="form-label">Hizmet Bedeli (₺) *</label>
+          <input type="number" class="form-control service-input" id="sf-amount" placeholder="0">
         </div>
         <div class="form-group">
-          <label>Sipariş Tarihi *</label>
-          <input type="date" id="o-date">
+          <label class="form-label">Tarih *</label>
+          <input type="date" class="form-control" id="sf-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="sf-note" placeholder="Not...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-service')">İptal</button>
+      <button class="btn btn-primary" onclick="saveServiceFee()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ORDER MODAL -->
+<div class="overlay" id="overlay-new">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Yeni Sipariş</div>
+      <button class="modal-close" onclick="closeModal('overlay-new')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="stepper">
+        <div class="step" id="step1-indicator"><div class="step-num">1</div><span>Müşteri</span></div>
+        <div class="step-line"></div>
+        <div class="step" id="step2-indicator"><div class="step-num">2</div><span>Sipariş</span></div>
+      </div>
+
+      <div id="step1">
+        <div class="form-group">
+          <label class="form-label">Kayıtlı Müşteri Seç</label>
+          <select class="form-control" id="existing-customer" onchange="onExistingCustomerSelect()">
+            <option value="">— Yeni müşteri ekle —</option>
+          </select>
+        </div>
+        <div id="new-customer-form">
+          <div class="form-group">
+            <label class="form-label">Ad Soyad *</label>
+            <input type="text" class="form-control" id="new-name" placeholder="Adı Soyadı">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Telefon *</label>
+              <input type="tel" class="form-control" id="new-phone" placeholder="0555 000 00 00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-posta</label>
+              <input type="email" class="form-control" id="new-email" placeholder="ornek@mail.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Not</label>
+            <input type="text" class="form-control" id="new-note-cust" placeholder="Not...">
+          </div>
+        </div>
+      </div>
+
+      <div id="step2" style="display:none;">
+        <div id="service-deduction-info" style="display:none;" class="service-info" style="margin-bottom:12px;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span id="service-deduction-text"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fiş No</label>
+            <input type="text" class="form-control" id="fis-no" placeholder="Otomatik">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sipariş Tarihi *</label>
+            <input type="date" class="form-control" id="order-date">
+          </div>
         </div>
         <div class="form-group">
-          <label>Düğün Tarihi</label>
-          <input type="date" id="o-wedding">
+          <label class="form-label">Düğün Tarihi</label>
+          <input type="date" class="form-control" id="wedding-date">
         </div>
         <div class="form-group">
-          <label>Toplam Tutar (₺) *</label>
-          <input type="number" id="o-total" placeholder="0" oninput="updatePayRemain()">
+          <label class="form-label">Gelinlik Toplam Tutarı (₺) *</label>
+          <input type="number" class="form-control" id="order-total" placeholder="0" oninput="calcRemaining()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Not</label>
+          <input type="text" class="form-control" id="order-note" placeholder="Not...">
+        </div>
+        <div class="payment-plan">
+          <div class="payment-plan-title">Peşinat Bilgileri</div>
+          <div class="payment-row" id="service-deduction-row" style="display:none;">
+            <label style="color:var(--service-color);">Hizmet Bed. İndirimi</label>
+            <input type="number" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
+          </div>
+          <div class="payment-row">
+            <label>Peşinat (₺)</label>
+            <input type="number" id="pp-1" placeholder="0" oninput="calcRemaining()">
+          </div>
+          <div class="payment-row" id="deposit-detail-row" style="display:none;">
+            <label>Peşinat Tarihi</label>
+            <input type="date" id="pp-1-date" class="form-control" style="max-width:180px;">
+          </div>
+          <div class="payment-row" id="deposit-method-row" style="display:none;">
+            <label>Ödeme Yöntemi</label>
+            <select id="pp-1-method" class="form-control" style="max-width:180px;">
+              <option value="">— Seçin —</option>
+              <option value="Nakit">💵 Nakit</option>
+              <option value="Kart">💳 Kart</option>
+              <option value="Havale">🏦 Havale / EFT</option>
+            </select>
+          </div>
+          <div class="payment-row" style="margin-bottom:0;">
+            <label style="color:var(--danger);">Kalan</label>
+            <input type="number" id="pp-remaining" readonly placeholder="0">
+          </div>
         </div>
       </div>
-      <div class="form-group" style="margin-top:10px">
-        <label>Not</label>
-        <textarea id="o-note" rows="2" placeholder="Opsiyonel not..."></textarea>
-      </div>
-      <div class="divider"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Ödeme Planı (₺)</div>
-      <div class="pay-grid">
-        <div class="pay-item"><label>Peşinat</label><input type="number" id="p1" placeholder="0" oninput="updatePayRemain()"></div>
-        <div class="pay-item"><label>2. Ödeme</label><input type="number" id="p2" placeholder="0" oninput="updatePayRemain()"></div>
-        <div class="pay-item"><label>3. Ödeme</label><input type="number" id="p3" placeholder="0" oninput="updatePayRemain()"></div>
-        <div class="pay-item"><label>Kalan</label><input type="number" id="p-remain" placeholder="0" readonly style="opacity:.6"></div>
-      </div>
-      <div id="err-step2" class="err"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-new')">İptal</button>
+      <button class="btn btn-primary" id="step-btn" onclick="handleStepBtn()">Devam →</button>
     </div>
   </div>
-  <div class="modal-footer">
-    <button class="btn-secondary" id="btn-prev" onclick="prevStep()" style="display:none">Geri</button>
-    <button class="btn-secondary" onclick="closeModal('modal-order')">İptal</button>
-    <button class="btn-primary" id="btn-next" onclick="nextStep()">Devam →</button>
-    <button class="btn-primary" id="btn-save" onclick="saveOrder()" style="display:none">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Kaydet
-    </button>
-  </div>
-</div>
 </div>
 
-<!-- DETAY MODAL -->
-<div class="modal-overlay" id="modal-detail" onclick="overlayClose(event,'modal-detail')">
-<div class="modal">
-  <div class="modal-header">
-    <h2>Sipariş Detayı</h2>
-    <button class="btn-icon" onclick="closeModal('modal-detail')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
+<!-- DETAIL MODAL -->
+<div class="overlay" id="overlay-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Sipariş Detayı</div>
+      <button class="modal-close" onclick="closeModal('overlay-detail')">×</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteOrder()">Sil</button>
+      <button class="btn btn-secondary" onclick="openEditOrder()">Düzenle</button>
+      <button class="btn btn-primary" onclick="openAddPayment()">Ödeme Ekle</button>
+      <button class="btn btn-secondary" onclick="closeModal('overlay-detail')">Kapat</button>
+    </div>
   </div>
-  <div class="modal-body" id="detail-body"></div>
-  <div class="modal-footer">
-    <button class="btn-secondary" id="btn-add-pay" onclick="openAddPay()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      Ödeme Ekle
-    </button>
-    <button class="btn-secondary" onclick="openEditOrder()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Düzenle
-    </button>
-    <button class="btn-secondary" onclick="closeModal('modal-detail')" style="margin-left:auto">Kapat</button>
-    <button class="btn-primary" style="background:var(--red);flex:none" onclick="deleteCurrentOrder()">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg>
-      Sil
-    </button>
-  </div>
-</div>
 </div>
 
-<!-- ÖDEME EKLE MODAL -->
-<div class="modal-overlay" id="modal-pay" onclick="overlayClose(event,'modal-pay')">
-<div class="modal" style="max-width:360px">
-  <div class="modal-header">
-    <h2>Ödeme Ekle</h2>
-    <button class="btn-icon" onclick="closeModal('modal-pay')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="form-group" style="margin-bottom:12px">
-      <label>Tutar (₺) *</label>
-      <input type="number" id="add-pay-amount" placeholder="0">
+<!-- PAYMENT MODAL -->
+<div class="overlay" id="overlay-payment">
+  <div class="modal" style="width:360px;">
+    <div class="modal-header">
+      <div class="modal-title">Ödeme Ekle</div>
+      <button class="modal-close" onclick="closeModal('overlay-payment')">×</button>
     </div>
-    <div class="form-group">
-      <label>Tarih</label>
-      <input type="date" id="add-pay-date">
-    </div>
-    <div id="err-pay" class="err"></div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn-secondary" onclick="closeModal('modal-pay')">İptal</button>
-    <button class="btn-primary" onclick="saveAddPay()">Kaydet</button>
-  </div>
-</div>
-</div>
-
-<!-- SİPARİŞ DÜZENLE MODAL -->
-<div class="modal-overlay" id="modal-edit-order" onclick="overlayClose(event,'modal-edit-order')">
-<div class="modal">
-  <div class="modal-header">
-    <h2>Siparişi Düzenle</h2>
-    <button class="btn-icon" onclick="closeModal('modal-edit-order')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="form-grid">
+    <div class="modal-body">
       <div class="form-group">
-        <label>Fiş No</label>
-        <input type="text" id="eo-fis">
+        <label class="form-label">Tutar (₺) *</label>
+        <input type="number" class="form-control" id="pay-amount" placeholder="0">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tarih</label>
+          <input type="date" class="form-control" id="pay-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ödeme Yöntemi</label>
+          <select class="form-control" id="pay-method">
+            <option value="">— Seçin —</option>
+            <option value="Nakit">💵 Nakit</option>
+            <option value="Kart">💳 Kart</option>
+            <option value="Havale">🏦 Havale / EFT</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
-        <label>Sipariş Tarihi</label>
-        <input type="date" id="eo-date">
-      </div>
-      <div class="form-group">
-        <label>Düğün Tarihi</label>
-        <input type="date" id="eo-wedding">
-      </div>
-      <div class="form-group">
-        <label>Toplam Tutar (₺)</label>
-        <input type="number" id="eo-total" oninput="updateEditRemain()">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="pay-note" placeholder="İsteğe bağlı not...">
       </div>
     </div>
-    <div class="form-group" style="margin-top:12px">
-      <label>Not</label>
-      <textarea id="eo-note" rows="2"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-payment')">İptal</button>
+      <button class="btn btn-primary" onclick="savePayment()">Kaydet</button>
     </div>
-    <div class="divider"></div>
-    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Ödeme Planı (₺)</div>
-    <div class="pay-grid">
-      <div class="pay-item"><label>Peşinat</label><input type="number" id="ep1" oninput="updateEditRemain()"></div>
-      <div class="pay-item"><label>2. Ödeme</label><input type="number" id="ep2" oninput="updateEditRemain()"></div>
-      <div class="pay-item"><label>3. Ödeme</label><input type="number" id="ep3" oninput="updateEditRemain()"></div>
-      <div class="pay-item"><label>Kalan</label><input type="number" id="ep-remain" readonly style="opacity:.6"></div>
-    </div>
-    <div id="err-edit-order" class="err"></div>
   </div>
-  <div class="modal-footer">
-    <button class="btn-secondary" onclick="closeModal('modal-edit-order')">İptal</button>
-    <button class="btn-primary" onclick="saveEditOrder()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Kaydet
-    </button>
-  </div>
-</div>
 </div>
 
-<!-- MÜŞTERİ DÜZENLE MODAL -->
-<div class="modal-overlay" id="modal-edit-customer" onclick="overlayClose(event,'modal-edit-customer')">
-<div class="modal" style="max-width:480px">
-  <div class="modal-header">
-    <h2>Müşteriyi Düzenle</h2>
-    <button class="btn-icon" onclick="closeModal('modal-edit-customer')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="modal-body">
-    <input type="hidden" id="ec-id">
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Ad Soyad *</label>
-        <input type="text" id="ec-name">
+<!-- EDIT ORDER MODAL -->
+<div class="overlay" id="overlay-edit-order">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Siparişi Düzenle</div>
+      <button class="modal-close" onclick="closeModal('overlay-edit-order')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fiş No</label>
+          <input type="text" class="form-control" id="edit-fis">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sipariş Tarihi</label>
+          <input type="date" class="form-control" id="edit-order-date">
+        </div>
       </div>
       <div class="form-group">
-        <label>Telefon</label>
-        <input type="tel" id="ec-phone" maxlength="11">
+        <label class="form-label">Düğün Tarihi</label>
+        <input type="date" class="form-control" id="edit-wedding-date">
       </div>
       <div class="form-group">
-        <label>E-posta</label>
-        <input type="email" id="ec-email">
+        <label class="form-label">Gelinlik Toplam Tutarı (₺)</label>
+        <input type="number" class="form-control" id="edit-total" oninput="calcEditRemaining()">
       </div>
       <div class="form-group">
-        <label>Not</label>
-        <input type="text" id="ec-note">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="edit-note">
+      </div>
+      <div class="payment-plan">
+        <div class="payment-plan-title">Ödeme Planı (₺)</div>
+        <div class="payment-row">
+          <label>Peşinat</label>
+          <input type="number" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
+        </div>
+        <div class="payment-row">
+          <label>2. Ödeme</label>
+          <input type="number" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
+        </div>
+        <div class="payment-row">
+          <label>3. Ödeme</label>
+          <input type="number" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
+        </div>
+        <div class="payment-row" style="margin-bottom:0;">
+          <label style="color:var(--danger);">Kalan</label>
+          <input type="number" id="edit-pp-remaining" readonly placeholder="0">
+        </div>
       </div>
     </div>
-    <div id="err-edit-customer" class="err"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-edit-order')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEditOrder()">Kaydet</button>
+    </div>
   </div>
-  <div class="modal-footer">
-    <button class="btn-secondary" onclick="closeModal('modal-edit-customer')">İptal</button>
-    <button class="btn-primary" onclick="saveEditCustomer()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Kaydet
-    </button>
-  </div>
-</div>
 </div>
 
-<!-- TOAST -->
-<div class="toast-wrap" id="toasts"></div>
+<!-- EDIT CUSTOMER MODAL -->
+<div class="overlay" id="overlay-edit-customer">
+  <div class="modal" style="width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">Müşteriyi Düzenle</div>
+      <button class="modal-close" onclick="closeModal('overlay-edit-customer')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Ad Soyad *</label>
+        <input type="text" class="form-control" id="ec-name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Telefon</label>
+          <input type="tel" class="form-control" id="ec-phone">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-posta</label>
+          <input type="email" class="form-control" id="ec-email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input type="text" class="form-control" id="ec-note">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-edit-customer')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEditCustomer()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="overlay" id="overlay-backup">
+  <div class="modal" style="width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">💾 Yedek Yönetimi</div>
+      <button class="modal-close" onclick="closeModal('overlay-backup')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="backup-last-info" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text-muted);">
+        Son yedek: <strong id="backup-last-date">—</strong>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--text);">📤 Yedek Al</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Tüm veriler (müşteriler, siparişler, ödemeler) JSON dosyası olarak indirilir.</p>
+        <button class="btn btn-primary" onclick="downloadBackup()" style="width:100%;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          JSON Yedek İndir
+        </button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--text);">📥 Yedekten Geri Yükle</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">⚠️ Mevcut veriler <strong>silinir</strong> ve yedeğinizden geri yüklenir.</p>
+        <label style="display:block;border:2px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;font-size:13px;color:var(--text-muted);transition:border-color 0.2s;" 
+               id="restore-drop-label"
+               ondragover="event.preventDefault();this.style.borderColor='var(--primary)';" 
+               ondragleave="this.style.borderColor='var(--border)';"
+               ondrop="handleRestoreDrop(event)">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:block;margin:0 auto 6px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          JSON dosyasını buraya sürükleyin veya <span style="color:var(--primary);text-decoration:underline;cursor:pointer;" onclick="document.getElementById('restore-file-input').click()">seçin</span>
+          <input type="file" accept=".json" style="display:none;" id="restore-file-input" onchange="handleRestoreFile(this)">
+        </label>
+        <div id="restore-preview" style="display:none;margin-top:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;"></div>
+        <button class="btn btn-danger" id="restore-confirm-btn" onclick="confirmRestore()" style="width:100%;margin-top:10px;display:none;">
+          Geri Yükle (Mevcut Verileri Sil)
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('overlay-backup')">Kapat</button>
+    </div>
+  </div>
+</div>
 
 <script>
-// ========== STATE ==========
-let orders = JSON.parse(localStorage.getItem('sw_orders') || '[]');
-let customers = JSON.parse(localStorage.getItem('sw_customers') || '[]');
-let currentOrderId = null;
-let activePanel = null;
-let barChart = null, doughnutChart = null;
-
-// ========== UTILS ==========
-const fmt = n => '₺' + Number(n||0).toLocaleString('tr-TR');
-const fmtDate = d => d ? new Date(d).toLocaleDateString('tr-TR') : '—';
-const save = () => {
-  localStorage.setItem('sw_orders', JSON.stringify(orders));
-  localStorage.setItem('sw_customers', JSON.stringify(customers));
-};
-const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
-
-function toast(msg, type='success') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 2800);
-}
-
-// ========== THEME ==========
+// ===== THEME =====
 function toggleTheme() {
-  const d = document.documentElement;
-  const dark = d.getAttribute('data-theme') === 'dark';
-  d.setAttribute('data-theme', dark ? 'light' : 'dark');
-  localStorage.setItem('sw_theme', dark ? 'light' : 'dark');
-  updateThemeIcon();
-  if (!activePanel) renderCharts();
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('sw_theme', isDark ? 'light' : 'dark');
+  renderCharts(loadData());
 }
-function updateThemeIcon() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.getElementById('theme-icon').innerHTML = dark
-    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
-    : '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
-}
+(function() {
+  const saved = localStorage.getItem('sw_theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
 
-// ========== PANEL TOGGLE ==========
-function togglePanel(name) {
-  if (activePanel === name) {
-    closePanel();
-    return;
-  }
-  // deactivate all cards
-  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('charts-view').classList.add('hidden');
-
-  document.getElementById('card-' + (name === 'cari' ? 'sales' : name === 'pending' ? 'pending' : name)).classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-  activePanel = name;
-  renderPanel(name);
-  window.scrollTo({top:0, behavior:'smooth'});
+// ===== DATA =====
+function loadData() {
+  return {
+    customers: JSON.parse(localStorage.getItem('sw_customers') || '[]'),
+    orders:    JSON.parse(localStorage.getItem('sw_orders')    || '[]'),
+    services:  JSON.parse(localStorage.getItem('sw_services')  || '[]'),
+  };
 }
 
-function closePanel() {
-  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('charts-view').classList.remove('hidden');
-  activePanel = null;
-  chartClickMonth = null;
-  const old = document.getElementById('month-filter-badge');
-  if (old) old.remove();
-  renderCharts();
+function saveData(data) {
+  localStorage.setItem('sw_customers', JSON.stringify(data.customers));
+  localStorage.setItem('sw_orders',    JSON.stringify(data.orders));
+  localStorage.setItem('sw_services',  JSON.stringify(data.services));
 }
 
-function renderPanel(name) {
-  if (name === 'orders') renderOrders();
-  else if (name === 'customers') renderCustomers();
-  else if (name === 'cari') renderCari();
-  else if (name === 'pending') renderPending();
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
 
-// ========== STATS ==========
-function updateStats() {
-  document.getElementById('stat-orders').textContent = orders.length;
-  document.getElementById('stat-customers').textContent = customers.length;
-  const totalSales = orders.reduce((s, o) => s + Number(o.total || 0), 0);
-  const totalPaid = orders.reduce((s, o) => s + getPaid(o), 0);
-  document.getElementById('stat-sales').textContent = fmt(totalSales);
-  document.getElementById('stat-pending').textContent = fmt(totalSales - totalPaid);
+function fmt(n) {
+  return '₺' + (parseFloat(n) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-function getPaid(o) {
-  if (o.payHistory && o.payHistory.length) return o.payHistory.reduce((s, p) => s + Number(p.amount), 0);
-  return Number(o.p1||0) + Number(o.p2||0) + Number(o.p3||0);
+function fmtDate(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return `${day}.${m}.${y}`;
 }
 
-// ========== RENDER ORDERS ==========
-function renderOrders(filter='') {
-  // Grafik tıklamasından gelen ay filtresi
-  let data = orders.filter(o =>
-    !filter || (o.customer||'').toLowerCase().includes(filter.toLowerCase()) ||
-    (o.fisNo||'').toLowerCase().includes(filter.toLowerCase())
-  );
-  if (chartClickMonth) {
-    const { y, m } = chartClickMonth;
-    data = data.filter(o => {
-      if (!o.date) return false;
-      const od = new Date(o.date);
-      return od.getFullYear() === y && od.getMonth() === m;
-    });
-    // Filtre badge'ini göster
-    const monthLabel = new Date(y, m, 1).toLocaleString('tr-TR', { month:'long', year:'numeric' });
-    const actionRow = document.querySelector('#panel-orders .action-row');
-    if (actionRow && !document.getElementById('month-filter-badge')) {
-      const badge = document.createElement('span');
-      badge.id = 'month-filter-badge';
-      badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);color:var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
-        📅 ${monthLabel}
-        <span onclick="clearMonthFilter()" style="cursor:pointer;opacity:.7;font-size:14px;line-height:1">×</span>
-      </span>`;
-      actionRow.appendChild(badge);
-    }
-  } else {
-    const old = document.getElementById('month-filter-badge');
-    if (old) old.remove();
-  }
+// Müşterinin hizmet bedellerinin toplamını döndürür
+function getCustomerServiceTotal(data, customerId) {
+  return data.services
+    .filter(s => s.customerId === customerId)
+    .reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+}
 
+// Siparişin net toplam tutarı (gelinlik - hizmet bedeli indirimi)
+function getNetTotal(data, order) {
+  const gross = parseFloat(order.total) || 0;
+  const serviceDeduction = getCustomerServiceTotal(data, order.customerId);
+  return Math.max(0, gross - serviceDeduction);
+}
+
+// ===== NAV =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  renderAll();
+}
+
+// ===== RENDER =====
+let barChart = null, pieChart = null;
+
+function renderAll() {
+  const data = loadData();
+  renderStats(data);
+  renderOrdersTable(data);
+  renderCustomersTable(data);
+  renderServicesTable(data);
+  renderCariTable(data);
+  renderBekleyenTable(data);
+  renderUpcoming(data);
+  renderCharts(data);
+}
+
+function renderStats(data) {
+  const totalSales = data.orders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+  const totalPaid  = data.orders.reduce((s, o) =>
+    s + (o.payments || []).reduce((ps, p) => ps + (parseFloat(p.amount) || 0), 0), 0);
+  const totalService = data.services.reduce((s, sv) => s + (parseFloat(sv.amount) || 0), 0);
+
+  document.getElementById('stat-orders').textContent   = data.orders.length;
+  document.getElementById('stat-customers').textContent = data.customers.length;
+  document.getElementById('stat-total').textContent    = fmt(totalSales);
+  document.getElementById('stat-pending').textContent  = fmt(totalSales - totalPaid);
+  document.getElementById('stat-service').textContent  = fmt(totalService);
+}
+
+function getStatus(order, data) {
+  const net  = getNetTotal(data, order);
+  const paid = (order.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+  if (net <= 0) return 'Tamamlandı';
+  if (paid >= net && net > 0) return 'Tamamlandı';
+  if (paid > 0) return 'Kısmi Ödeme';
+  return 'Bekliyor';
+}
+
+function statusBadge(status) {
+  const map = { 'Tamamlandı': 'success', 'Kısmi Ödeme': 'warning', 'Bekliyor': 'danger' };
+  return `<span class="badge badge-${map[status] || 'warning'}">${status}</span>`;
+}
+
+function renderOrdersTable(data) {
   const tbody = document.getElementById('orders-tbody');
-  const mobile = document.getElementById('orders-mobile');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">${chartClickMonth ? 'Bu ayda sipariş yok' : 'Henüz sipariş yok'}</td></tr>`;
-    mobile.innerHTML = `<div class="empty"><p>${chartClickMonth ? 'Bu ayda sipariş yok' : 'Henüz sipariş yok'}</p></div>`;
+  if (!data.orders.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><p>Henüz sipariş yok.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = data.map(o => {
-    const paid = getPaid(o); const rem = Number(o.total||0) - paid;
-    const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
-    const status = rem <= 0 ? '<span class="badge badge-green">Ödendi</span>'
-      : pct > 0 ? '<span class="badge badge-yellow">Kısmi</span>'
-      : '<span class="badge badge-red">Bekliyor</span>';
+  tbody.innerHTML = data.orders.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net  = getNetTotal(data, o);
+    const remaining = net - paid;
+    const svcTotal  = getCustomerServiceTotal(data, o.customerId);
+    const status    = getStatus(o, data);
     return `<tr>
-      <td><b>${o.customer}</b></td>
-      <td><span style="color:var(--text2)">${o.fisNo||'—'}</span></td>
-      <td>${fmtDate(o.date)}</td>
-      <td>${fmtDate(o.wedding)}</td>
-      <td>${fmt(o.total)}</td>
-      <td style="color:var(--green)">${fmt(paid)}</td>
-      <td style="color:${rem>0?'var(--red)':'var(--text2)'}">${fmt(rem)}</td>
-      <td>${status}</td>
-      <td style="display:flex;gap:4px">
-        <button class="btn-icon" title="Detay" onclick="openDetail('${o.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        <button class="btn-icon" title="Düzenle" onclick="currentOrderId='${o.id}';openEditOrder()"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-      </td>
+      <td><strong>${cust.name || '—'}</strong></td>
+      <td>${o.fisNo || '—'}</td>
+      <td>${fmtDate(o.orderDate)}</td>
+      <td>${fmtDate(o.weddingDate)}</td>
+      <td>${svcTotal > 0 ? `<span style="color:var(--service-color);font-weight:700;">-${fmt(svcTotal)}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+      <td>${fmt(net)}</td>
+      <td>${fmt(paid)}</td>
+      <td>${fmt(remaining)}</td>
+      <td>${statusBadge(status)}</td>
+      <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
     </tr>`;
   }).join('');
-  mobile.innerHTML = data.map(o => {
-    const paid = getPaid(o); const rem = Number(o.total||0) - paid;
-    const badge = rem <= 0 ? '<span class="badge badge-green">Ödendi</span>'
-      : paid > 0 ? '<span class="badge badge-yellow">Kısmi</span>'
-      : '<span class="badge badge-red">Bekliyor</span>';
-    return `<div class="m-card">
-      <div class="m-card-top">
-        <span class="m-card-name" onclick="openDetail('${o.id}')">${o.customer}</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          ${badge}
-          <button class="btn-icon" style="width:32px;height:32px;flex-shrink:0" onclick="currentOrderId='${o.id}';openEditOrder()" title="Düzenle">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="m-card-rows" onclick="openDetail('${o.id}')">
-        <div class="m-card-item"><span class="m-card-label">Fiş No</span><span class="m-card-value">${o.fisNo||'—'}</span></div>
-        <div class="m-card-item"><span class="m-card-label">Düğün</span><span class="m-card-value">${fmtDate(o.wedding)}</span></div>
-        <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(o.total)}</span></div>
-        <div class="m-card-item"><span class="m-card-label">Kalan</span><span class="m-card-value" style="color:${rem>0?'var(--red)':'var(--green)'}">${fmt(rem)}</span></div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
-function clearMonthFilter() {
-  chartClickMonth = null;
-  renderOrders();
-}
-
-function filterOrders(v) { renderOrders(v); }
-
-// ========== RENDER CUSTOMERS ==========
-function renderCustomers(filter='') {
-  const data = customers.filter(c =>
-    !filter || (c.name||'').toLowerCase().includes(filter.toLowerCase()) ||
-    (c.phone||'').includes(filter)
-  );
+function renderCustomersTable(data) {
   const tbody = document.getElementById('customers-tbody');
-  const mobile = document.getElementById('customers-mobile');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">Henüz müşteri yok</td></tr>`;
-    mobile.innerHTML = `<div class="empty"><p>Henüz müşteri yok</p></div>`;
+  if (!data.customers.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Henüz müşteri yok.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = data.map(c => {
-    const cOrders = orders.filter(o => o.customerId === c.id);
-    const total = cOrders.reduce((s,o) => s+Number(o.total||0), 0);
+  tbody.innerHTML = data.customers.map(c => {
+    const custOrders = data.orders.filter(o => o.customerId === c.id);
+    const total = custOrders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+    const svcTotal = getCustomerServiceTotal(data, c.id);
     return `<tr>
-      <td><b>${c.name}</b></td>
-      <td>${c.phone||'—'}</td>
-      <td>${c.email||'—'}</td>
-      <td>${cOrders.length}</td>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.phone || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td>${svcTotal > 0 ? `<span style="color:var(--service-color);font-weight:700;">${fmt(svcTotal)}</span>` : '<span style="color:var(--text-muted);">—</span>'}</td>
+      <td>${custOrders.length}</td>
       <td>${fmt(total)}</td>
-      <td style="display:flex;gap:4px">
-        <button class="btn-icon" title="Düzenle" onclick="openEditCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="btn-icon" title="Sil" onclick="deleteCustomer('${c.id}')" style="color:var(--red)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg></button>
+      <td style="display:flex;gap:6px;">
+        <button class="action-btn" onclick="openEditCustomer('${c.id}')">Düzenle</button>
+        <button class="action-btn" onclick="deleteCustomer('${c.id}')" style="color:var(--danger);">Sil</button>
       </td>
     </tr>`;
   }).join('');
-  mobile.innerHTML = data.map(c => {
-    const cOrders = orders.filter(o => o.customerId === c.id);
-    const total = cOrders.reduce((s,o) => s+Number(o.total||0), 0);
-    return `<div class="m-card">
-      <div class="m-card-top">
-        <span class="m-card-name">${c.name}</span>
-        <div style="display:flex;gap:6px">
-          <button class="btn-icon" onclick="openEditCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="btn-icon" style="color:var(--red)" onclick="deleteCustomer('${c.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/></svg></button>
-        </div>
-      </div>
-      <div class="m-card-rows">
-        <div class="m-card-item"><span class="m-card-label">Telefon</span><span class="m-card-value">${c.phone||'—'}</span></div>
-        <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(total)}</span></div>
-        ${c.email ? `<div class="m-card-item" style="grid-column:1/-1"><span class="m-card-label">E-posta</span><span class="m-card-value">${c.email}</span></div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
 }
-function filterCustomers(v) { renderCustomers(v); }
 
-// ========== RENDER CARİ ==========
-function renderCari(filter='') {
-  const data = orders.filter(o =>
-    !filter || (o.customer||'').toLowerCase().includes(filter.toLowerCase())
-  );
-  const tbody = document.getElementById('cari-tbody');
-  const mobile = document.getElementById('cari-mobile');
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">Kayıt yok</td></tr>`;
-    mobile.innerHTML = '';
+function renderServicesTable(data) {
+  const tbody = document.getElementById('services-tbody');
+  if (!data.services.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Henüz hizmet bedeli kaydı yok.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = data.map(o => {
-    const paid = getPaid(o); const rem = Number(o.total||0) - paid;
-    const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
-    const badge = rem <= 0 ? '<span class="badge badge-green">Ödendi</span>' : '<span class="badge badge-yellow">Devam</span>';
+  tbody.innerHTML = data.services.map(s => {
+    const cust = data.customers.find(c => c.id === s.customerId) || {};
+    const hasOrder = data.orders.some(o => o.customerId === s.customerId);
     return `<tr>
-      <td><b>${o.customer}</b></td>
-      <td>${o.fisNo||'—'}</td>
-      <td>${fmt(o.total)}</td>
-      <td style="color:var(--green)">${fmt(paid)}</td>
-      <td style="color:${rem>0?'var(--red)':'var(--text2)'}">${fmt(rem)}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${badge}
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <span style="font-size:11px;color:var(--text3)">${pct}%</span>
-        </div>
-      </td>
-      <td><button class="btn-icon" onclick="openDetail('${o.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
+      <td><strong>${cust.name || '—'}</strong></td>
+      <td>${fmtDate(s.date)}</td>
+      <td><span style="color:var(--service-color);font-weight:800;">${fmt(s.amount)}</span></td>
+      <td>${hasOrder
+        ? '<span class="badge badge-success">Siparişe Uygulandı ✓</span>'
+        : '<span class="badge badge-warning">Sipariş Bekleniyor</span>'}</td>
+      <td>${s.note || '—'}</td>
+      <td><button class="action-btn" onclick="deleteService('${s.id}')" style="color:var(--danger);">Sil</button></td>
     </tr>`;
   }).join('');
-  mobile.innerHTML = data.map(o => {
-    const paid = getPaid(o); const rem = Number(o.total||0) - paid;
-    const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
-    return `<div class="m-card" onclick="openDetail('${o.id}')">
-      <div class="m-card-top"><span class="m-card-name">${o.customer}</span><span style="font-size:12px;color:var(--text2)">${o.fisNo||''}</span></div>
-      <div class="m-card-rows">
-        <div class="m-card-item"><span class="m-card-label">Toplam</span><span class="m-card-value">${fmt(o.total)}</span></div>
-        <div class="m-card-item"><span class="m-card-label">Ödenen</span><span class="m-card-value" style="color:var(--green)">${fmt(paid)}</span></div>
-        <div class="m-card-item" style="grid-column:1/-1">
-          <span class="m-card-label">Kalan · ${pct}%</span>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-            <div class="progress-bar" style="flex:1;max-width:none"><div class="progress-fill" style="width:${pct}%"></div></div>
-            <span style="font-size:13px;font-weight:700;color:${rem>0?'var(--red)':'var(--green)'}">${fmt(rem)}</span>
-          </div>
+}
+
+function renderCariTable(data) {
+  const tbody = document.getElementById('cari-tbody');
+  if (!data.orders.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>Henüz kayıt yok.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.orders.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid  = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const gross = parseFloat(o.total) || 0;
+    const svcDeduction = getCustomerServiceTotal(data, o.customerId);
+    const net  = Math.max(0, gross - svcDeduction);
+    const remaining = net - paid;
+    const pct = net > 0 ? Math.min(100, Math.round((paid / net) * 100)) : 100;
+    return `<tr>
+      <td><strong>${cust.name || '—'}</strong></td>
+      <td>${o.fisNo || '—'}</td>
+      <td>${svcDeduction > 0 ? `<span style="color:var(--service-color);font-weight:700;">-${fmt(svcDeduction)}</span>` : '—'}</td>
+      <td>${fmt(gross)}</td>
+      <td><strong>${fmt(net)}</strong></td>
+      <td>${fmt(paid)}</td>
+      <td>${fmt(remaining)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--text-muted);">${pct}%</span>
         </div>
-      </div>
+      </td>
+      <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBekleyenTable(data) {
+  const tbody = document.getElementById('bekleyen-tbody');
+  const pending = data.orders.filter(o => {
+    const net  = getNetTotal(data, o);
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    return paid < net;
+  });
+  if (!pending.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Bekleyen tahsilat yok.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = pending.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const net  = getNetTotal(data, o);
+    const remaining = net - paid;
+    return `<tr>
+      <td><strong>${cust.name || '—'}</strong></td>
+      <td>${o.fisNo || '—'}</td>
+      <td>${fmtDate(o.weddingDate)}</td>
+      <td>${fmt(net)}</td>
+      <td>${fmt(remaining)}</td>
+      <td>${statusBadge(getStatus(o, data))}</td>
+      <td><button class="action-btn" onclick="openDetail('${o.id}')">Detay</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderUpcoming(data) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const in30  = new Date(today); in30.setDate(in30.getDate() + 30);
+  const upcoming = data.orders.filter(o => {
+    if (!o.weddingDate) return false;
+    const d = new Date(o.weddingDate);
+    return d >= today && d <= in30;
+  }).sort((a, b) => new Date(a.weddingDate) - new Date(b.weddingDate));
+
+  const el = document.getElementById('upcoming-list');
+  if (!upcoming.length) {
+    el.innerHTML = '<div class="empty-state"><p>Yaklaşan 30 günde düğün bulunmuyor.</p></div>';
+    return;
+  }
+  el.innerHTML = upcoming.map(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const diff = Math.round((new Date(o.weddingDate) - today) / (1000*60*60*24));
+    return `<div class="upcoming-item">
+      <div><div class="upcoming-name">${cust.name || '—'}</div><div class="upcoming-date">Fiş: ${o.fisNo || '—'}</div></div>
+      <div style="font-weight:700;color:var(--text-muted);">${fmtDate(o.weddingDate)}</div>
+      <div class="upcoming-days">${diff === 0 ? 'Bugün!' : diff + ' gün'}</div>
     </div>`;
   }).join('');
 }
-function filterCari(v) { renderCari(v); }
 
-// ========== RENDER PENDING ==========
-function renderPending() {
-  const pending = orders.filter(o => (Number(o.total||0) - getPaid(o)) > 0);
-  const tbody = document.getElementById('pending-tbody');
-  const mobile = document.getElementById('pending-mobile');
-  if (!pending.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">Bekleyen tahsilat yok 🎉</td></tr>`;
-  } else {
-    tbody.innerHTML = pending.map(o => {
-      const rem = Number(o.total||0) - getPaid(o);
-      const paid = getPaid(o);
-      const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
-      return `<tr>
-        <td><b>${o.customer}</b></td>
-        <td>${o.fisNo||'—'}</td>
-        <td>${fmtDate(o.wedding)}</td>
-        <td>${fmt(o.total)}</td>
-        <td style="color:var(--red)">${fmt(rem)}</td>
-        <td><span class="badge ${pct>0?'badge-yellow':'badge-red'}">${pct>0?'Kısmi':'Bekliyor'}</span></td>
-        <td><button class="btn-icon" onclick="openDetail('${o.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
-      </tr>`;
-    }).join('');
-    mobile.innerHTML = pending.map(o => {
-      const paid = getPaid(o);
-      const rem = Number(o.total||0) - paid;
-      const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
-      return `<div class="m-card" onclick="openDetail('${o.id}')">
-        <div class="m-card-top"><span class="m-card-name">${o.customer}</span><span class="badge ${pct>0?'badge-yellow':'badge-red'}">${pct>0?'Kısmi':'Bekliyor'}</span></div>
-        <div class="m-card-rows">
-          <div class="m-card-item"><span class="m-card-label">Düğün</span><span class="m-card-value">${fmtDate(o.wedding)}</span></div>
-          <div class="m-card-item"><span class="m-card-label">Kalan</span><span class="m-card-value" style="color:var(--red)">${fmt(rem)}</span></div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+function renderCharts(data) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const tc = isDark ? '#6a9ab8' : '#5a7a9a';
 
-  // upcoming weddings
-  const today = new Date(); today.setHours(0,0,0,0);
-  const limit = new Date(today); limit.setDate(limit.getDate() + 30);
-  const upcoming = orders.filter(o => {
-    if (!o.wedding) return false;
-    const d = new Date(o.wedding); d.setHours(0,0,0,0);
-    return d >= today && d <= limit;
-  }).sort((a,b) => new Date(a.wedding) - new Date(b.wedding));
-  const ul = document.getElementById('upcoming-list');
-  if (!upcoming.length) {
-    ul.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0">Yaklaşan 30 günde düğün yok</div>`;
-  } else {
-    ul.innerHTML = upcoming.map(o => {
-      const days = Math.ceil((new Date(o.wedding).setHours(0,0,0,0) - today) / 86400000);
-      const color = days <= 7 ? 'var(--red)' : days <= 14 ? 'var(--yellow)' : 'var(--green)';
-      return `<div class="upcoming-item">
-        <div>
-          <div class="upcoming-name">${o.customer}</div>
-          <div class="upcoming-date">${fmtDate(o.wedding)} · ${o.fisNo||''}</div>
-        </div>
-        <span class="days-badge" style="background:${color}22;color:${color}">${days === 0 ? 'Bugün!' : days + ' gün'}</span>
-      </div>`;
-    }).join('');
-  }
-}
-
-// ========== CHARTS ==========
-let chartMonthKeys = [];
-let chartClickMonth = null;
-
-function renderCharts() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const gridColor = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
-  const textColor = dark ? '#8b949e' : '#6b6480';
-
-  // Aylık veri
-  const sales = []; const paidArr = [];
-  chartMonthKeys = [];
+  const months = [], salesByMonth = {}, paidByMonth = {};
   for (let i = 5; i >= 0; i--) {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
-    const y = d.getFullYear(); const m = d.getMonth();
-    chartMonthKeys.push({ y, m });
-    const mOrders = orders.filter(o => {
-      if (!o.date) return false;
-      const od = new Date(o.date);
-      return od.getFullYear() === y && od.getMonth() === m;
-    });
-    sales.push(mOrders.reduce((s,o) => s+Number(o.total||0), 0));
-    paidArr.push(mOrders.reduce((s,o) => s+getPaid(o), 0));
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months.push(d.toLocaleString('tr-TR', { month: 'short', year: '2-digit' }));
+    salesByMonth[key] = 0; paidByMonth[key] = 0;
   }
 
-  // Bar chart
-  const isMobile = window.innerWidth < 640;
-
-  // Bar chart — mobilede kısa ay adı ("Kas"), masaüstünde tam ("Kasım 2025")
-  const monthLabels = chartMonthKeys.map(({ y, m }) => {
-    const d = new Date(y, m, 1);
-    if (isMobile) {
-      // İki satır: "Kas\n2025"
-      const short = d.toLocaleString('tr-TR', { month: 'short' });
-      return [short.charAt(0).toUpperCase() + short.slice(1), String(y)];
-    }
-    return d.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+  data.orders.forEach(o => {
+    if (!o.orderDate) return;
+    const key = o.orderDate.substring(0, 7);
+    if (salesByMonth[key] !== undefined) salesByMonth[key] += parseFloat(o.total) || 0;
+    (o.payments || []).forEach(p => {
+      if (!p.date) return;
+      const pk = p.date.substring(0, 7);
+      if (paidByMonth[pk] !== undefined) paidByMonth[pk] += parseFloat(p.amount) || 0;
+    });
   });
 
-  if (barChart) { barChart.destroy(); barChart = null; }
-  const bCtx = document.getElementById('chart-bar').getContext('2d');
-  barChart = new Chart(bCtx, {
+  const barCtx = document.getElementById('chart-bar').getContext('2d');
+  if (barChart) barChart.destroy();
+  barChart = new Chart(barCtx, {
     type: 'bar',
     data: {
-      labels: monthLabels,
+      labels: months,
       datasets: [
-        { label:'Satış', data:sales, backgroundColor:'rgba(124,92,191,.75)', borderRadius:6, borderSkipped:false },
-        { label:'Tahsilat', data:paidArr, backgroundColor:'rgba(63,185,80,.65)', borderRadius:6, borderSkipped:false }
+        { label: 'Satış', data: Object.values(salesByMonth), backgroundColor: isDark ? 'rgba(74,144,217,0.7)' : 'rgba(30,111,191,0.7)', borderRadius: 5 },
+        { label: 'Tahsilat', data: Object.values(paidByMonth), backgroundColor: isDark ? 'rgba(90,163,232,0.4)' : 'rgba(74,144,217,0.35)', borderRadius: 5 },
       ]
     },
     options: {
-      responsive:true, maintainAspectRatio:false,
-      onClick(evt, elements) {
-        if (!elements.length) return;
-        const { y, m } = chartMonthKeys[elements[0].index];
-        chartClickMonth = { y, m };
-        togglePanel('orders');
-      },
-      plugins:{
-        legend:{ labels:{ color:textColor, font:{size:12} } },
-        tooltip:{
-          callbacks:{
-            title: ctx => {
-              const { y, m } = chartMonthKeys[ctx[0].dataIndex];
-              return new Date(y, m, 1).toLocaleString('tr-TR', { month:'long', year:'numeric' });
-            },
-            label: ctx => ' ₺' + Number(ctx.raw).toLocaleString('tr-TR')
-          }
-        }
-      },
-      scales:{
-        x:{
-          grid:{ color:gridColor },
-          ticks:{
-            color:textColor,
-            maxRotation:0,
-            minRotation:0,
-            font:{ size: isMobile ? 10 : 11 },
-            align:'center'
-          }
-        },
-        y:{ grid:{ color:gridColor }, ticks:{ color:textColor, callback: v => '₺'+v.toLocaleString('tr-TR'), font:{ size: isMobile ? 10 : 11 } } }
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' } } } },
+      scales: {
+        x: { ticks: { color: tc, font: { family: 'Inter', size: 11 } }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' } },
+        y: { ticks: { color: tc, font: { family: 'Inter', size: 11 }, callback: v => '₺' + v.toLocaleString('tr-TR') }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' } }
       }
     }
   });
 
-  // Doughnut
-  if (doughnutChart) { doughnutChart.destroy(); doughnutChart = null; }
-  const dCtx = document.getElementById('chart-doughnut').getContext('2d');
-  const fullPaid = orders.filter(o => (Number(o.total||0) - getPaid(o)) <= 0).length;
-  const partial = orders.filter(o => { const r=Number(o.total||0)-getPaid(o); return r>0 && getPaid(o)>0; }).length;
-  const none = orders.filter(o => getPaid(o) <= 0 && Number(o.total||0) > 0).length;
-  doughnutChart = new Chart(dCtx, {
-    type:'doughnut',
-    data:{
-      labels:['Tam Ödendi','Kısmi','Bekliyor'],
-      datasets:[{ data:[fullPaid,partial,none], backgroundColor:['#3fb950','#d29922','#f85149'], borderWidth:0, hoverOffset:8 }]
+  let completed = 0, partial = 0, waiting = 0;
+  data.orders.forEach(o => {
+    const s = getStatus(o, data);
+    if (s === 'Tamamlandı') completed++;
+    else if (s === 'Kısmi Ödeme') partial++;
+    else waiting++;
+  });
+
+  const pieCtx = document.getElementById('chart-pie').getContext('2d');
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Tamamlandı', 'Kısmi Ödeme', 'Bekliyor'],
+      datasets: [{ data: [completed, partial, waiting], backgroundColor: ['rgba(46,158,94,0.85)', 'rgba(212,135,10,0.85)', 'rgba(192,57,43,0.85)'], borderWidth: 0 }]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:'65%',
-      onClick(evt, elements) {
-        if (!elements.length) return;
-        chartClickMonth = null;
-        const idx = elements[0].index;
-        if (idx === 0) togglePanel('cari');
-        else togglePanel('pending');
-      },
-      plugins:{
-        legend:{ position:'bottom', labels:{ color:textColor, font:{size:12}, padding:14 } },
-        tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw} sipariş` } }
-      }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' }, padding: 12 } } },
+      cutout: '65%',
     }
   });
 }
 
-// ========== EXPORT CSV ==========
-function exportCSV() {
-  const rows = [['Müşteri','Fiş No','Sipariş Tarihi','Düğün Tarihi','Toplam','Ödenen','Kalan','Durum']];
-  orders.forEach(o => {
-    const paid = getPaid(o); const rem = Number(o.total||0) - paid;
-    rows.push([o.customer, o.fisNo, fmtDate(o.date), fmtDate(o.wedding), o.total, paid, rem, rem<=0?'Ödendi':paid>0?'Kısmi':'Bekliyor']);
-  });
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
-  a.download = 'sisters-cari-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
+// ===== MODALS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'overlay-new') resetNewOrderModal();
+  if (id === 'overlay-service') resetServiceModal();
 }
 
-// ========== NEW ORDER MODAL ==========
-function openNewOrder() {
-  document.getElementById('modal-order-title').textContent = 'Yeni Sipariş';
-  document.getElementById('order-step1').style.display = '';
-  document.getElementById('order-step2').style.display = 'none';
-  document.getElementById('btn-next').style.display = '';
-  document.getElementById('btn-save').style.display = 'none';
-  document.getElementById('btn-prev').style.display = 'none';
-  document.getElementById('err-step1').textContent = '';
-  document.getElementById('err-step2').textContent = '';
-  ['nc-name','nc-phone','nc-email','nc-note','o-fis','o-note','o-total','p1','p2','p3','p-remain'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.value = '';
-  });
-  document.getElementById('o-date').value = new Date().toISOString().slice(0,10);
-  document.getElementById('o-wedding').value = '';
-  const sel = document.getElementById('sel-customer');
-  sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>' +
-    customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  onCustomerSelect();
-  const maxFis = orders.reduce((mx, o) => {
-    const n = parseInt((o.fisNo||'').replace(/\D/g,''));
-    return n > mx ? n : mx;
-  }, 3732);
-  document.getElementById('o-fis').value = '#' + (maxFis + 1);
-  document.getElementById('modal-order').classList.add('open');
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+// ===== SERVICE FEE =====
+function resetServiceModal() {
+  ['sf-name','sf-phone','sf-email','sf-amount','sf-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sf-existing-customer').value = '';
+  document.getElementById('sf-new-customer-form').style.display = '';
+  document.getElementById('sf-date').valueAsDate = new Date();
 }
 
-function onCustomerSelect() {
-  const val = document.getElementById('sel-customer').value;
-  const sec = document.getElementById('new-customer-section');
-  sec.classList.toggle('open', !val);
+function openServiceFee() {
+  const data = loadData();
+  const sel = document.getElementById('sf-existing-customer');
+  sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>';
+  data.customers.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+  resetServiceModal();
+  openModal('overlay-service');
 }
 
-function nextStep() {
-  // validate step 1
-  const selVal = document.getElementById('sel-customer').value;
-  const errEl = document.getElementById('err-step1');
-  if (!selVal) {
-    const name = document.getElementById('nc-name').value.trim();
-    const phone = document.getElementById('nc-phone').value.trim();
-    if (!name) { errEl.textContent = 'Ad Soyad zorunlu'; return; }
-    if (!phone || !/^05\d{9}$/.test(phone)) { errEl.textContent = 'Geçerli bir telefon girin (05xx xxx xx xx)'; return; }
-  }
-  errEl.textContent = '';
-  // go to step 2
-  document.getElementById('order-step1').style.display = 'none';
-  document.getElementById('order-step2').style.display = '';
-  document.getElementById('btn-next').style.display = 'none';
-  document.getElementById('btn-save').style.display = '';
-  document.getElementById('btn-prev').style.display = '';
-  const label = selVal ? customers.find(c => c.id === selVal)?.name : document.getElementById('nc-name').value.trim();
-  document.getElementById('step2-customer-label').textContent = '👤 ' + label;
+function onSFCustomerSelect() {
+  const val = document.getElementById('sf-existing-customer').value;
+  document.getElementById('sf-new-customer-form').style.display = val ? 'none' : '';
 }
 
-function prevStep() {
-  document.getElementById('order-step1').style.display = '';
-  document.getElementById('order-step2').style.display = 'none';
-  document.getElementById('btn-next').style.display = '';
-  document.getElementById('btn-save').style.display = 'none';
-  document.getElementById('btn-prev').style.display = 'none';
-}
+function saveServiceFee() {
+  const amount = parseFloat(document.getElementById('sf-amount').value);
+  const date   = document.getElementById('sf-date').value;
+  if (!amount || amount <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  if (!date) { alert('Lütfen tarih seçin.'); return; }
 
-function updatePayRemain() {
-  const total = Number(document.getElementById('o-total').value || 0);
-  const p1 = Number(document.getElementById('p1').value || 0);
-  const p2 = Number(document.getElementById('p2').value || 0);
-  const p3 = Number(document.getElementById('p3').value || 0);
-  const remain = Math.max(0, total - p1 - p2 - p3);
-  document.getElementById('p-remain').value = remain;
-}
+  const data = loadData();
+  let customerId = document.getElementById('sf-existing-customer').value;
 
-function saveOrder() {
-  const errEl = document.getElementById('err-step2');
-  const fisNo = document.getElementById('o-fis').value.trim();
-  const date = document.getElementById('o-date').value;
-  const total = Number(document.getElementById('o-total').value);
-  if (fisNo && orders.some(o => o.fisNo === fisNo)) { errEl.textContent = 'Bu fiş no zaten kullanılıyor'; return; }
-  if (!date) { errEl.textContent = 'Sipariş tarihi zorunlu'; return; }
-  if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
-  const p1 = Number(document.getElementById('p1').value||0);
-  const p2 = Number(document.getElementById('p2').value||0);
-  const p3 = Number(document.getElementById('p3').value||0);
-  if (p1+p2+p3 > total) { errEl.textContent = 'Ödeme toplamı satış tutarını aşamaz'; return; }
-  errEl.textContent = '';
-
-  // get or create customer
-  let customerId = document.getElementById('sel-customer').value;
-  let customerName = '';
   if (!customerId) {
-    const c = {
-      id: genId(),
-      name: document.getElementById('nc-name').value.trim(),
-      phone: document.getElementById('nc-phone').value.trim(),
-      email: document.getElementById('nc-email').value.trim(),
-      note: document.getElementById('nc-note').value.trim(),
-    };
-    customers.push(c);
-    customerId = c.id;
-    customerName = c.name;
-  } else {
-    customerName = customers.find(c => c.id === customerId)?.name || '';
+    const name  = document.getElementById('sf-name').value.trim();
+    const phone = document.getElementById('sf-phone').value.trim();
+    if (!name) { alert('Lütfen müşteri adını girin.'); return; }
+    if (!phone) { alert('Lütfen telefon numarasını girin.'); return; }
+    const newCust = { id: genId(), name, phone, email: document.getElementById('sf-email').value.trim(), note: '' };
+    data.customers.push(newCust);
+    customerId = newCust.id;
   }
 
-  const payHistory = [];
-  if (p1 > 0) payHistory.push({ amount: p1, date: date, label: 'Peşinat' });
-  if (p2 > 0) payHistory.push({ amount: p2, date: date, label: '2. Ödeme' });
-  if (p3 > 0) payHistory.push({ amount: p3, date: date, label: '3. Ödeme' });
-
-  orders.push({
-    id: genId(), customerId, customer: customerName,
-    fisNo, date, wedding: document.getElementById('o-wedding').value,
-    total, note: document.getElementById('o-note').value.trim(),
-    p1, p2, p3, payHistory
+  data.services.push({
+    id: genId(),
+    customerId,
+    amount,
+    date,
+    note: document.getElementById('sf-note').value.trim(),
   });
-  save();
-  closeModal('modal-order');
-  toast('Sipariş oluşturuldu ✓');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
-  else renderCharts();
+
+  saveData(data);
+  closeModal('overlay-service');
+  renderAll();
 }
 
-// ========== DETAIL MODAL ==========
-function openDetail(id) {
-  currentOrderId = id;
-  const o = orders.find(x => x.id === id);
-  if (!o) return;
-  const paid = getPaid(o);
-  const rem = Number(o.total||0) - paid;
-  const pct = o.total > 0 ? Math.round(paid / o.total * 100) : 0;
+function deleteService(id) {
+  if (!confirm('Bu hizmet bedeli kaydını silmek istiyor musunuz?')) return;
+  const data = loadData();
+  data.services = data.services.filter(s => s.id !== id);
+  saveData(data);
+  renderAll();
+}
 
-  let payHtml = '';
-  if (o.payHistory && o.payHistory.length) {
-    payHtml = `<div class="pay-history"><div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ödeme Geçmişi</div>`
-      + o.payHistory.map(p => `<div class="pay-history-item"><span>${p.label||'Ödeme'} · ${fmtDate(p.date)}</span><span style="color:var(--green);font-weight:700">${fmt(p.amount)}</span></div>`).join('')
-      + `</div>`;
+// ===== NEW ORDER =====
+let newOrderStep = 1;
+let selectedCustomerId = null;
+
+function resetNewOrderModal() {
+  newOrderStep = 1;
+  selectedCustomerId = null;
+  document.getElementById('step1').style.display = '';
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step-btn').textContent = 'Devam →';
+  setStepIndicator(1);
+  ['new-name','new-phone','new-email','new-note-cust','fis-no','order-date','wedding-date','order-total','order-note','pp-1','pp-1-date','pp-remaining','pp-service-deduction'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('existing-customer').value = '';
+  document.getElementById('new-customer-form').style.display = '';
+  document.getElementById('service-deduction-info').style.display = 'none';
+  document.getElementById('service-deduction-row').style.display = 'none';
+  document.getElementById('deposit-detail-row').style.display = 'none';
+  document.getElementById('deposit-method-row').style.display = 'none';
+  document.getElementById('pp-1-method').value = '';
+  document.getElementById('order-date').valueAsDate = new Date();
+}
+
+function setStepIndicator(step) {
+  document.getElementById('step1-indicator').className = 'step ' + (step === 1 ? 'active' : 'done');
+  document.getElementById('step2-indicator').className = 'step ' + (step === 2 ? 'active' : '');
+}
+
+function openNewOrder() {
+  const data = loadData();
+  const sel = document.getElementById('existing-customer');
+  sel.innerHTML = '<option value="">— Yeni müşteri ekle —</option>';
+  data.customers.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+  resetNewOrderModal();
+  openModal('overlay-new');
+}
+
+function onExistingCustomerSelect() {
+  const val = document.getElementById('existing-customer').value;
+  document.getElementById('new-customer-form').style.display = val ? 'none' : '';
+  selectedCustomerId = val || null;
+}
+
+function handleStepBtn() {
+  if (newOrderStep === 1) {
+    if (!selectedCustomerId) {
+      const name  = document.getElementById('new-name').value.trim();
+      const phone = document.getElementById('new-phone').value.trim();
+      if (!name)  { alert('Lütfen müşteri adını girin.'); return; }
+      if (!phone) { alert('Lütfen telefon numarasını girin.'); return; }
+    }
+    newOrderStep = 2;
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = '';
+    document.getElementById('step-btn').textContent = 'Kaydet';
+    setStepIndicator(2);
+
+    const data = loadData();
+    if (!document.getElementById('fis-no').value) {
+      document.getElementById('fis-no').value = String(data.orders.length + 1).padStart(4, '0');
+    }
+
+    // Mevcut hizmet bedeli var mı kontrol et
+    if (selectedCustomerId) {
+      const svcTotal = getCustomerServiceTotal(data, selectedCustomerId);
+      if (svcTotal > 0) {
+        document.getElementById('service-deduction-info').style.display = 'flex';
+        document.getElementById('service-deduction-text').textContent =
+          `Bu müşterinin ${fmt(svcTotal)} hizmet bedeli gelinlik ücretinden düşülecek.`;
+        document.getElementById('service-deduction-row').style.display = 'flex';
+        document.getElementById('pp-service-deduction').value = svcTotal;
+      }
+    }
+    calcRemaining();
+  } else {
+    saveNewOrder();
   }
+}
+
+function calcRemaining() {
+  const total = parseFloat(document.getElementById('order-total').value) || 0;
+  const svcDed = parseFloat(document.getElementById('pp-service-deduction').value) || 0;
+  const p1 = parseFloat(document.getElementById('pp-1').value) || 0;
+  const net = Math.max(0, total - svcDed);
+  document.getElementById('pp-remaining').value = Math.max(0, net - p1) || '';
+  // Show deposit date/method rows if amount entered
+  const hasDeposit = p1 > 0;
+  document.getElementById('deposit-detail-row').style.display = hasDeposit ? 'flex' : 'none';
+  document.getElementById('deposit-method-row').style.display = hasDeposit ? 'flex' : 'none';
+  if (hasDeposit && !document.getElementById('pp-1-date').value) {
+    document.getElementById('pp-1-date').value = document.getElementById('order-date').value || '';
+  }
+}
+
+function saveNewOrder() {
+  const total = document.getElementById('order-total').value.trim();
+  const orderDate = document.getElementById('order-date').value;
+  if (!total || !orderDate) { alert('Lütfen sipariş tarihini ve tutarı girin.'); return; }
+
+  const data = loadData();
+  let customerId = selectedCustomerId;
+
+  if (!customerId) {
+    const newCust = {
+      id: genId(),
+      name:  document.getElementById('new-name').value.trim(),
+      phone: document.getElementById('new-phone').value.trim(),
+      email: document.getElementById('new-email').value.trim(),
+      note:  document.getElementById('new-note-cust').value.trim(),
+    };
+    data.customers.push(newCust);
+    customerId = newCust.id;
+  }
+
+  const pp1 = parseFloat(document.getElementById('pp-1').value) || 0;
+  const pp1Date = document.getElementById('pp-1-date').value || orderDate;
+  const pp1Method = document.getElementById('pp-1-method').value || '';
+  const payments = [];
+  if (pp1 > 0) {
+    const depositNote = ['Peşinat', pp1Method].filter(Boolean).join(' — ');
+    payments.push({ id: genId(), amount: pp1, date: pp1Date, note: depositNote, method: pp1Method });
+  }
+
+  data.orders.push({
+    id: genId(),
+    customerId,
+    fisNo:      document.getElementById('fis-no').value.trim(),
+    orderDate,
+    weddingDate: document.getElementById('wedding-date').value,
+    total:      parseFloat(total),
+    note:       document.getElementById('order-note').value.trim(),
+    payments,
+  });
+
+  saveData(data);
+  closeModal('overlay-new');
+  renderAll();
+}
+
+// ===== DETAIL =====
+let currentOrderId = null;
+
+function openDetail(orderId) {
+  currentOrderId = orderId;
+  const data = loadData();
+  const order = data.orders.find(o => o.id === orderId);
+  if (!order) return;
+  const cust = data.customers.find(c => c.id === order.customerId) || {};
+  const paid = (order.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+  const net  = getNetTotal(data, order);
+  const svcD = getCustomerServiceTotal(data, order.customerId);
+  const remaining = net - paid;
+
+  const paymentsHtml = order.payments && order.payments.length
+    ? order.payments.map(p => {
+        const methodIcon = p.method === 'Nakit' ? '💵' : p.method === 'Kart' ? '💳' : p.method === 'Havale' ? '🏦' : '';
+        const methodStr = p.method ? ` ${methodIcon} ${p.method}` : '';
+        const noteStr = p.note ? ` — ${p.note}` : '';
+        // Build label: date + method + note (avoid duplicate if note already contains method)
+        const label = `${fmtDate(p.date)}${methodStr}${noteStr && !noteStr.includes(p.method || '~~~') ? noteStr : ''}`;
+        return `<div class="ph-item"><span>${label}</span><strong>${fmt(p.amount)}</strong></div>`;
+      }).join('')
+    : '<div style="color:var(--text-muted);font-size:13px;font-weight:600;">Henüz ödeme yok.</div>';
 
   document.getElementById('detail-body').innerHTML = `
-    <div class="detail-row"><span class="detail-label">Müşteri</span><span class="detail-value">${o.customer}</span></div>
-    <div class="detail-row"><span class="detail-label">Fiş No</span><span class="detail-value">${o.fisNo||'—'}</span></div>
-    <div class="detail-row"><span class="detail-label">Sipariş Tarihi</span><span class="detail-value">${fmtDate(o.date)}</span></div>
-    <div class="detail-row"><span class="detail-label">Düğün Tarihi</span><span class="detail-value">${fmtDate(o.wedding)}</span></div>
-    <div class="detail-row"><span class="detail-label">Toplam</span><span class="detail-value">${fmt(o.total)}</span></div>
-    <div class="detail-row"><span class="detail-label">Ödenen</span><span class="detail-value" style="color:var(--green)">${fmt(paid)}</span></div>
-    <div class="detail-row"><span class="detail-label">Kalan</span><span class="detail-value" style="color:${rem>0?'var(--red)':'var(--text2)'}">${fmt(rem)}</span></div>
-    <div class="detail-row"><span class="detail-label">İlerleme</span><span class="detail-value">${pct}%</span></div>
-    ${o.note ? `<div class="detail-row"><span class="detail-label">Not</span><span class="detail-value">${o.note}</span></div>` : ''}
-    ${payHtml}
-  `;
-  document.getElementById('btn-add-pay').style.display = rem > 0 ? '' : 'none';
-  document.getElementById('modal-detail').classList.add('open');
+    <div class="detail-row"><span class="dl">Müşteri</span><span class="dv">${cust.name || '—'}</span></div>
+    <div class="detail-row"><span class="dl">Telefon</span><span class="dv">${cust.phone || '—'}</span></div>
+    <div class="detail-row"><span class="dl">Fiş No</span><span class="dv">${order.fisNo || '—'}</span></div>
+    <div class="detail-row"><span class="dl">Sipariş Tarihi</span><span class="dv">${fmtDate(order.orderDate)}</span></div>
+    <div class="detail-row"><span class="dl">Düğün Tarihi</span><span class="dv">${fmtDate(order.weddingDate)}</span></div>
+    <div class="detail-row"><span class="dl">Gelinlik Tutarı</span><span class="dv">${fmt(order.total)}</span></div>
+    ${svcD > 0 ? `<div class="detail-row"><span class="dl" style="color:var(--service-color);">Hizmet Bed. İndirimi</span><span class="dv" style="color:var(--service-color);">-${fmt(svcD)}</span></div>` : ''}
+    <div class="detail-row"><span class="dl">Net Toplam</span><span class="dv"><strong>${fmt(net)}</strong></span></div>
+    <div class="detail-row"><span class="dl">Ödenen</span><span class="dv" style="color:var(--success)">${fmt(paid)}</span></div>
+    <div class="detail-row"><span class="dl">Kalan</span><span class="dv" style="color:var(--danger)">${fmt(remaining)}</span></div>
+    <div class="detail-row"><span class="dl">Durum</span><span class="dv">${statusBadge(getStatus(order, data))}</span></div>
+    ${order.note ? `<div class="detail-row"><span class="dl">Not</span><span class="dv">${order.note}</span></div>` : ''}
+    <div class="payment-history"><div class="ph-title">Ödeme Geçmişi</div>${paymentsHtml}</div>`;
+
+  openModal('overlay-detail');
 }
 
-function deleteCurrentOrder() {
-  if (!currentOrderId) return;
-  if (!confirm('Bu siparişi silmek istediğinize emin misiniz?')) return;
-  orders = orders.filter(o => o.id !== currentOrderId);
-  save();
-  closeModal('modal-detail');
-  toast('Sipariş silindi', 'error');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
-  else renderCharts();
+function deleteOrder() {
+  if (!confirm('Bu siparişi silmek istediğinizden emin misiniz?')) return;
+  const data = loadData();
+  data.orders = data.orders.filter(o => o.id !== currentOrderId);
+  saveData(data);
+  closeModal('overlay-detail');
+  renderAll();
 }
 
-// ========== ADD PAYMENT ==========
-function openAddPay() {
-  document.getElementById('add-pay-amount').value = '';
-  document.getElementById('add-pay-date').value = new Date().toISOString().slice(0,10);
-  document.getElementById('err-pay').textContent = '';
-  closeModal('modal-detail');
-  document.getElementById('modal-pay').classList.add('open');
+function openAddPayment() {
+  document.getElementById('pay-amount').value = '';
+  document.getElementById('pay-date').valueAsDate = new Date();
+  document.getElementById('pay-method').value = '';
+  document.getElementById('pay-note').value = '';
+  closeModal('overlay-detail');
+  openModal('overlay-payment');
 }
 
-function saveAddPay() {
-  const amount = Number(document.getElementById('add-pay-amount').value);
-  const date = document.getElementById('add-pay-date').value;
-  const errEl = document.getElementById('err-pay');
-  if (!amount || amount <= 0) { errEl.textContent = 'Geçerli tutar girin'; return; }
-  const o = orders.find(x => x.id === currentOrderId);
-  if (!o) return;
-  const rem = Number(o.total||0) - getPaid(o);
-  if (amount > rem) { errEl.textContent = `Kalan tutardan fazla giremezsiniz (max ${fmt(rem)})`; return; }
-  if (!o.payHistory) o.payHistory = [];
-  o.payHistory.push({ amount, date, label: 'Ödeme ' + (o.payHistory.length + 1) });
-  save();
-  closeModal('modal-pay');
-  toast('Ödeme eklendi ✓');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
-  else renderCharts();
+function savePayment() {
+  const amount = parseFloat(document.getElementById('pay-amount').value);
+  if (!amount || amount <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  const date = document.getElementById('pay-date').value;
+  const method = document.getElementById('pay-method').value;
+  const note = document.getElementById('pay-note').value.trim();
+  const data = loadData();
+  const order = data.orders.find(o => o.id === currentOrderId);
+  if (!order) return;
+  if (!order.payments) order.payments = [];
+  order.payments.push({ id: genId(), amount, date, method, note });
+  saveData(data);
+  closeModal('overlay-payment');
   openDetail(currentOrderId);
+  renderAll();
 }
 
-// ========== EDIT ORDER ==========
 function openEditOrder() {
-  const o = orders.find(x => x.id === currentOrderId);
-  if (!o) return;
-  closeModal('modal-detail');
-  document.getElementById('eo-fis').value = o.fisNo || '';
-  document.getElementById('eo-date').value = o.date || '';
-  document.getElementById('eo-wedding').value = o.wedding || '';
-  document.getElementById('eo-total').value = o.total || '';
-  document.getElementById('eo-note').value = o.note || '';
-  // Use payHistory totals for p1/p2/p3 display
-  const ph = o.payHistory || [];
-  document.getElementById('ep1').value = ph[0]?.amount || o.p1 || '';
-  document.getElementById('ep2').value = ph[1]?.amount || o.p2 || '';
-  document.getElementById('ep3').value = ph[2]?.amount || o.p3 || '';
-  updateEditRemain();
-  document.getElementById('err-edit-order').textContent = '';
-  document.getElementById('modal-edit-order').classList.add('open');
+  const data = loadData();
+  const order = data.orders.find(o => o.id === currentOrderId);
+  if (!order) return;
+  document.getElementById('edit-fis').value = order.fisNo || '';
+  document.getElementById('edit-order-date').value = order.orderDate || '';
+  document.getElementById('edit-wedding-date').value = order.weddingDate || '';
+  document.getElementById('edit-total').value = order.total || '';
+  document.getElementById('edit-note').value = order.note || '';
+  ['edit-pp-1','edit-pp-2','edit-pp-3','edit-pp-remaining'].forEach(id => document.getElementById(id).value = '');
+  closeModal('overlay-detail');
+  openModal('overlay-edit-order');
 }
 
-function updateEditRemain() {
-  const total = Number(document.getElementById('eo-total').value || 0);
-  const p1 = Number(document.getElementById('ep1').value || 0);
-  const p2 = Number(document.getElementById('ep2').value || 0);
-  const p3 = Number(document.getElementById('ep3').value || 0);
-  document.getElementById('ep-remain').value = Math.max(0, total - p1 - p2 - p3);
+function calcEditRemaining() {
+  const total = parseFloat(document.getElementById('edit-total').value) || 0;
+  const p1 = parseFloat(document.getElementById('edit-pp-1').value) || 0;
+  const p2 = parseFloat(document.getElementById('edit-pp-2').value) || 0;
+  const p3 = parseFloat(document.getElementById('edit-pp-3').value) || 0;
+  document.getElementById('edit-pp-remaining').value = Math.max(0, total - p1 - p2 - p3) || '';
 }
 
 function saveEditOrder() {
-  const o = orders.find(x => x.id === currentOrderId);
-  if (!o) return;
-  const errEl = document.getElementById('err-edit-order');
-  const fisNo = document.getElementById('eo-fis').value.trim();
-  const total = Number(document.getElementById('eo-total').value);
-  if (fisNo && orders.some(x => x.fisNo === fisNo && x.id !== currentOrderId)) { errEl.textContent = 'Bu fiş no başka siparişte kullanılıyor'; return; }
-  if (!total || total <= 0) { errEl.textContent = 'Tutar zorunlu'; return; }
-  const p1 = Number(document.getElementById('ep1').value || 0);
-  const p2 = Number(document.getElementById('ep2').value || 0);
-  const p3 = Number(document.getElementById('ep3').value || 0);
-  if (p1 + p2 + p3 > total) { errEl.textContent = 'Ödeme toplamı tutarı aşamaz'; return; }
-
-  o.fisNo = fisNo;
-  o.date = document.getElementById('eo-date').value;
-  o.wedding = document.getElementById('eo-wedding').value;
-  o.total = total;
-  o.note = document.getElementById('eo-note').value.trim();
-
-  // Rebuild payHistory from p1/p2/p3 slots (preserve extra payments)
-  const existingExtra = (o.payHistory || []).slice(3);
-  o.payHistory = [];
-  if (p1 > 0) o.payHistory.push({ amount: p1, date: o.date, label: 'Peşinat' });
-  if (p2 > 0) o.payHistory.push({ amount: p2, date: o.date, label: '2. Ödeme' });
-  if (p3 > 0) o.payHistory.push({ amount: p3, date: o.date, label: '3. Ödeme' });
-  o.payHistory.push(...existingExtra);
-  o.p1 = p1; o.p2 = p2; o.p3 = p3;
-
-  save();
-  closeModal('modal-edit-order');
-  toast('Sipariş güncellendi ✓');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
-  else renderCharts();
-  openDetail(currentOrderId);
+  const data = loadData();
+  const order = data.orders.find(o => o.id === currentOrderId);
+  if (!order) return;
+  order.fisNo       = document.getElementById('edit-fis').value.trim();
+  order.orderDate   = document.getElementById('edit-order-date').value;
+  order.weddingDate = document.getElementById('edit-wedding-date').value;
+  order.total       = parseFloat(document.getElementById('edit-total').value) || 0;
+  order.note        = document.getElementById('edit-note').value.trim();
+  saveData(data);
+  closeModal('overlay-edit-order');
+  renderAll();
 }
 
-// ========== EDIT / DELETE CUSTOMER ==========
-function openEditCustomer(id) {
-  const c = customers.find(x => x.id === id);
-  if (!c) return;
-  document.getElementById('ec-id').value = c.id;
-  document.getElementById('ec-name').value = c.name || '';
-  document.getElementById('ec-phone').value = c.phone || '';
-  document.getElementById('ec-email').value = c.email || '';
-  document.getElementById('ec-note').value = c.note || '';
-  document.getElementById('err-edit-customer').textContent = '';
-  document.getElementById('modal-edit-customer').classList.add('open');
+// ===== EDIT CUSTOMER =====
+let currentCustomerId = null;
+
+function openEditCustomer(custId) {
+  currentCustomerId = custId;
+  const data = loadData();
+  const cust = data.customers.find(c => c.id === custId);
+  if (!cust) return;
+  document.getElementById('ec-name').value  = cust.name  || '';
+  document.getElementById('ec-phone').value = cust.phone || '';
+  document.getElementById('ec-email').value = cust.email || '';
+  document.getElementById('ec-note').value  = cust.note  || '';
+  openModal('overlay-edit-customer');
 }
 
 function saveEditCustomer() {
-  const id = document.getElementById('ec-id').value;
-  const c = customers.find(x => x.id === id);
-  if (!c) return;
-  const errEl = document.getElementById('err-edit-customer');
   const name = document.getElementById('ec-name').value.trim();
-  if (!name) { errEl.textContent = 'Ad Soyad zorunlu'; return; }
-  c.name = name;
-  c.phone = document.getElementById('ec-phone').value.trim();
-  c.email = document.getElementById('ec-email').value.trim();
-  c.note = document.getElementById('ec-note').value.trim();
-  // Update customer name in all related orders
-  orders.forEach(o => { if (o.customerId === id) o.customer = name; });
-  save();
-  closeModal('modal-edit-customer');
-  toast('Müşteri güncellendi ✓');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
+  if (!name) { alert('Ad Soyad zorunludur.'); return; }
+  const data = loadData();
+  const cust = data.customers.find(c => c.id === currentCustomerId);
+  if (!cust) return;
+  cust.name  = name;
+  cust.phone = document.getElementById('ec-phone').value.trim();
+  cust.email = document.getElementById('ec-email').value.trim();
+  cust.note  = document.getElementById('ec-note').value.trim();
+  saveData(data);
+  closeModal('overlay-edit-customer');
+  renderAll();
 }
 
-function deleteCustomer(id) {
-  const c = customers.find(x => x.id === id);
-  if (!c) return;
-  const cOrders = orders.filter(o => o.customerId === id);
-  const msg = cOrders.length > 0
-    ? `"${c.name}" müşterisini silmek istiyor musunuz?\n\nUyarı: Bu müşteriye ait ${cOrders.length} sipariş de silinecek!`
-    : `"${c.name}" müşterisini silmek istiyor musunuz?`;
+// ===== DELETE CUSTOMER =====
+function deleteCustomer(custId) {
+  const data = loadData();
+  const cust = data.customers.find(c => c.id === custId);
+  if (!cust) return;
+  const hasOrders = data.orders.some(o => o.customerId === custId);
+  const hasServices = data.services.some(s => s.customerId === custId);
+  let msg = `"${cust.name}" müşterisini silmek istiyor musunuz?`;
+  if (hasOrders) msg += '\n\n⚠️ Bu müşteriye ait siparişler de silinecek!';
+  if (hasServices) msg += '\n⚠️ Bu müşteriye ait hizmet bedeli kayıtları da silinecek!';
   if (!confirm(msg)) return;
-  orders = orders.filter(o => o.customerId !== id);
-  customers = customers.filter(x => x.id !== id);
-  save();
-  toast('Müşteri silindi', 'error');
-  updateStats();
-  if (activePanel) renderPanel(activePanel);
+  data.customers = data.customers.filter(c => c.id !== custId);
+  if (hasOrders)   data.orders   = data.orders.filter(o => o.customerId !== custId);
+  if (hasServices) data.services = data.services.filter(s => s.customerId !== custId);
+  saveData(data);
+  renderAll();
 }
 
-// ========== MODAL HELPERS ==========
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+// ===== CSV =====
+function exportCSV() {
+  const data = loadData();
+  const rows = [['Müşteri', 'Fiş No', 'Hizmet Bed.', 'Gelinlik', 'Net Toplam', 'Ödenen', 'Kalan', 'Durum']];
+  data.orders.forEach(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const svcD = getCustomerServiceTotal(data, o.customerId);
+    const net  = Math.max(0, (parseFloat(o.total) || 0) - svcD);
+    rows.push([cust.name || '', o.fisNo || '', svcD, o.total || 0, net, paid.toFixed(0), (net - paid).toFixed(0), getStatus(o, data)]);
+  });
+  const csv  = '\uFEFF' + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'cari-hesap.csv'; a.click();
+  URL.revokeObjectURL(url);
 }
-function overlayClose(e, id) {
-  if (e.target.id === id) closeModal(id);
+
+// ===== EXCEL =====
+function exportExcel() {
+  const data = loadData();
+  const rows = [['Müşteri', 'Fiş No', 'Sipariş Tarihi', 'Düğün Tarihi', 'Hizmet Bed.', 'Gelinlik Tutarı', 'Net Toplam', 'Ödenen', 'Kalan', 'Durum']];
+  data.orders.forEach(o => {
+    const cust = data.customers.find(c => c.id === o.customerId) || {};
+    const paid = (o.payments || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+    const svcD = getCustomerServiceTotal(data, o.customerId);
+    const net  = Math.max(0, (parseFloat(o.total) || 0) - svcD);
+    rows.push([
+      cust.name || '', o.fisNo || '',
+      fmtDate(o.orderDate), fmtDate(o.weddingDate),
+      svcD, parseFloat(o.total) || 0, net, paid, net - paid, getStatus(o, data)
+    ]);
+  });
+
+  // Build XML-based Excel (xls) without external lib
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Worksheet ss:Name="Cari Hesap"><Table>`;
+
+  rows.forEach((row, ri) => {
+    xml += '<Row>';
+    row.forEach(cell => {
+      const isNum = ri > 0 && typeof cell === 'number';
+      xml += isNum
+        ? `<Cell><Data ss:Type="Number">${cell}</Data></Cell>`
+        : `<Cell><Data ss:Type="String">${String(cell).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`;
+    });
+    xml += '</Row>';
+  });
+
+  xml += '</Table></Worksheet></Workbook>';
+
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'cari-hesap.xls'; a.click();
+  URL.revokeObjectURL(url);
 }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    ['modal-pay','modal-detail','modal-order','modal-edit-order','modal-edit-customer'].forEach(id => closeModal(id));
+
+renderAll();
+
+// ===== BACKUP / RESTORE =====
+let _restoreData = null;
+
+function openBackupModal() {
+  _restoreData = null;
+  document.getElementById('restore-preview').style.display = 'none';
+  document.getElementById('restore-confirm-btn').style.display = 'none';
+  document.getElementById('restore-file-input').value = '';
+  document.getElementById('restore-drop-label').style.borderColor = 'var(--border)';
+
+  const lastBackup = localStorage.getItem('sw_last_backup');
+  document.getElementById('backup-last-date').textContent = lastBackup
+    ? new Date(lastBackup).toLocaleString('tr-TR')
+    : 'Hiç yedek alınmadı';
+
+  openModal('overlay-backup');
+}
+
+function downloadBackup() {
+  const data = loadData();
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'SistersWedding',
+    data
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `sisters-wedding-yedek-${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Mark backup time
+  localStorage.setItem('sw_last_backup', new Date().toISOString());
+  document.getElementById('backup-last-date').textContent = new Date().toLocaleString('tr-TR');
+  document.getElementById('backup-badge').style.display = 'none';
+  checkBackupReminder();
+}
+
+function handleRestoreFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  readRestoreFile(file);
+}
+
+function handleRestoreDrop(event) {
+  event.preventDefault();
+  document.getElementById('restore-drop-label').style.borderColor = 'var(--border)';
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.name.endsWith('.json')) {
+    alert('Lütfen geçerli bir JSON dosyası seçin.');
+    return;
   }
-});
-
-// ========== DEMO DATA ==========
-function loadDemoData() {
-  if (localStorage.getItem('sw_demo_loaded')) return;
-  const today = new Date();
-  const d = (offset) => { const x = new Date(today); x.setDate(x.getDate() + offset); return x.toISOString().slice(0,10); };
-  const m = (monthOffset) => { const x = new Date(today); x.setMonth(x.getMonth() + monthOffset); return x.toISOString().slice(0,10); };
-
-  customers = [
-    { id:'c1', name:'Ayşe Kaya', phone:'05321234567', email:'ayse@email.com', note:'' },
-    { id:'c2', name:'Fatma Demir', phone:'05334445566', email:'fatma@email.com', note:'' },
-    { id:'c3', name:'Zeynep Arslan', phone:'05351112233', email:'zeynep@email.com', note:'' },
-    { id:'c4', name:'Merve Çelik', phone:'05362223344', email:'merve@email.com', note:'' },
-    { id:'c5', name:'Selin Yıldız', phone:'05373334455', email:'selin@email.com', note:'' },
-    { id:'c6', name:'Büşra Şahin', phone:'05384445566', email:'busra@email.com', note:'' },
-  ];
-
-  orders = [
-    {
-      id:'o1', customerId:'c1', customer:'Ayşe Kaya', fisNo:'#3730',
-      date: m(-5), wedding: d(45), total:150000, note:'Gelinlik + aksesuar',
-      p1:50000, p2:50000, p3:0,
-      payHistory:[
-        {amount:50000, date:m(-5), label:'Peşinat'},
-        {amount:50000, date:m(-3), label:'2. Ödeme'},
-      ]
-    },
-    {
-      id:'o2', customerId:'c2', customer:'Fatma Demir', fisNo:'#3731',
-      date: m(-4), wedding: d(12), total:95000, note:'',
-      p1:30000, p2:30000, p3:0,
-      payHistory:[
-        {amount:30000, date:m(-4), label:'Peşinat'},
-        {amount:30000, date:m(-2), label:'2. Ödeme'},
-      ]
-    },
-    {
-      id:'o3', customerId:'c3', customer:'Zeynep Arslan', fisNo:'#3732',
-      date: m(-3), wedding: d(60), total:120000, note:'Nişan + düğün paketi',
-      p1:120000, p2:0, p3:0,
-      payHistory:[
-        {amount:120000, date:m(-3), label:'Peşinat'},
-      ]
-    },
-    {
-      id:'o4', customerId:'c4', customer:'Merve Çelik', fisNo:'#3733',
-      date: m(-2), wedding: d(90), total:200000, note:'VIP paket',
-      p1:60000, p2:0, p3:0,
-      payHistory:[
-        {amount:60000, date:m(-2), label:'Peşinat'},
-      ]
-    },
-    {
-      id:'o5', customerId:'c5', customer:'Selin Yıldız', fisNo:'#3734',
-      date: m(-1), wedding: d(8), total:75000, note:'',
-      p1:75000, p2:0, p3:0,
-      payHistory:[
-        {amount:75000, date:m(-1), label:'Peşinat'},
-      ]
-    },
-    {
-      id:'o6', customerId:'c6', customer:'Büşra Şahin', fisNo:'#3735',
-      date: m(-1), wedding: d(22), total:110000, note:'',
-      p1:40000, p2:0, p3:0,
-      payHistory:[
-        {amount:40000, date:m(-1), label:'Peşinat'},
-      ]
-    },
-  ];
-
-  save();
-  localStorage.setItem('sw_demo_loaded', '1');
+  readRestoreFile(file);
 }
 
-// ========== INIT ==========
-window.addEventListener('load', function() {
-  const theme = localStorage.getItem('sw_theme') || 'light';
-  document.documentElement.setAttribute('data-theme', theme);
-  updateThemeIcon();
-  loadDemoData();
-  updateStats();
-  renderCharts();
-});
+function readRestoreFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const d = parsed.data || parsed; // support both wrapped and raw formats
+      if (!d.customers || !d.orders) {
+        alert('Geçersiz yedek dosyası. Müşteri ve sipariş verisi bulunamadı.');
+        return;
+      }
+      _restoreData = d;
+      const exportedAt = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString('tr-TR') : 'Bilinmiyor';
+      document.getElementById('restore-preview').style.display = 'block';
+      document.getElementById('restore-preview').innerHTML = `
+        <div style="color:var(--text);font-weight:700;margin-bottom:6px;">📋 Yedek İçeriği</div>
+        <div>📅 Tarih: <strong>${exportedAt}</strong></div>
+        <div>👥 Müşteri: <strong>${d.customers.length} kişi</strong></div>
+        <div>🛍️ Sipariş: <strong>${d.orders.length} adet</strong></div>
+        <div>💰 Hizmet Bedeli: <strong>${(d.services||[]).length} kayıt</strong></div>
+      `;
+      document.getElementById('restore-confirm-btn').style.display = 'block';
+    } catch(err) {
+      alert('Dosya okunamadı. Geçerli bir JSON dosyası seçin.');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
 
-// Ekran boyutu değişince grafikleri yeniden çiz (mobil/masaüstü etiket geçişi)
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (!activePanel) renderCharts();
-  }, 250);
-});
+function confirmRestore() {
+  if (!_restoreData) return;
+  if (!confirm('⚠️ DİKKAT: Mevcut tüm veriler silinecek ve yedeğiniz yüklenecek. Emin misiniz?')) return;
+  saveData(_restoreData);
+  _restoreData = null;
+  closeModal('overlay-backup');
+  renderAll();
+  setTimeout(() => alert('✅ Veriler başarıyla geri yüklendi!'), 200);
+}
+
+function checkBackupReminder() {
+  const lastBackup = localStorage.getItem('sw_last_backup');
+  const badge = document.getElementById('backup-badge');
+  if (!lastBackup) {
+    badge.style.display = 'block';
+    return;
+  }
+  const daysSince = (Date.now() - new Date(lastBackup).getTime()) / (1000 * 60 * 60 * 24);
+  badge.style.display = daysSince >= 7 ? 'block' : 'none';
+}
+
+// Run reminder check on load
+checkBackupReminder();
+
 </script>
 </body>
 </html>
