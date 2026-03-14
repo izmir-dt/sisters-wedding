@@ -1770,10 +1770,11 @@ function saveServiceFee() {
 function deleteService(id) {
   showConfirm('Hizmet Bedeli Sil', 'Bu hizmet bedeli kaydını silmek istiyor musunuz?', null, 'Sil', (ok) => {
     if (!ok) return;
-  const data = loadData();
-  data.services = data.services.filter(s => s.id !== id);
-  saveData(data);
-  renderAll();
+    const data = loadData();
+    data.services = data.services.filter(s => s.id !== id);
+    saveData(data);
+    renderAll();
+  });
 }
 
 // ===== NEW ORDER =====
@@ -2278,8 +2279,6 @@ function confirmRestore() {
     renderAll();
     showAlert('✅ Veriler başarıyla geri yüklendi!', 'Geri Yükleme Başarılı');
   });
-  return; // early return - rest handled in callback
-
 }
 
 function checkBackupReminder() {
