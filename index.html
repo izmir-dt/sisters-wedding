@@ -2820,8 +2820,7 @@ function openDetail(orderId) {
       <span class="dv">
         <select onchange="quickUpdateOrder('${order.id}','staff',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
           <option value="" ${!order.staff?'selected':''}>— Seçin —</option>
-          <option value="S" ${order.staff==='S'?'selected':''}>👩 Seher</option>
-          <option value="E" ${order.staff==='E'?'selected':''}>👩 Ebru</option>
+          ${loadSettings().staff.map(x=>`<option value="${x.code}" ${order.staff===x.code?'selected':''}>${x.label}</option>`).join('')}
         </select>
       </span>
     </div>
@@ -2830,8 +2829,7 @@ function openDetail(orderId) {
       <span class="dv">
         <select onchange="quickUpdateOrder('${order.id}','orderKind',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
           <option value="" ${!order.orderKind?'selected':''}>— Seçin —</option>
-          <option value="Ö" ${order.orderKind==='Ö'?'selected':''}>✂️ Özel Dikim</option>
-          <option value="H" ${order.orderKind==='H'?'selected':''}>🏪 Hazır</option>
+          ${loadSettings().kinds.map(x=>`<option value="${x.code}" ${order.orderKind===x.code?'selected':''}>${x.label}</option>`).join('')}
         </select>
       </span>
     </div>
@@ -2839,10 +2837,7 @@ function openDetail(orderId) {
       <span class="dl">Kategori</span>
       <span class="dv">
         <select onchange="quickUpdateOrder('${order.id}','category',this.value)" style="border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;">
-          <option value="Gelinlik" ${order.category==='Gelinlik'||!order.category?'selected':''}>👰 Gelinlik</option>
-          <option value="Abiye" ${order.category==='Abiye'?'selected':''}>💃 Abiye</option>
-          <option value="Kinalik" ${order.category==='Kinalik'?'selected':''}>🧕 Kınalık</option>
-          <option value="Diger" ${order.category==='Diger'?'selected':''}>🛍️ Diğer</option>
+          ${loadSettings().cats.map(x=>`<option value="${x.code}" ${(order.category||'Gelinlik')===x.code?'selected':''}>${x.emoji} ${x.label}</option>`).join('')}
         </select>
       </span>
     </div>
@@ -3252,15 +3247,18 @@ function exportExcel() {
     <th ${thB}>Sipariş Tarihi</th>
     <th ${thB}>Düğün Tarihi</th>
     <th ${thB}>Notlar</th>
-    <th ${thB}>Satış Tutarı</th>
-    <th ${thBl}>Peşinat</th>
-    <th ${thBl}>1. Ödeme</th>
-    <th ${thBl}>2. Ödeme</th>
-    <th ${thBl}>3. Ödeme</th>
-    <th ${thB}>Kalan Borç</th>
+    <th ${thB}>Satış Tutarı (₺)</th>
+    <th ${thBl}>Peşinat (₺)</th>
+    <th ${thBl}>1. Ödeme (₺)</th>
+    <th ${thBl}>2. Ödeme (₺)</th>
+    <th ${thBl}>3. Ödeme (₺)</th>
+    <th ${thB} title="= Satış Tutarı - Toplam Ödemeler">Kalan Borç (₺)<br><span style="font-size:8pt;font-weight:normal;">=J-K-L-M-N</span></th>
   </tr>
 
-  ${rows.map(({o,cust,p,kalan},i) => `
+  ${rows.map(({o,cust,p,kalan},i) => {
+    const rowNum = i + 5; // Excel satır numarası (1:özet, 2:boş, 3:başlık, 4:kolon, 5+:veri)
+    const colJ = rowNum; // Satış Tutarı sütunu J
+    return `
   <tr style="background:${i%2===0?'#fff':'#F8FAFC'};">
     <td ${tdB}>${esc(staffLabel(o.staff))}</td>
     <td ${tdB}>${esc(kindLabel(o.orderKind))}</td>
@@ -3271,15 +3269,16 @@ function exportExcel() {
     <td ${tdC}>${fmtDate(o.orderDate)}</td>
     <td ${tdC}>${fmtDate(o.weddingDate)}</td>
     <td ${tdB}>${esc(o.note)}</td>
-    <td ${tdN}>${tl0(o.total)}</td>
-    <td ${tdN}>${tl(p[0])}</td>
-    <td ${tdN}>${tl(p[1])}</td>
-    <td ${tdN}>${tl(p[2])}</td>
-    <td ${tdN}>${tl(p[3])}</td>
-    <td style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;font-weight:bold;${kalan>0?'color:#DC2626;background:#FFF5F5;':'color:#16A34A;'}">
-      ${tl0(kalan)}
+    <td ${tdN} x:num>${parseFloat(o.total)||0}</td>
+    <td ${tdN} x:num>${p[0]||0}</td>
+    <td ${tdN} x:num>${p[1]||0}</td>
+    <td ${tdN} x:num>${p[2]||0}</td>
+    <td ${tdN} x:num>${p[3]||0}</td>
+    <td style="font-family:Calibri;font-size:10pt;padding:5px 7px;${bdr}text-align:right;font-weight:bold;${kalan>0?'color:#DC2626;background:#FFF5F5;':'color:#16A34A;'}" x:num>
+      ${kalan}
     </td>
-  </tr>`).join('')}
+  </tr>`;
+  }).join('')}
 
 </table>
 </body></html>`;
@@ -3399,7 +3398,20 @@ function quickUpdateOrder(orderId, field, value) {
   if (!order) return;
   order[field] = value;
   saveData(data);
-  renderAll();
+  // Sadece tabloları güncelle, modalı kapatma
+  renderOrdersTable(data);
+  renderCustomersTable(data);
+  renderCariTable(data);
+  renderBekleyenTable(data);
+  renderStats(data);
+  // Detay içindeki badge/durum satırını güncelle
+  const statusEl = document.querySelector('#detail-body .detail-row:last-of-type .dv');
+  // Başarı bildirimi göster
+  const badge = document.createElement('span');
+  badge.textContent = '✓ Kaydedildi';
+  badge.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#16a34a;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;z-index:99999;box-shadow:0 2px 12px rgba(0,0,0,0.15);';
+  document.body.appendChild(badge);
+  setTimeout(() => badge.remove(), 1800);
 }
 
 // ===== BACKUP / RESTORE =====
