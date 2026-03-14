@@ -2840,76 +2840,41 @@ function openDetail(orderId) {
     : '<div style="color:var(--text-muted);font-size:13px;font-weight:600;">Henüz ödeme yok.</div>';
 
   const catIcons   = {Gelinlik:'👰 Gelinlik', Abiye:'💃 Abiye', Kinalik:'🧕 Kınalık', Diger:'🛍️ Diğer'};
-  const selStyle = 'border:1.5px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;';
+  const selStyle = 'border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;background:var(--card);color:var(--text);cursor:pointer;width:100%;max-width:200px;';
   const sett = loadSettings();
   document.getElementById('detail-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Müşteri</span><span class="dv">${cust.name || '—'}</span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Telefon</span><span class="dv">${cust.phone || '—'}</span>
-      </div>
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Kimin Müşterisi</span>
-        <span class="dv">
-          <select onchange="quickUpdateOrder('${order.id}','staff',this.value)" style="${selStyle}">
-            <option value="" ${!order.staff?'selected':''}>— Seçin —</option>
-            ${sett.staff.map(x=>`<option value="${x.code}" ${order.staff===x.code?'selected':''}>${x.label}</option>`).join('')}
-          </select>
-        </span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Ürün Türü</span>
-        <span class="dv">
-          <select onchange="quickUpdateOrder('${order.id}','orderKind',this.value)" style="${selStyle}">
-            <option value="" ${!order.orderKind?'selected':''}>— Seçin —</option>
-            ${sett.kinds.map(x=>`<option value="${x.code}" ${order.orderKind===x.code?'selected':''}>${x.label}</option>`).join('')}
-          </select>
-        </span>
-      </div>
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Kategori</span>
-        <span class="dv">
-          <select onchange="quickUpdateOrder('${order.id}','category',this.value)" style="${selStyle}">
-            ${sett.cats.map(x=>`<option value="${x.code}" ${(order.category||'Gelinlik')===x.code?'selected':''}>${x.emoji} ${x.label}</option>`).join('')}
-          </select>
-        </span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Fiş No</span><span class="dv">${order.fisNo || '—'}</span>
-      </div>
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Sipariş Tarihi</span><span class="dv">${fmtDate(order.orderDate)}</span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Düğün Tarihi</span><span class="dv">${fmtDate(order.weddingDate)}</span>
-      </div>
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Satış Tutarı</span><span class="dv">${fmt(order.total)}</span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Net Toplam</span><span class="dv"><strong>${fmt(net)}</strong></span>
-      </div>
-
-      <div class="detail-row" style="border-right:1px solid var(--border);">
-        <span class="dl">Ödenen</span><span class="dv" style="color:var(--success);font-weight:800;">${fmt(paid)}</span>
-      </div>
-      <div class="detail-row">
-        <span class="dl">Kalan Borç</span><span class="dv" style="color:var(--danger);font-weight:800;">${fmt(remaining)}</span>
-      </div>
-
-      <div class="detail-row" style="grid-column:1/-1;">
-        <span class="dl">Durum</span><span class="dv">${statusBadge(getStatus(order, data))}</span>
-      </div>
-      ${order.note ? `<div class="detail-row" style="grid-column:1/-1;"><span class="dl">Not</span><span class="dv">${order.note}</span></div>` : ''}
-      ${svcD > 0 ? `<div class="detail-row" style="grid-column:1/-1;"><span class="dl" style="color:var(--service-color);">Hizmet Bed. İndirimi</span><span class="dv" style="color:var(--service-color);">-${fmt(svcD)}</span></div>` : ''}
+    <div class="detail-row"><span class="dl">Müşteri</span><span class="dv"><strong>${cust.name || '—'}</strong></span></div>
+    <div class="detail-row"><span class="dl">Telefon</span><span class="dv">${cust.phone || '—'}</span></div>
+    <div class="detail-row">
+      <span class="dl">Kimin Müşterisi</span>
+      <span class="dv"><select onchange="quickUpdateOrder('${order.id}','staff',this.value)" style="${selStyle}">
+        <option value="" ${!order.staff?'selected':''}>— Seçin —</option>
+        ${sett.staff.map(x=>`<option value="${x.code}" ${order.staff===x.code?'selected':''}>${x.label}</option>`).join('')}
+      </select></span>
     </div>
+    <div class="detail-row">
+      <span class="dl">Ürün Türü</span>
+      <span class="dv"><select onchange="quickUpdateOrder('${order.id}','orderKind',this.value)" style="${selStyle}">
+        <option value="" ${!order.orderKind?'selected':''}>— Seçin —</option>
+        ${sett.kinds.map(x=>`<option value="${x.code}" ${order.orderKind===x.code?'selected':''}>${x.label}</option>`).join('')}
+      </select></span>
+    </div>
+    <div class="detail-row">
+      <span class="dl">Kategori</span>
+      <span class="dv"><select onchange="quickUpdateOrder('${order.id}','category',this.value)" style="${selStyle}">
+        ${sett.cats.map(x=>`<option value="${x.code}" ${(order.category||'Gelinlik')===x.code?'selected':''}>${x.emoji} ${x.label}</option>`).join('')}
+      </select></span>
+    </div>
+    <div class="detail-row"><span class="dl">Fiş No</span><span class="dv">${order.fisNo || '—'}</span></div>
+    <div class="detail-row"><span class="dl">Sipariş Tarihi</span><span class="dv">${fmtDate(order.orderDate)}</span></div>
+    <div class="detail-row"><span class="dl">Düğün Tarihi</span><span class="dv">${fmtDate(order.weddingDate)}</span></div>
+    <div class="detail-row"><span class="dl">Satış Tutarı</span><span class="dv">${fmt(order.total)}</span></div>
+    ${svcD > 0 ? `<div class="detail-row"><span class="dl" style="color:var(--service-color);">Hizmet Bed. İnd.</span><span class="dv" style="color:var(--service-color);">-${fmt(svcD)}</span></div>` : ''}
+    <div class="detail-row"><span class="dl">Net Toplam</span><span class="dv"><strong>${fmt(net)}</strong></span></div>
+    <div class="detail-row"><span class="dl">Ödenen</span><span class="dv" style="color:var(--success);font-weight:800;">${fmt(paid)}</span></div>
+    <div class="detail-row"><span class="dl">Kalan Borç</span><span class="dv" style="color:${remaining>0?'var(--danger)':'var(--success)'};font-weight:800;">${fmt(remaining)}</span></div>
+    <div class="detail-row"><span class="dl">Durum</span><span class="dv">${statusBadge(getStatus(order, data))}</span></div>
+    ${order.note ? `<div class="detail-row"><span class="dl">Not</span><span class="dv">${order.note}</span></div>` : ''}
     <div class="payment-history" style="margin-top:8px;"><div class="ph-title">Ödeme Geçmişi</div>${paymentsHtml}</div>`;
 
   openModal('overlay-detail');
