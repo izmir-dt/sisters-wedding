@@ -670,11 +670,12 @@
 <!-- HEADER -->
 <header class="header">
   <div class="header-top">
-    <div class="brand">
+    <div class="brand" style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
       <a href="https://www.sistersweddingkarsiyaka.com/" target="_blank" style="display:flex;align-items:center;text-decoration:none;">
         <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
              onerror="this.style.display='none';" alt="Sisters Wedding" style="height:36px;object-fit:contain;">
       </a>
+      <span id="sync-badge" onclick="openConnectionModal()" title="Yerel mod" style="font-size:13px;cursor:pointer;font-weight:800;color:#9ca3af;">○</span>
     </div>
     <div class="header-actions">
       <button class="btn-action" onclick="openSettingsModal()" title="Özel Seçenekler (⚙️)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);">
@@ -1419,6 +1420,47 @@
 </div>
 
 
+<!-- BAĞLANTI MODALI -->
+<div class="overlay" id="overlay-connection" style="z-index:9999;">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">☁️ Bulut Bağlantısı (JSONBin)</div>
+      <button class="modal-close" onclick="closeModal('overlay-connection')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div id="conn-status-box" style="border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);">
+        Durum: <span id="conn-status-text">Kontrol ediliyor...</span>
+      </div>
+
+      <div style="background:var(--primary-light);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12px;line-height:1.7;">
+        <strong>📋 Nasıl kurulur? (2 dakika)</strong><br>
+        1. <a href="https://jsonbin.io" target="_blank" style="color:var(--primary);">jsonbin.io</a>'ya git → ücretsiz hesap aç<br>
+        2. <strong>API Keys</strong> sayfasından <strong>Master Key</strong> kopyala<br>
+        3. <strong>Bins → Create Bin</strong> → içine <code style="background:rgba(0,0,0,0.08);padding:1px 4px;border-radius:3px;">{}</code> yaz → Create<br>
+        4. Oluşan Bin'in ID'sini kopyala (URL'de görünür)<br>
+        5. Aşağıya yapıştır → Bağlan
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Master Key</label>
+        <input type="password" class="form-control" id="conn-key" placeholder="$2a$10$..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bin ID</label>
+        <input type="text" class="form-control" id="conn-bin" placeholder="64abc123..." autocomplete="off">
+      </div>
+
+      <div id="conn-test-result" style="display:none;margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:700;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="disconnectJSONBin()" id="conn-disconnect-btn">Bağlantıyı Kes</button>
+      <button class="btn btn-secondary" onclick="closeModal('overlay-connection')">İptal</button>
+      <button class="btn btn-primary" onclick="connectJSONBin()">Bağlan ve Yükle</button>
+    </div>
+  </div>
+</div>
+
 <!-- AYARLAR MODALI -->
 <div class="overlay" id="overlay-settings" style="z-index:9998;">
   <div class="modal" style="max-width:500px;max-height:88vh;overflow-y:auto;">
@@ -1574,6 +1616,93 @@ function showAlert(message, title) {
   document.getElementById('overlay-alert').classList.add('open');
 }
 
+// ===== JSONBIN BAĞLANTI YÖNETİMİ =====
+function openConnectionModal() {
+  const keyEl = document.getElementById('conn-key');
+  const binEl = document.getElementById('conn-bin');
+  if (keyEl) keyEl.value = JSONBIN_KEY ? '••••••••' : '';
+  if (binEl) binEl.value = JSONBIN_BIN || '';
+  updateConnStatusBox();
+  document.getElementById('conn-test-result').style.display = 'none';
+  openModal('overlay-connection');
+}
+
+function updateConnStatusBox() {
+  const box  = document.getElementById('conn-status-box');
+  const text = document.getElementById('conn-status-text');
+  const disc = document.getElementById('conn-disconnect-btn');
+  if (!box) return;
+  if (JSONBIN_KEY && JSONBIN_BIN) {
+    text.textContent  = '✅ Bağlı — Bin: ' + JSONBIN_BIN.slice(-6);
+    text.style.color  = '#16a34a';
+    disc.style.display = '';
+  } else {
+    text.textContent  = '○ Bağlı değil (yerel mod)';
+    text.style.color  = '#9ca3af';
+    disc.style.display = 'none';
+  }
+}
+
+async function connectJSONBin() {
+  const keyInput = document.getElementById('conn-key').value.trim();
+  const binInput = document.getElementById('conn-bin').value.trim();
+  const result   = document.getElementById('conn-test-result');
+
+  if (!binInput) { showAlert('Bin ID girin.', 'Eksik Bilgi'); return; }
+
+  // Key alanı maskeliyse eski key'i kullan
+  const key = keyInput.startsWith('•') ? JSONBIN_KEY : keyInput;
+  if (!key) { showAlert('Master Key girin.', 'Eksik Bilgi'); return; }
+
+  result.style.display = 'block';
+  result.style.background = 'var(--bg)';
+  result.textContent = '⏳ Bağlanıyor...';
+
+  try {
+    const r = await fetch(`${JSONBIN_BASE}/${binInput}/latest`, {
+      headers: { 'X-Master-Key': key },
+    });
+    const j = await r.json();
+    if (r.status === 401) throw new Error('Geçersiz API Key');
+    if (r.status === 404) throw new Error('Bin bulunamadı');
+
+    // Kaydet
+    JSONBIN_KEY = key;
+    JSONBIN_BIN = binInput;
+    localStorage.setItem('sw_jb_key', key);
+    localStorage.setItem('sw_jb_bin', binInput);
+
+    // Mevcut veri varsa yükle, yoksa mevcut veriyi gönder
+    if (j.record && (j.record.orders?.length > 0 || j.record.customers?.length > 0)) {
+      result.style.background = '#dcfce7';
+      result.textContent = '✅ Bağlandı! Veriler yükleniyor...';
+      closeModal('overlay-connection');
+      await loadFromJSONBin();
+    } else {
+      // Bin boş — mevcut local veriyi gönder
+      const data = loadData();
+      pushToJSONBin(data);
+      result.style.background = '#dcfce7';
+      result.textContent = '✅ Bağlandı! Mevcut veriler buluta yüklendi.';
+      updateConnStatusBox();
+    }
+  } catch(e) {
+    result.style.background = '#fee2e2';
+    result.textContent = '❌ Hata: ' + e.message;
+  }
+}
+
+function disconnectJSONBin() {
+  if (!confirm('Bulut bağlantısı kesilecek. Veriler bu cihazda kalır.')) return;
+  JSONBIN_KEY = '';
+  JSONBIN_BIN = '';
+  localStorage.removeItem('sw_jb_key');
+  localStorage.removeItem('sw_jb_bin');
+  setSyncBadge('local');
+  updateConnStatusBox();
+  closeModal('overlay-connection');
+}
+
 // ===== TL FİYAT FORMATLAMA =====
 function parseTL(val) {
   if (!val) return 0;
@@ -1632,7 +1761,19 @@ function toggleTheme() {
 })();
 
 // ===== DATA =====
+// ─── JSONBin Ayarları ──────────────────────────────────────
+// jsonbin.io'dan alınan değerleri buraya yapıştırın
+// veya uygulama içi "Bağlantı" butonundan girin
+let JSONBIN_KEY = localStorage.getItem('sw_jb_key') || '';
+let JSONBIN_BIN = localStorage.getItem('sw_jb_bin') || '';
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+
+let _cache   = null;   // bellek içi cache
+let _syncing = false;  // çift kayıt önlemi
+
 function loadData() {
+  // Her zaman cache'den veya localStorage'dan anında döner (UI donmaz)
+  if (_cache) return _cache;
   return {
     customers: JSON.parse(localStorage.getItem('sw_customers') || '[]'),
     orders:    JSON.parse(localStorage.getItem('sw_orders')    || '[]'),
@@ -1641,9 +1782,83 @@ function loadData() {
 }
 
 function saveData(data) {
+  // 1. Anında local cache + localStorage (UI akıcı kalır)
+  _cache = data;
   localStorage.setItem('sw_customers', JSON.stringify(data.customers));
   localStorage.setItem('sw_orders',    JSON.stringify(data.orders));
   localStorage.setItem('sw_services',  JSON.stringify(data.services));
+  // 2. Arka planda JSONBin'e gönder
+  if (JSONBIN_KEY && JSONBIN_BIN) pushToJSONBin(data);
+}
+
+function pushToJSONBin(data) {
+  if (_syncing) return;
+  _syncing = true;
+  setSyncBadge('syncing');
+  fetch(`${JSONBIN_BASE}/${JSONBIN_BIN}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_KEY,
+      'X-Bin-Versioning': 'false',
+    },
+    body: JSON.stringify({
+      customers: data.customers,
+      orders:    data.orders,
+      services:  data.services,
+      settings:  loadSettings(),
+      updatedAt: new Date().toISOString(),
+    }),
+  })
+  .then(r => r.json())
+  .then(j => setSyncBadge(j.record ? 'ok' : 'error'))
+  .catch(() => setSyncBadge('error'))
+  .finally(() => { _syncing = false; });
+}
+
+async function loadFromJSONBin() {
+  if (!JSONBIN_KEY || !JSONBIN_BIN) {
+    setSyncBadge('local');
+    return;
+  }
+  setSyncBadge('syncing');
+  try {
+    const r = await fetch(`${JSONBIN_BASE}/${JSONBIN_BIN}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY },
+    });
+    const j = await r.json();
+    if (!j.record) throw new Error('Veri alınamadı');
+    const d = j.record;
+    _cache = {
+      customers: d.customers || [],
+      orders:    d.orders    || [],
+      services:  d.services  || [],
+    };
+    localStorage.setItem('sw_customers', JSON.stringify(_cache.customers));
+    localStorage.setItem('sw_orders',    JSON.stringify(_cache.orders));
+    localStorage.setItem('sw_services',  JSON.stringify(_cache.services));
+    if (d.settings) localStorage.setItem('sw_settings', JSON.stringify(d.settings));
+    setSyncBadge('ok');
+    renderAll();
+  } catch(e) {
+    setSyncBadge('error');
+    console.warn('JSONBin yüklenemedi:', e.message);
+  }
+}
+
+function setSyncBadge(s) {
+  const el = document.getElementById('sync-badge');
+  if (!el) return;
+  const map = {
+    syncing: ['⏳', '#d97706', 'Kaydediliyor...'],
+    ok:      ['☁✓', '#16a34a', 'Senkronize'],
+    error:   ['⚠',  '#dc2626', 'Bağlantı hatası'],
+    local:   ['○',  '#9ca3af', 'Yerel mod'],
+  };
+  const [icon, color, tip] = map[s] || map.local;
+  el.textContent = icon;
+  el.style.color = color;
+  el.title = tip;
 }
 
 function genId() {
@@ -1740,6 +1955,11 @@ function loadSettings() {
 
 function saveSettings(s) {
   localStorage.setItem('sw_settings', JSON.stringify(s));
+  // Ayarları da buluta gönder
+  if (JSONBIN_KEY && JSONBIN_BIN) {
+    const data = loadData();
+    pushToJSONBin(data);
+  }
 }
 
 function resetSettings() {
