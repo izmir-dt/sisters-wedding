@@ -955,7 +955,7 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hizmet Bedeli (₺) *</label>
-          <input type="number" class="form-control service-input" id="sf-amount" placeholder="0">
+          <input type="text" inputmode="numeric" data-price="true" class="form-control service-input" id="sf-amount" placeholder="0">
         </div>
         <div class="form-group">
           <label class="form-label">Tarih *</label>
@@ -1053,12 +1053,13 @@
 
         <div class="form-group">
           <label class="form-label">Kategori</label>
-          <select class="form-control" id="order-category-val">
-            <option value="Gelinlik">👰 Gelinlik</option>
-            <option value="Abiye">💃 Abiye</option>
-            <option value="Kinalik">🧕 Kınalık</option>
-            <option value="Diger">🛍️ Diğer</option>
-          </select>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+            <button type="button" class="cat-btn active" data-cat="Gelinlik" onclick="selectCategory(this)">👰 Gelinlik</button>
+            <button type="button" class="cat-btn" data-cat="Abiye" onclick="selectCategory(this)">💃 Abiye</button>
+            <button type="button" class="cat-btn" data-cat="Kinalik" onclick="selectCategory(this)">🧕 Kınalık</button>
+            <button type="button" class="cat-btn" data-cat="Diger" onclick="selectCategory(this)">🛍️ Diğer</button>
+          </div>
+          <input type="hidden" id="order-category-val" value="Gelinlik">
         </div>
 
         <div class="form-row">
@@ -1077,7 +1078,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Gelinlik / Ürün Toplam Tutarı (₺) *</label>
-          <input type="number" class="form-control" id="order-total" placeholder="0" oninput="calcRemaining()">
+          <input type="text" inputmode="numeric" data-price="true" class="form-control" id="order-total" placeholder="0" oninput="calcRemaining()">
         </div>
         <div class="form-group">
           <label class="form-label">Not</label>
@@ -1094,7 +1095,7 @@
           <div class="payment-plan-title">Ödeme Planı (₺)</div>
           <div id="service-deduction-row" style="display:none;" class="payment-row">
             <label style="color:var(--service-color);">Hizmet Bed. İndirimi</label>
-            <input type="number" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
+            <input type="text" data-price="true" id="pp-service-deduction" readonly placeholder="0" style="color:var(--service-color);">
           </div>
           <div style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--text);">
             Toplam: <span id="pp-total-display" style="color:var(--primary);">₺0</span>
@@ -1102,19 +1103,19 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
             <div>
               <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
-              <input type="number" class="form-control" id="pp-1" placeholder="0" oninput="calcRemaining()">
+              <input type="text" inputmode="numeric" data-price="true" class="form-control" id="pp-1" placeholder="0" oninput="calcRemaining()">
             </div>
             <div>
               <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
-              <input type="number" class="form-control" id="pp-2" placeholder="0" oninput="calcRemaining()">
+              <input type="text" inputmode="numeric" data-price="true" class="form-control" id="pp-2" placeholder="0" oninput="calcRemaining()">
             </div>
             <div>
               <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
-              <input type="number" class="form-control" id="pp-3" placeholder="0" oninput="calcRemaining()">
+              <input type="text" inputmode="numeric" data-price="true" class="form-control" id="pp-3" placeholder="0" oninput="calcRemaining()">
             </div>
             <div>
               <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
-              <input type="number" class="form-control" id="pp-4" placeholder="0" oninput="calcRemaining()">
+              <input type="text" inputmode="numeric" data-price="true" class="form-control" id="pp-4" placeholder="0" oninput="calcRemaining()">
             </div>
           </div>
           <div class="payment-row" id="deposit-detail-row" style="display:none;">
@@ -1132,7 +1133,7 @@
           </div>
           <div class="payment-row" style="margin-top:6px;margin-bottom:0;">
             <label style="color:var(--danger);font-weight:700;">Kalan Borç</label>
-            <input type="number" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;max-width:180px;">
+            <input type="text" data-price="true" class="form-control" id="pp-remaining" readonly placeholder="0" style="color:var(--danger);font-weight:700;max-width:180px;">
           </div>
         </div>
       </div>
@@ -1174,7 +1175,7 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Tutar (₺) *</label>
-        <input type="number" class="form-control" id="pay-amount" placeholder="0">
+        <input type="text" inputmode="numeric" data-price="true" class="form-control" id="pay-amount" placeholder="0">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -1227,7 +1228,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Gelinlik Toplam Tutarı (₺)</label>
-        <input type="number" class="form-control" id="edit-total" oninput="calcEditRemaining()">
+        <input type="text" inputmode="numeric" data-price="true" class="form-control" id="edit-total" oninput="calcEditRemaining()">
       </div>
       <div class="form-group">
         <label class="form-label">Not</label>
@@ -1265,24 +1266,24 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">Peşinat</label>
-            <input type="number" class="form-control" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
+            <input type="text" inputmode="numeric" data-price="true" class="form-control" id="edit-pp-1" placeholder="0" oninput="calcEditRemaining()">
           </div>
           <div>
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">2. Ödeme</label>
-            <input type="number" class="form-control" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
+            <input type="text" inputmode="numeric" data-price="true" class="form-control" id="edit-pp-2" placeholder="0" oninput="calcEditRemaining()">
           </div>
           <div>
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">3. Ödeme</label>
-            <input type="number" class="form-control" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
+            <input type="text" inputmode="numeric" data-price="true" class="form-control" id="edit-pp-3" placeholder="0" oninput="calcEditRemaining()">
           </div>
           <div>
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:4px;">4. Ödeme</label>
-            <input type="number" class="form-control" id="edit-pp-4" placeholder="0" oninput="calcEditRemaining()">
+            <input type="text" inputmode="numeric" data-price="true" class="form-control" id="edit-pp-4" placeholder="0" oninput="calcEditRemaining()">
           </div>
         </div>
         <div class="payment-row" style="margin-bottom:0;">
           <label style="color:var(--danger);font-weight:700;">Kalan</label>
-          <input type="number" class="form-control" id="edit-pp-remaining" readonly placeholder="0" style="color:var(--danger);">
+          <input type="text" data-price="true" class="form-control" id="edit-pp-remaining" readonly placeholder="0" style="color:var(--danger);">
         </div>
       </div>
     </div>
@@ -1504,18 +1505,62 @@ function showConfirm(title, message, warning, okLabel, callback) {
   else { warnEl.style.display = 'none'; }
   document.getElementById('confirm-ok-btn').textContent = okLabel || 'Sil';
   _confirmCallback = callback;
-  document.getElementById('overlay-confirm').classList.add('active');
+  document.getElementById('overlay-confirm').classList.add('open');
 }
 
 function closeConfirm(result) {
-  document.getElementById('overlay-confirm').classList.remove('active');
+  document.getElementById('overlay-confirm').classList.remove('open');
   if (_confirmCallback) { const cb = _confirmCallback; _confirmCallback = null; cb(result); }
 }
 
 function showAlert(message, title) {
   document.getElementById('alert-title').textContent = title || 'Bilgi';
   document.getElementById('alert-message').textContent = message;
-  document.getElementById('overlay-alert').classList.add('active');
+  document.getElementById('overlay-alert').classList.add('open');
+}
+
+// ===== TL FİYAT FORMATLAMA =====
+function parseTL(val) {
+  if (!val) return 0;
+  // Boşluk ve nokta (binlik) kaldır, virgülü noktaya çevir
+  const str = String(val).replace(/[^0-9,]/g, '').replace(',', '.');
+  return parseFloat(str) || 0;
+}
+
+function fmtTL(num) {
+  if (!num && num !== 0) return '';
+  const n = parseFloat(num);
+  if (isNaN(n) || n === 0) return '';
+  return n.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+}
+
+function initPriceInputs() {
+  document.querySelectorAll('[data-price="true"]').forEach(input => {
+    if (input.dataset.priceInit) return;
+    input.dataset.priceInit = '1';
+
+    input.addEventListener('input', function() {
+      if (this.readOnly) return;
+      const raw = this.value.replace(/[^0-9]/g, '');
+      if (!raw) { this.value = ''; return; }
+      const num = parseInt(raw, 10);
+      const formatted = num.toLocaleString('tr-TR');
+      const prevLen = this.value.length;
+      this.value = formatted;
+      // Cursor pozisyonunu koru
+    });
+
+    input.addEventListener('focus', function() {
+      if (this.readOnly) return;
+      // Odaklanınca formatı koru, rahat düzenleme için
+    });
+
+    input.addEventListener('blur', function() {
+      if (this.readOnly) return;
+      const num = parseTL(this.value);
+      this.value = num > 0 ? fmtTL(num) : '';
+    });
+  });
 }
 
 // ===== THEME =====
@@ -1621,6 +1666,7 @@ function renderAll() {
   renderBekleyenTable(data);
   renderUpcoming(data);
   renderCharts(data);
+  setTimeout(initPriceInputs, 100);
 }
 
 function renderStats(data) {
@@ -1956,8 +2002,10 @@ function renderUpcoming(data) {
 
 function renderCharts(data) {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const tc = isDark ? '#6a9ab8' : '#5a7a9a';
+  const tc = isDark ? '#a0aec0' : '#4a5568';
+  const gridC = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
 
+  // ── BAR: Aylık Satış & Tahsilat ──
   const months = [], salesByMonth = {}, paidByMonth = {};
   for (let i = 5; i >= 0; i--) {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
@@ -1965,7 +2013,6 @@ function renderCharts(data) {
     months.push(d.toLocaleString('tr-TR', { month: 'short', year: '2-digit' }));
     salesByMonth[key] = 0; paidByMonth[key] = 0;
   }
-
   data.orders.forEach(o => {
     if (!o.orderDate) return;
     const key = o.orderDate.substring(0, 7);
@@ -1984,20 +2031,42 @@ function renderCharts(data) {
     data: {
       labels: months,
       datasets: [
-        { label: 'Satış', data: Object.values(salesByMonth), backgroundColor: isDark ? 'rgba(74,144,217,0.7)' : 'rgba(30,111,191,0.7)', borderRadius: 5 },
-        { label: 'Tahsilat', data: Object.values(paidByMonth), backgroundColor: isDark ? 'rgba(90,163,232,0.4)' : 'rgba(74,144,217,0.35)', borderRadius: 5 },
+        {
+          label: 'Satış', data: Object.values(salesByMonth),
+          backgroundColor: isDark ? 'rgba(99,179,237,0.8)' : 'rgba(49,130,206,0.85)',
+          borderRadius: 6, borderSkipped: false,
+        },
+        {
+          label: 'Tahsilat', data: Object.values(paidByMonth),
+          backgroundColor: isDark ? 'rgba(104,211,145,0.75)' : 'rgba(56,161,105,0.75)',
+          borderRadius: 6, borderSkipped: false,
+        },
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' } } } },
+      plugins: {
+        legend: { labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' }, boxWidth: 12, padding: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ₺' + ctx.parsed.y.toLocaleString('tr-TR')
+          }
+        }
+      },
       scales: {
-        x: { ticks: { color: tc, font: { family: 'Inter', size: 11 } }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' } },
-        y: { ticks: { color: tc, font: { family: 'Inter', size: 11 }, callback: v => '₺' + v.toLocaleString('tr-TR') }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' } }
+        x: { ticks: { color: tc, font: { family: 'Inter', size: 11 } }, grid: { color: gridC } },
+        y: {
+          ticks: {
+            color: tc, font: { family: 'Inter', size: 11 },
+            callback: v => v >= 1000 ? '₺' + (v/1000).toLocaleString('tr-TR') + 'K' : '₺' + v
+          },
+          grid: { color: gridC }
+        }
       }
     }
   });
 
+  // ── DOUGHNUT: Ödeme Durumu ──
   let completed = 0, partial = 0, waiting = 0;
   data.orders.forEach(o => {
     const s = getStatus(o, data);
@@ -2005,25 +2074,52 @@ function renderCharts(data) {
     else if (s === 'Kısmi Ödeme') partial++;
     else waiting++;
   });
+  const total = completed + partial + waiting || 1;
 
   const pieCtx = document.getElementById('chart-pie').getContext('2d');
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(pieCtx, {
     type: 'doughnut',
     data: {
-      labels: ['Tamamlandı', 'Kısmi Ödeme', 'Bekliyor'],
-      datasets: [{ data: [completed, partial, waiting], backgroundColor: ['rgba(46,158,94,0.85)', 'rgba(212,135,10,0.85)', 'rgba(192,57,43,0.85)'], borderWidth: 0 }]
+      labels: [
+        `Tamamlandı (${completed})`,
+        `Kısmi Ödeme (${partial})`,
+        `Bekliyor (${waiting})`
+      ],
+      datasets: [{
+        data: [completed, partial, waiting],
+        backgroundColor: ['#38a169', '#d69e2e', '#e53e3e'],
+        hoverBackgroundColor: ['#2f855a', '#b7791f', '#c53030'],
+        borderWidth: 3,
+        borderColor: isDark ? '#1a202c' : '#ffffff',
+      }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' }, padding: 12 } } },
-      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: tc, font: { family: 'Inter', size: 12, weight: '700' }, padding: 14, boxWidth: 14 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = Math.round((ctx.parsed / total) * 100);
+              return ` ${ctx.label}: %${pct}`;
+            }
+          }
+        }
+      },
+      cutout: '62%',
     }
   });
 }
 
 // ===== MODALS =====
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  setTimeout(initPriceInputs, 50);
+}
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   if (id === 'overlay-new') resetNewOrderModal();
@@ -2074,8 +2170,8 @@ function onSFCustomerSelect() {
 function saveServiceFee() {
   const amount = parseFloat(document.getElementById('sf-amount').value);
   const date   = document.getElementById('sf-date').value;
-  if (!amount || amount <= 0) { alert('Geçerli bir tutar girin.'); return; }
-  if (!date) { alert('Lütfen tarih seçin.'); return; }
+  if (!amount || amount <= 0) { showAlert('Geçerli bir tutar girin.', 'Uyarı'); return; }
+  if (!date) { showAlert('Lütfen tarih seçin.', 'Uyarı'); return; }
 
   const data = loadData();
   let customerId = document.getElementById('sf-existing-customer').value;
@@ -2083,8 +2179,8 @@ function saveServiceFee() {
   if (!customerId) {
     const name  = document.getElementById('sf-name').value.trim();
     const phone = document.getElementById('sf-phone').value.trim();
-    if (!name) { alert('Lütfen müşteri adını girin.'); return; }
-    if (!phone) { alert('Lütfen telefon numarasını girin.'); return; }
+    if (!name) { showAlert('Lütfen müşteri adını girin.', 'Uyarı'); return; }
+    if (!phone) { showAlert('Lütfen telefon numarasını girin.', 'Uyarı'); return; }
     const newCust = { id: genId(), name, phone, email: document.getElementById('sf-email').value.trim(), note: '' };
     data.customers.push(newCust);
     customerId = newCust.id;
@@ -2140,6 +2236,9 @@ function resetNewOrderModal() {
   document.getElementById('deposit-detail-row').style.display = 'none';
   document.getElementById('deposit-method-row').style.display = 'none';
   document.getElementById('order-category-val').value = 'Gelinlik';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  const defCat = document.querySelector('.cat-btn[data-cat="Gelinlik"]');
+  if (defCat) defCat.classList.add('active');
 
   document.getElementById('order-category-val').value = 'Gelinlik';
   document.getElementById('order-date').valueAsDate = new Date();
@@ -2190,13 +2289,15 @@ function orderStepNext() {
     }
 
   } else if (newOrderStep === 2) {
-    // Validate step 2
+    // Validate step 2 - sadece tutar zorunlu
     const total = document.getElementById('order-total').value.trim();
-    const orderDate = document.getElementById('order-date').value;
-    if (!total) { showAlert('Lütfen toplam tutarı girin.', 'Eksik Bilgi'); return; }
-    if (!orderDate) { showAlert('Lütfen sipariş tarihini seçin.', 'Eksik Bilgi'); return; }
+    if (!total || parseTL(total) <= 0) { showAlert('Lütfen gelinlik/ürün tutarını girin.', 'Eksik Bilgi'); return; }
+    // Tarih otomatik bugüne set edilmiş, yoksa bugünü yaz
+    if (!document.getElementById('order-date').value) {
+      document.getElementById('order-date').valueAsDate = new Date();
+    }
     // Update total display in step 3
-    document.getElementById('pp-total-display').textContent = fmt(parseFloat(total));
+    document.getElementById('pp-total-display').textContent = '₺' + fmtTL(parseTL(total));
     calcRemaining();
     // Advance to step 3
     newOrderStep = 3;
@@ -2227,6 +2328,12 @@ function orderStepBack() {
     document.getElementById('step-btn').textContent = 'Devam →';
     setStepIndicator(2);
   }
+}
+
+function selectCategory(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('order-category-val').value = btn.dataset.cat;
 }
 
 function handleStepBtn() { orderStepNext(); }
@@ -2261,10 +2368,10 @@ function saveNewOrder() {
     customerId = newCust.id;
   }
 
-  const pp1 = parseFloat(document.getElementById('pp-1').value) || 0;
-  const pp2 = parseFloat(document.getElementById('pp-2').value) || 0;
-  const pp3 = parseFloat(document.getElementById('pp-3').value) || 0;
-  const pp4 = parseFloat(document.getElementById('pp-4').value) || 0;
+  const pp1 = parseTL(document.getElementById('pp-1').value);
+  const pp2 = parseTL(document.getElementById('pp-2').value);
+  const pp3 = parseTL(document.getElementById('pp-3').value);
+  const pp4 = parseTL(document.getElementById('pp-4').value);
   const pp1Date   = document.getElementById('pp-1-date').value || orderDate;
   const pp1Method = document.getElementById('pp-1-method').value || '';
   const payments  = [];
@@ -2282,7 +2389,7 @@ function saveNewOrder() {
     fisNo:      document.getElementById('fis-no').value.trim(),
     orderDate,
     weddingDate: document.getElementById('wedding-date').value,
-    total:      parseFloat(total),
+    total:      parseTL(total),
     note:       document.getElementById('order-note').value.trim(),
     staff:      document.getElementById('order-staff').value,
     orderKind:  document.getElementById('order-type').value,
@@ -2404,8 +2511,8 @@ function openAddPayment() {
 }
 
 function savePayment() {
-  const amount = parseFloat(document.getElementById('pay-amount').value);
-  if (!amount || amount <= 0) { alert('Geçerli bir tutar girin.'); return; }
+  const amount = parseTL(document.getElementById('pay-amount').value);
+  if (!amount || amount <= 0) { showAlert('Geçerli bir tutar girin.', 'Eksik Bilgi'); return; }
   const date = document.getElementById('pay-date').value;
   const method = document.getElementById('pay-method').value;
   const note = document.getElementById('pay-note').value.trim();
@@ -2427,7 +2534,7 @@ function openEditOrder() {
   document.getElementById('edit-fis').value = order.fisNo || '';
   document.getElementById('edit-order-date').value = order.orderDate || '';
   document.getElementById('edit-wedding-date').value = order.weddingDate || '';
-  document.getElementById('edit-total').value = order.total || '';
+  document.getElementById('edit-total').value = order.total ? fmtTL(order.total) : '';
   document.getElementById('edit-note').value = order.note || '';
   document.getElementById('edit-staff').value = order.staff || '';
   document.getElementById('edit-kind').value = order.orderKind || '';
@@ -2437,13 +2544,32 @@ function openEditOrder() {
   openModal('overlay-edit-order');
 }
 
+function calcRemaining() {
+  const total  = parseTL(document.getElementById('order-total').value);
+  const svcDed = parseTL(document.getElementById('pp-service-deduction').value);
+  const p1 = parseTL(document.getElementById('pp-1').value);
+  const p2 = parseTL(document.getElementById('pp-2').value);
+  const p3 = parseTL(document.getElementById('pp-3').value);
+  const p4 = parseTL(document.getElementById('pp-4').value);
+  const net = Math.max(0, total - svcDed);
+  const rem = Math.max(0, net - p1 - p2 - p3 - p4);
+  document.getElementById('pp-remaining').value = rem > 0 ? fmtTL(rem) : '';
+  const hasDeposit = p1 > 0;
+  document.getElementById('deposit-detail-row').style.display = hasDeposit ? 'flex' : 'none';
+  document.getElementById('deposit-method-row').style.display = hasDeposit ? 'flex' : 'none';
+  if (hasDeposit && !document.getElementById('pp-1-date').value) {
+    document.getElementById('pp-1-date').value = document.getElementById('order-date').value || '';
+  }
+}
+
 function calcEditRemaining() {
-  const total = parseFloat(document.getElementById('edit-total').value) || 0;
-  const p1 = parseFloat(document.getElementById('edit-pp-1').value) || 0;
-  const p2 = parseFloat(document.getElementById('edit-pp-2').value) || 0;
-  const p3 = parseFloat(document.getElementById('edit-pp-3').value) || 0;
-  const p4 = parseFloat(document.getElementById('edit-pp-4').value) || 0;
-  document.getElementById('edit-pp-remaining').value = Math.max(0, total - p1 - p2 - p3 - p4) || '';
+  const total = parseTL(document.getElementById('edit-total').value);
+  const p1 = parseTL(document.getElementById('edit-pp-1').value);
+  const p2 = parseTL(document.getElementById('edit-pp-2').value);
+  const p3 = parseTL(document.getElementById('edit-pp-3').value);
+  const p4 = parseTL(document.getElementById('edit-pp-4').value);
+  const rem = Math.max(0, total - p1 - p2 - p3 - p4);
+  document.getElementById('edit-pp-remaining').value = rem > 0 ? fmtTL(rem) : '';
 }
 
 function saveEditOrder() {
@@ -2453,7 +2579,7 @@ function saveEditOrder() {
   order.fisNo       = document.getElementById('edit-fis').value.trim();
   order.orderDate   = document.getElementById('edit-order-date').value;
   order.weddingDate = document.getElementById('edit-wedding-date').value;
-  order.total       = parseFloat(document.getElementById('edit-total').value) || 0;
+  order.total       = parseTL(document.getElementById('edit-total').value) || 0;
   order.note        = document.getElementById('edit-note').value.trim();
   order.staff       = document.getElementById('edit-staff').value;
   order.orderKind   = document.getElementById('edit-kind').value;
@@ -2480,7 +2606,7 @@ function openEditCustomer(custId) {
 
 function saveEditCustomer() {
   const name = document.getElementById('ec-name').value.trim();
-  if (!name) { alert('Ad Soyad zorunludur.'); return; }
+  if (!name) { showAlert('Ad Soyad zorunludur.', 'Uyarı'); return; }
   const data = loadData();
   const cust = data.customers.find(c => c.id === currentCustomerId);
   if (!cust) return;
@@ -2739,14 +2865,14 @@ renderAll();
 document.addEventListener('keydown', (e) => {
   const tag = document.activeElement.tagName;
   const inInput = ['INPUT','TEXTAREA','SELECT'].includes(tag);
-  const anyModalOpen = document.querySelector('.overlay.active');
+  const anyModalOpen = document.querySelector('.overlay.open');
 
   // ESC — kapat
   if (e.key === 'Escape') {
-    const openOverlay = document.querySelector('.overlay.active');
+    const openOverlay = document.querySelector('.overlay.open');
     if (openOverlay) {
       const id = openOverlay.id;
-      if (id === 'overlay-confirm' || id === 'overlay-alert') return;
+      if (id === 'overlay-confirm' || id === 'overlay-alert') { closeModal(id); return; }
       closeModal(id);
     } else if (activePanel) {
       closePanel();
@@ -2835,7 +2961,7 @@ function handleRestoreDrop(event) {
   document.getElementById('restore-drop-label').style.borderColor = 'var(--border)';
   const file = event.dataTransfer.files[0];
   if (!file || !file.name.endsWith('.json')) {
-    alert('Lütfen geçerli bir JSON dosyası seçin.');
+    showAlert('Lütfen geçerli bir JSON dosyası seçin.', 'Uyarı');
     return;
   }
   readRestoreFile(file);
@@ -2848,7 +2974,7 @@ function readRestoreFile(file) {
       const parsed = JSON.parse(e.target.result);
       const d = parsed.data || parsed; // support both wrapped and raw formats
       if (!d.customers || !d.orders) {
-        alert('Geçersiz yedek dosyası. Müşteri ve sipariş verisi bulunamadı.');
+        showAlert('Geçersiz yedek dosyası. Müşteri ve sipariş verisi bulunamadı.', 'Uyarı');
         return;
       }
       _restoreData = d;
@@ -2863,7 +2989,7 @@ function readRestoreFile(file) {
       `;
       document.getElementById('restore-confirm-btn').style.display = 'block';
     } catch(err) {
-      alert('Dosya okunamadı. Geçerli bir JSON dosyası seçin.');
+      showAlert('Dosya okunamadı. Geçerli bir JSON dosyası seçin.', 'Uyarı');
       console.error(err);
     }
   };
