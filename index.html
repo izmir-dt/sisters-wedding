@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SisterS Sipariş Takip</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='white'/><text x='32' y='50' text-anchor='middle' font-family='Georgia,Times New Roman,serif' font-size='52' font-weight='400' fill='%231a1625'>S</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -669,8 +670,10 @@
 <header class="header">
   <div class="header-top">
     <div class="brand">
-      <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
-           onerror="this.style.display='none';" alt="Sisters Wedding">
+      <a href="https://www.sistersweddingkarsiyaka.com/" target="_blank" style="display:flex;align-items:center;text-decoration:none;">
+        <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
+             onerror="this.style.display='none';" alt="Sisters Wedding" style="height:36px;object-fit:contain;">
+      </a>
     </div>
     <div class="header-actions">
       <button class="btn-action" onclick="openModal('overlay-help')" title="Yardım (?)" style="background:var(--bg-2,#f0f4f8);color:var(--text-muted);border:1.5px solid var(--border);font-weight:800;min-width:36px;">?</button>
@@ -1029,46 +1032,33 @@
           <span id="service-deduction-text"></span>
         </div>
 
-        <!-- KİMİN MÜŞTERİSİ + ÜRÜN TÜRÜ - büyük seçim butonları -->
-        <div style="margin-bottom:14px;">
-          <label class="form-label">Kimin Müşterisi *</label>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <button type="button" id="btn-staff-S" onclick="selectStaff('S')"
-              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
-              👩 Seher
-            </button>
-            <button type="button" id="btn-staff-E" onclick="selectStaff('E')"
-              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
-              👩 Ebru
-            </button>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Kimin Müşterisi</label>
+            <select class="form-control" id="order-staff">
+              <option value="">— Seçin —</option>
+              <option value="S">Seher</option>
+              <option value="E">Ebru</option>
+            </select>
           </div>
-          <input type="hidden" id="order-staff" value="">
+          <div class="form-group">
+            <label class="form-label">Ürün Türü</label>
+            <select class="form-control" id="order-type">
+              <option value="">— Seçin —</option>
+              <option value="Ö">Özel Dikim</option>
+              <option value="H">Hazır</option>
+            </select>
+          </div>
         </div>
 
-        <div style="margin-bottom:14px;">
-          <label class="form-label">Ürün Türü *</label>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <button type="button" id="btn-kind-O" onclick="selectKind('Ö')"
-              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
-              ✂️ Özel Dikim
-            </button>
-            <button type="button" id="btn-kind-H" onclick="selectKind('H')"
-              style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--text);">
-              🏪 Hazır
-            </button>
-          </div>
-          <input type="hidden" id="order-type" value="">
-        </div>
-
-        <div style="margin-bottom:14px;">
+        <div class="form-group">
           <label class="form-label">Kategori</label>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-            <button type="button" class="cat-btn active" data-cat="Gelinlik" onclick="selectCategory(this)">👰 Gelinlik</button>
-            <button type="button" class="cat-btn" data-cat="Abiye" onclick="selectCategory(this)">💃 Abiye</button>
-            <button type="button" class="cat-btn" data-cat="Kinalik" onclick="selectCategory(this)">🧕 Kınalık</button>
-            <button type="button" class="cat-btn" data-cat="Diger" onclick="selectCategory(this)">🛍️ Diğer</button>
-          </div>
-          <input type="hidden" id="order-category-val" value="Gelinlik">
+          <select class="form-control" id="order-category-val">
+            <option value="Gelinlik">👰 Gelinlik</option>
+            <option value="Abiye">💃 Abiye</option>
+            <option value="Kinalik">🧕 Kınalık</option>
+            <option value="Diger">🛍️ Diğer</option>
+          </select>
         </div>
 
         <div class="form-row">
@@ -2041,7 +2031,13 @@ function closeModal(id) {
 }
 
 document.querySelectorAll('.overlay').forEach(ov => {
-  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  ov.addEventListener('click', e => {
+    if (e.target !== ov) return;
+    // Yeni sipariş formu dışarı tıklayınca kapanmasın
+    if (ov.id === 'overlay-new') return;
+    ov.classList.remove('open');
+    if (ov.id === 'overlay-service') resetServiceModal();
+  });
 });
 
 // ===== SERVICE FEE =====
@@ -2145,18 +2141,7 @@ function resetNewOrderModal() {
   document.getElementById('deposit-method-row').style.display = 'none';
   document.getElementById('order-category-val').value = 'Gelinlik';
 
-  // Reset staff/kind/category buttons
-  ['btn-staff-S','btn-staff-E'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.className = ''; el.style.borderColor = 'var(--border)'; el.style.background = 'var(--card)'; el.style.color = 'var(--text)'; }
-  });
-  ['btn-kind-O','btn-kind-H'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.borderColor = 'var(--border)'; el.style.background = 'var(--card)'; el.style.color = 'var(--text)'; }
-  });
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  const defCat = document.querySelector('.cat-btn[data-cat="Gelinlik"]');
-  if (defCat) defCat.classList.add('active');
+  document.getElementById('order-category-val').value = 'Gelinlik';
   document.getElementById('order-date').valueAsDate = new Date();
 }
 
@@ -2168,37 +2153,8 @@ function setStepIndicator(step) {
   });
 }
 
-function selectStaff(val) {
-  document.getElementById('order-staff').value = val;
-  const sBtn = document.getElementById('btn-staff-S');
-  const eBtn = document.getElementById('btn-staff-E');
-  if (val === 'S') {
-    sBtn.style.cssText += ';border-color:#7c3aed;background:rgba(124,58,237,0.12);color:#7c3aed;';
-    eBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
-  } else {
-    eBtn.style.cssText += ';border-color:#0284c7;background:rgba(2,132,199,0.12);color:#0284c7;';
-    sBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
-  }
-}
 
-function selectKind(val) {
-  document.getElementById('order-type').value = val;
-  const oBtn = document.getElementById('btn-kind-O');
-  const hBtn = document.getElementById('btn-kind-H');
-  if (val === 'Ö') {
-    oBtn.style.cssText += ';border-color:#d97706;background:rgba(217,119,6,0.12);color:#d97706;';
-    hBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
-  } else {
-    hBtn.style.cssText += ';border-color:#059669;background:rgba(5,150,105,0.12);color:#059669;';
-    oBtn.style.cssText += ';border-color:var(--border);background:var(--card);color:var(--text);';
-  }
-}
 
-function selectCategory(btn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('order-category-val').value = btn.dataset.cat;
-}
 
 function orderStepNext() {
   if (newOrderStep === 1) {
