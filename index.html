@@ -677,6 +677,29 @@
 <body>
 
 <!-- HEADER -->
+<!-- GİRİŞ EKRANI -->
+<div id="login-screen" style="position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border-radius:20px;padding:40px 36px;width:360px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,0.18);text-align:center;">
+    <img src="https://www.sistersweddingkarsiyaka.com/themes/default/assets/images/sisters-wedding.png"
+         onerror="this.style.display='none'" alt="Sisters Wedding"
+         style="height:48px;object-fit:contain;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">Sipariş Takip</div>
+    <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:24px;">Giriş Yap</h2>
+    <input type="password" id="login-pass" placeholder="Şifre"
+      style="width:100%;box-sizing:border-box;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:Inter,sans-serif;background:var(--bg);color:var(--text);outline:none;margin-bottom:10px;"
+      onkeydown="if(event.key==='Enter')doLogin()"
+      onfocus="this.style.borderColor='var(--primary)'"
+      onblur="this.style.borderColor='var(--border)'">
+    <div id="login-error" style="display:none;color:var(--danger);font-size:13px;font-weight:700;margin-bottom:10px;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:8px;">
+      ❌ Hatalı şifre, tekrar deneyin
+    </div>
+    <button onclick="doLogin()"
+      style="width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:Inter,sans-serif;">
+      Giriş
+    </button>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-top" style="position:relative;">
     <div class="brand" style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
@@ -1689,7 +1712,10 @@ async function connectCloud() {
     const passInput = document.getElementById('cloud-pass-input').value.trim();
     SCRIPT_URL = url;
     localStorage.setItem('sw_script_url', url);
-    if (passInput) localStorage.setItem('sw_pass', passInput);
+    if (passInput) {
+      localStorage.setItem('sw_pass', passInput);
+      sessionStorage.setItem('sw_session', '1');
+    }
     res.style.background = '#dcfce7';
     res.textContent = '✅ Bağlandı!';
     // Varsa buluttaki veriyi yükle, yoksa mevcut veriyi gönder
@@ -1719,6 +1745,45 @@ function disconnectCloud() {
   setBadge('local');
   closeModal('overlay-cloud');
 }
+
+// ===== GİRİŞ / ŞİFRE =====
+function doLogin() {
+  const pass  = document.getElementById('login-pass').value;
+  const saved = localStorage.getItem('sw_pass') || '';
+
+  // Şifre henüz set edilmemişse (ilk kurulum) direkt gir
+  if (!saved) {
+    hideLoginScreen();
+    return;
+  }
+
+  if (pass === saved) {
+    // Oturumu sessionStorage'a kaydet (sekme kapanınca sıfırlanır)
+    sessionStorage.setItem('sw_session', '1');
+    hideLoginScreen();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+}
+
+function hideLoginScreen() {
+  document.getElementById('login-screen').style.display = 'none';
+}
+
+function checkSession() {
+  const saved = localStorage.getItem('sw_pass') || '';
+  // Şifre yoksa giriş ekranı gösterme
+  if (!saved) { hideLoginScreen(); return; }
+  // Aktif oturum varsa giriş ekranı gösterme
+  if (sessionStorage.getItem('sw_session')) { hideLoginScreen(); return; }
+  // Yoksa login ekranını göster, ana içeriği gizle
+  document.getElementById('login-pass').focus();
+}
+
+// Sayfa yüklenince kontrol et
+checkSession();
 
 // ===== TL FİYAT FORMATLAMA =====
 function parseTL(val) {
