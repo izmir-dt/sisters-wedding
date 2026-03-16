@@ -1681,12 +1681,15 @@ async function connectCloud() {
   res.style.background = 'var(--bg)';
   res.textContent = '⏳ Test ediliyor...';
   try {
-    const r = await fetch(url + '?action=load&t=' + Date.now());
+    const passVal = document.getElementById('cloud-pass-input').value.trim();
+    const r = await fetch(url + '?sifre=' + encodeURIComponent(passVal) + '&t=' + Date.now());
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Geçersiz yanıt');
     // Bağlantı başarılı
+    const passInput = document.getElementById('cloud-pass-input').value.trim();
     SCRIPT_URL = url;
     localStorage.setItem('sw_script_url', url);
+    if (passInput) localStorage.setItem('sw_pass', passInput);
     res.style.background = '#dcfce7';
     res.textContent = '✅ Bağlandı!';
     // Varsa buluttaki veriyi yükle, yoksa mevcut veriyi gönder
@@ -1712,6 +1715,7 @@ function disconnectCloud() {
   if (!confirm('Bulut bağlantısı kesilecek. Veriler bu cihazda kalmaya devam eder.')) return;
   SCRIPT_URL = '';
   localStorage.removeItem('sw_script_url');
+  localStorage.removeItem('sw_pass');
   setBadge('local');
   closeModal('overlay-cloud');
 }
@@ -1809,6 +1813,7 @@ function cloudSave(data) {
       orders:    data.orders,
       services:  data.services,
       settings:  loadSettings(),
+      sifre:     localStorage.getItem('sw_pass') || '',
     }),
   })
   .then(() => setBadge('ok'))
@@ -1818,8 +1823,9 @@ function cloudSave(data) {
 async function cloudLoad() {
   if (!SCRIPT_URL) { setBadge('local'); return; }
   setBadge('loading');
+  const CLOUD_PASS = localStorage.getItem('sw_pass') || '';
   try {
-    const r = await fetch(SCRIPT_URL + '?action=load&t=' + Date.now());
+    const r = await fetch(SCRIPT_URL + '?sifre=' + encodeURIComponent(CLOUD_PASS) + '&t=' + Date.now());
     const j = await r.json();
     if (!j.ok) throw new Error(j.error || 'Hata');
     _cache = {
